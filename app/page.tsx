@@ -67,8 +67,6 @@ const cryptoLogos = [
   { name: "USDC", url: "/images/coin10.png" },
 ];
 
-
-
 export default function Home() {
   const [isOpen, setIsOpen] = useState(false);
   // Type assertion for useRef to ensure it targets an HTMLDivElement
@@ -99,20 +97,20 @@ export default function Home() {
       <div className="container mx-auto px-4 sm:px-8 md:px-12 lg:px-20 py-16 sm:py-20">
         <div className="text-center mb-20">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-left sm:text-center">
-  Gateway to <span className="text-emerald-500">Smart Trading</span>
-  <br />
-  In the Digital Economy
-</h1>
+            Gateway to <span className="text-emerald-500">Smart Trading</span>
+            <br />
+            In the Digital Economy
+          </h1>
 
-
-         <p className="text-lg text-gray-600 dark:text-gray-400 mb-10 max-w-3xl leading-relaxed 
-   text-left sm:text-center sm:mx-auto">
-  Experience next-generation trading with our secure, high-speed
-  platform. We combine institutional-grade technology with
-  user-friendly tools to make cryptocurrency trading accessible,
-  transparent, and trustworthy.
-</p>
-
+          <p
+            className="text-lg text-gray-600 dark:text-gray-400 mb-10 max-w-3xl leading-relaxed 
+   text-left sm:text-center sm:mx-auto"
+          >
+            Experience next-generation trading with our secure, high-speed
+            platform. We combine institutional-grade technology with
+            user-friendly tools to make cryptocurrency trading accessible,
+            transparent, and trustworthy.
+          </p>
 
           <div className="flex flex-col-reverse sm:flex-row gap-4 justify-center w-full">
             <Link href="/auth/register" className="w-full sm:w-auto">
@@ -134,8 +132,6 @@ export default function Home() {
             </Link>
           </div>
         </div>
-
-        
 
         {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -187,29 +183,26 @@ export default function Home() {
           ))}
         </div>
 
-
-{/* Investment Disclaimer */}
-<div className="w-full bg-emerald-50 dark:bg-gray-900 border border-emerald-200 dark:border-emerald-700 mt-16 rounded-2xl">
-  <Card className="w-full border-0 bg-transparent shadow-none">
-    <CardHeader className="pb-0">
-      <CardTitle className="flex items-center gap-3 text-emerald-800 dark:text-emerald-300 text-lg font-semibold">
-        Investment Disclaimer
-      </CardTitle>
-    </CardHeader>
-    <CardContent>
-      <p className="text-emerald-700 dark:text-emerald-400 leading-relaxed max-w-5xl">
-        This platform provides access to cryptocurrency-based investment opportunities.
-        All investments carry inherent risks, and past performance does not guarantee future results.
-        Users are strongly advised to conduct their own research before investing.
-        We do not offer financial advice — participation is entirely at your own discretion.
-      </p>
-    </CardContent>
-  </Card>
-</div>
-
-
-
-
+        {/* Investment Disclaimer */}
+        <div className="w-full bg-emerald-50 dark:bg-gray-900 border border-emerald-200 dark:border-emerald-700 mt-16 rounded-2xl">
+          <Card className="w-full border-0 bg-transparent shadow-none">
+            <CardHeader className="pb-0">
+              <CardTitle className="flex items-center gap-3 text-emerald-800 dark:text-emerald-300 text-lg font-semibold">
+                Investment Disclaimer
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-emerald-700 dark:text-emerald-400 leading-relaxed max-w-5xl">
+                This platform provides access to cryptocurrency-based investment
+                opportunities. All investments carry inherent risks, and past
+                performance does not guarantee future results. Users are
+                strongly advised to conduct their own research before investing.
+                We do not offer financial advice — participation is entirely at
+                your own discretion.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Supported Cryptocurrencies */}
         <section className="pt-15 bg-white dark:bg-gray-950">
@@ -234,35 +227,33 @@ export default function Home() {
                 {/* First set of logos */}
                 {cryptoLogos.map((crypto, index) => (
                   <div
-  key={`first-${index}`}
-  className="flex-shrink-0 mx-0 sm:mx-3 flex items-center justify-center"
->
-  <Image
-    src={crypto.url}
-    alt={crypto.name}
-    width={100}
-    height={100}
-    className="h-25 w-25x sm:h-30 sm:w-30 object-contain grayscale hover:grayscale-0 transition-all duration-300 cursor-pointer hover:ring-2 hover:ring-emerald-500 hover:shadow-lg rounded-lg"
-  />
-</div>
-
+                    key={`first-${index}`}
+                    className="flex-shrink-0 mx-0 sm:mx-3 flex items-center justify-center"
+                  >
+                    <Image
+                      src={crypto.url}
+                      alt={crypto.name}
+                      width={100}
+                      height={100}
+                      className="h-25 w-25x sm:h-30 sm:w-30 object-contain grayscale hover:grayscale-0 transition-all duration-300 cursor-pointer hover:ring-2 hover:ring-emerald-500 hover:shadow-lg rounded-lg"
+                    />
+                  </div>
                 ))}
 
                 {/* Duplicate set for seamless loop */}
                 {cryptoLogos.map((crypto, index) => (
                   <div
-  key={`first-${index}`}
-  className="flex-shrink-0 mx-0 sm:mx-3 flex items-center justify-center"
->
-  <Image
-    src={crypto.url}
-    alt={crypto.name}
-    width={100}
-    height={100}
-    className="h-25 w-25x sm:h-30 sm:w-30 object-contain grayscale hover:grayscale-0 transition-all duration-300 cursor-pointer hover:ring-2 hover:ring-emerald-500 hover:shadow-lg rounded-lg"
-  />
-</div>
-
+                    key={`first-${index}`}
+                    className="flex-shrink-0 mx-0 sm:mx-3 flex items-center justify-center"
+                  >
+                    <Image
+                      src={crypto.url}
+                      alt={crypto.name}
+                      width={100}
+                      height={100}
+                      className="h-25 w-25x sm:h-30 sm:w-30 object-contain grayscale hover:grayscale-0 transition-all duration-300 cursor-pointer hover:ring-2 hover:ring-emerald-500 hover:shadow-lg rounded-lg"
+                    />
+                  </div>
                 ))}
               </div>
             </div>
@@ -305,7 +296,6 @@ export default function Home() {
             }
           `}</style>
         </section>
-
       </div>
 
       {/* Footer */}
