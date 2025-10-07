@@ -31,14 +31,14 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
 
-  // 🚀 Auto-redirect logged-in users
+  const callbackUrl = searchParams.get("callbackUrl") || "/user-dashboard/dashboard";
+
+  // 🚀 Auto-redirect logged-in users (prevent redirect loops)
   useEffect(() => {
-    if (status === "authenticated") {
+    if (status === "authenticated" && !window.location.pathname.startsWith("/user-dashboard")) {
       router.replace("/user-dashboard/dashboard");
     }
   }, [status, router]);
-
-  const callbackUrl = searchParams.get("callbackUrl") || "/user-dashboard/dashboard";
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.id]: e.target.value });
@@ -67,6 +67,16 @@ function LoginForm() {
       setLoading(false);
     }
   };
+
+  // 🕐 Prevent flashing login form during session check
+  if (status === "loading") {
+    return <div className="text-center mt-20 text-gray-500">Checking session...</div>;
+  }
+
+  // ✅ Don’t render login form for already logged-in users
+  if (status === "authenticated") {
+    return null;
+  }
 
   return (
     <div>
