@@ -6,6 +6,7 @@ import { ObjectId } from "mongodb";
 
 export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
+
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -42,23 +43,28 @@ export const authOptions: NextAuthOptions = {
   ],
 
   callbacks: {
-    // 🔹 Prevent infinite redirect loops
+    // 🔹 Prevent redirect loops
     async redirect({ url, baseUrl }) {
       try {
-        const parsedUrl = new URL(url, baseUrl);
-        // Only allow redirects within your domain
-        if (parsedUrl.origin === baseUrl) {
-          // Prevent recursive /auth/login redirects
-          if (parsedUrl.pathname.startsWith("/auth/login")) return baseUrl;
-          return parsedUrl.toString();
+        // Prevent looping to /auth/login again
+        if (url.includes("/auth/login")) {
+          return `${baseUrl}/user-dashboard/dashboard`;
         }
-      } catch (e) {
-        console.warn("Invalid redirect URL:", url);
+
+        // Allow only internal redirects or fully qualified URLs
+        if (url.startsWith(baseUrl) || url.startsWith("/")) {
+          return url.startsWith("/") ? `${baseUrl}${url}` : url;
+        }
+
+        // Default fallback
+        return baseUrl;
+      } catch (err) {
+        console.error("Redirect error:", err);
+        return baseUrl;
       }
-      return baseUrl;
     },
 
-    // 🔹 JWT callback - store ID & role
+    // 🔹 Persist ID and role in JWT
     async jwt({ token, user }) {
       if (user) {
         token.id = (user as any).id;
@@ -67,7 +73,7 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
 
-    // 🔹 Session callback - enrich user session
+    // 🔹 Enrich session from DB
     async session({ session, token }) {
       if (token) {
         try {
@@ -81,9 +87,9 @@ export const authOptions: NextAuthOptions = {
             ...session.user,
             id: token.id as string,
             role: (token as any).role as string,
-            name: (dbUser as any)?.name ?? session.user?.name,
-            email: (dbUser as any)?.email ?? session.user?.email,
-            username: (dbUser as any)?.username || undefined,
+            name: dbUser?.name ?? session.user?.name,
+            email: dbUser?.email ?? session.user?.email,
+            username: dbUser?.username || undefined,
             createdAt: dbUser?.createdAt
               ? new Date(dbUser.createdAt).toISOString()
               : undefined,
@@ -93,6 +99,7 @@ export const authOptions: NextAuthOptions = {
             avatar: dbUser?.avatar || undefined,
           } as any;
         } catch (e) {
+          console.error("Session enrichment failed:", e);
           session.user = {
             ...session.user,
             id: token.id as string,

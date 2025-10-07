@@ -7,13 +7,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { signIn, useSession } from "next-auth/react";
 
 // 🎨 Theme constants
-const primary = "#10B981";
 const bgLight = "bg-white dark:bg-gray-950";
 const cardBg = "bg-white dark:bg-gray-900";
 const textDark = "text-gray-900 dark:text-gray-100";
@@ -23,21 +22,23 @@ const inputBg = "bg-gray-50 dark:bg-gray-800";
 const inputBorder = "border-gray-200 dark:border-gray-700";
 const focusBorder = "focus:border-emerald-500 dark:focus:border-emerald-400";
 
-// 🧩 Wrapped component to safely use useSearchParams inside Suspense
 function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
-  const searchParams = useSearchParams(); // ✅ Safe because wrapped in Suspense
-  const { data: session } = useSession();
+  const searchParams = useSearchParams();
+  const { data: session, status } = useSession();
 
   // 🚀 Auto-redirect logged-in users
-  if (session?.user) {
-    router.replace("/user-dashboard/dashboard");
-    return null;
-  }
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.replace("/user-dashboard/dashboard");
+    }
+  }, [status, router]);
+
+  const callbackUrl = searchParams.get("callbackUrl") || "/user-dashboard/dashboard";
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.id]: e.target.value });
@@ -52,7 +53,7 @@ function LoginForm() {
         redirect: false,
         email: form.email,
         password: form.password,
-        callbackUrl: "/user-dashboard/dashboard",
+        callbackUrl,
       });
 
       if (!result) throw new Error("No response from auth server");
@@ -158,10 +159,7 @@ function LoginForm() {
               {/* Links */}
               <p className={`text-sm text-center ${textMedium} mt-6`}>
                 Don&apos;t have an account?{" "}
-                <Link
-                  href="/auth/register"
-                  className={`text-emerald-500 hover:underline font-medium`}
-                >
+                <Link href="/auth/register" className="text-emerald-500 hover:underline font-medium">
                   Sign up
                 </Link>
               </p>
@@ -169,7 +167,7 @@ function LoginForm() {
               <p className="text-sm text-center">
                 <Link
                   href="/auth/forgot-password"
-                  className={`text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:underline`}
+                  className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:underline"
                 >
                   Forgot your password?
                 </Link>
@@ -194,7 +192,6 @@ function LoginForm() {
   );
 }
 
-// ✅ Export wrapped with Suspense
 export default function LoginPageWrapper() {
   return (
     <Suspense fallback={<div className="text-center mt-20">Loading login...</div>}>
