@@ -105,7 +105,7 @@ export default function Home() {
             transparent, and trustworthy.
           </p>
 
-          <div className="flex flex-col-reverse sm:flex-row gap-4 justify-center w-full">
+          <div className="flex sm:flex-row gap-4 justify-center w-full">
             <Link href="/auth/register" className="w-full sm:w-auto">
               <Button
                 size="lg"
