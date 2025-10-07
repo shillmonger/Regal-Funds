@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import Link from "next/link"
+import Link from "next/link";
 import Footer from "@/components/ui/footer";
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Eye, EyeOff } from "lucide-react"
-import { useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import { toast } from "sonner"
-import { signIn } from "next-auth/react"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Eye, EyeOff } from "lucide-react";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
+import { signIn, useSession } from "next-auth/react";
 
-// Theme Constants
+// 🎨 Theme constants
 const primary = "#10B981";
 const bgLight = "bg-white dark:bg-gray-950";
 const cardBg = "bg-white dark:bg-gray-900";
@@ -23,46 +23,55 @@ const inputBg = "bg-gray-50 dark:bg-gray-800";
 const inputBorder = "border-gray-200 dark:border-gray-700";
 const focusBorder = "focus:border-emerald-500 dark:focus:border-emerald-400";
 
-export default function LoginPage() {
-  const [showPassword, setShowPassword] = useState(false)
-  const [form, setForm] = useState({ email: "", password: "" })
-  const [loading, setLoading] = useState(false)
-  const router = useRouter()
-  const searchParams = useSearchParams()
+// 🧩 Wrapped component to safely use useSearchParams inside Suspense
+function LoginForm() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
+  const searchParams = useSearchParams(); // ✅ Safe because wrapped in Suspense
+  const { data: session } = useSession();
+
+  // 🚀 Auto-redirect logged-in users
+  if (session?.user) {
+    router.replace("/user-dashboard/dashboard");
+    return null;
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.id]: e.target.value })
-  }
+    setForm({ ...form, [e.target.id]: e.target.value });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault()
-  setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
-  try {
-    const result = await signIn("credentials", {
-      redirect: false,
-      email: form.email,
-      password: form.password,
-      callbackUrl: "/user-dashboard/dashboard",
-    });
+    try {
+      const result = await signIn("credentials", {
+        redirect: false,
+        email: form.email,
+        password: form.password,
+        callbackUrl: "/user-dashboard/dashboard",
+      });
 
-    if (!result) throw new Error("No response from auth server");
-    if (result.error) throw new Error(result.error);
+      if (!result) throw new Error("No response from auth server");
+      if (result.error) throw new Error(result.error);
 
-    toast.success("Login successful");
-    router.push(result.url || "/user-dashboard/dashboard");
-  } catch (error: any) {
-    toast.error(error.message || "Login failed!");
-  } finally {
-    setLoading(false);
-  }
-};
-
+      toast.success("Login successful");
+      router.push(result.url || "/user-dashboard/dashboard");
+    } catch (error: any) {
+      toast.error(error.message || "Login failed!");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div>
       <div className={`flex min-h-screen items-center justify-center ${bgLight} px-4 py-8`}>
         <div className="w-full max-w-md">
+          {/* Logo */}
           <Link href="/">
             <div className="flex items-center gap-2">
               <img
@@ -78,6 +87,7 @@ export default function LoginPage() {
             </div>
           </Link>
 
+          {/* Card */}
           <Card className={`${cardBg} shadow-lg border-gray-100 dark:border-gray-800`}>
             <CardHeader className="pb-6">
               <CardTitle className={`text-center text-2xl font-bold ${textDark}`}>
@@ -90,6 +100,7 @@ export default function LoginPage() {
 
             <CardContent className="space-y-5">
               <form className="space-y-5" onSubmit={handleSubmit}>
+                {/* Email */}
                 <div>
                   <Label htmlFor="email" className={`text-sm font-medium ${textDark}`}>
                     Email
@@ -105,6 +116,7 @@ export default function LoginPage() {
                   />
                 </div>
 
+                {/* Password */}
                 <div>
                   <Label htmlFor="password" className={`text-sm font-medium ${textDark}`}>
                     Password
@@ -133,6 +145,7 @@ export default function LoginPage() {
                   </div>
                 </div>
 
+                {/* Submit */}
                 <Button
                   type="submit"
                   className="w-full h-11 bg-emerald-500 hover:bg-emerald-600 text-white font-medium cursor-pointer"
@@ -142,6 +155,7 @@ export default function LoginPage() {
                 </Button>
               </form>
 
+              {/* Links */}
               <p className={`text-sm text-center ${textMedium} mt-6`}>
                 Don&apos;t have an account?{" "}
                 <Link
@@ -163,6 +177,7 @@ export default function LoginPage() {
             </CardContent>
           </Card>
 
+          {/* Footer Info */}
           <div className="mt-6 text-center space-y-2">
             <p className={`text-xs ${textLight}`}>
               By signing in, you agree to our Terms of Service and Privacy Policy.
@@ -176,5 +191,14 @@ export default function LoginPage() {
 
       <Footer />
     </div>
-  )
+  );
+}
+
+// ✅ Export wrapped with Suspense
+export default function LoginPageWrapper() {
+  return (
+    <Suspense fallback={<div className="text-center mt-20">Loading login...</div>}>
+      <LoginForm />
+    </Suspense>
+  );
 }
