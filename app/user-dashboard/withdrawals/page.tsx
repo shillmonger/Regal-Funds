@@ -27,8 +27,24 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+type WithdrawalStatus = keyof typeof statusConfig;
+
+interface Withdrawal {
+  id: number;
+  amount: number;
+  walletAddress: string;
+  crypto: string;
+  requestDate: string;
+  status: WithdrawalStatus;
+  processedDate?: string;
+  paidDate?: string;
+  txHash?: string;
+  adminNote?: string | null;
+}
+
+
 // Withdrawal history data
-const withdrawalHistory = [
+const withdrawalHistory: Withdrawal[] = [
   {
     id: 1,
     amount: 1200,
@@ -134,24 +150,29 @@ export default function WithdrawalsPage() {
   const [walletAddress, setWalletAddress] = useState("");
   const [selectedCrypto, setSelectedCrypto] = useState(0);
   const [filterStatus, setFilterStatus] = useState("all");
-  const [copiedAddress, setCopiedAddress] = useState(null);
+const [copiedAddress, setCopiedAddress] = useState<string | number | null>(null);
 
   // User balance (in real app, fetch from backend)
   const availableBalance = 5680;
   const minimumWithdrawal = 50;
 
   // Copy to clipboard
-  const copyToClipboard = (text, id) => {
-    navigator.clipboard.writeText(text);
-    setCopiedAddress(id);
-    setTimeout(() => setCopiedAddress(null), 2000);
-  };
+const copyToClipboard = (text: string, id: string | number): void => {
+  navigator.clipboard.writeText(text);
+  setCopiedAddress(id);
+  setTimeout(() => setCopiedAddress(null), 2000);
+};
 
-  // Format date
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  };
+// Format date
+const formatDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
+
 
   // Handle withdrawal submission
   const handleWithdrawal = () => {

@@ -123,21 +123,28 @@ export default function MyInvestmentsPage() {
   const totalCurrentEarnings = activeInvestments.reduce((sum, inv) => sum + inv.currentEarnings, 0);
   const totalCompleted = completedInvestments.reduce((sum, inv) => sum + inv.actualEarnings, 0);
 
-  // Format date
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  };
+// Format date
+const formatDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+};
 
-  // Calculate days elapsed
-  const calculateDaysElapsed = (startDate, endDate) => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const today = new Date();
-    const totalDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-    const elapsedDays = Math.ceil((today - start) / (1000 * 60 * 60 * 24));
-    return Math.min(elapsedDays, totalDays);
-  };
+// Calculate days elapsed
+const calculateDaysElapsed = (startDate: string, endDate: string): number => {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const today = new Date();
+
+  const totalDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+  const elapsedDays = Math.ceil((today.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+
+  return Math.min(elapsedDays, totalDays);
+};
+
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">

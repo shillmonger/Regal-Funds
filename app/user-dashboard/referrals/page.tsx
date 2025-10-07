@@ -94,44 +94,59 @@ export default function ReferralsPage() {
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
 
-  // Copy to clipboard
-  const copyToClipboard = (text, type) => {
-    navigator.clipboard.writeText(text);
-    if (type === "link") {
-      setCopiedLink(true);
-      setTimeout(() => setCopiedLink(false), 2000);
-    } else {
-      setCopiedCode(true);
-      setTimeout(() => setCopiedCode(false), 2000);
-    }
-  };
+ // Copy to clipboard
+const copyToClipboard = (text: string, type: "link" | "code"): void => {
+  navigator.clipboard.writeText(text);
 
-  // Share functions
-  const shareVia = (platform) => {
-    const text = `Join me on this amazing investment platform and start earning! Use my referral code: ${referralData.referralCode}`;
-    const url = referralData.referralLink;
-    
-    switch(platform) {
-      case 'facebook':
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
-        break;
-      case 'twitter':
-        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
-        break;
-      case 'whatsapp':
-        window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
-        break;
-      case 'email':
-        window.location.href = `mailto:?subject=Join me on this investment platform&body=${encodeURIComponent(text + '\n\n' + url)}`;
-        break;
-    }
-  };
+  if (type === "link") {
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2000);
+  } else {
+    setCopiedCode(true);
+    setTimeout(() => setCopiedCode(false), 2000);
+  }
+};
 
-  // Format date
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  };
+// Share functions
+const shareVia = (platform: "facebook" | "twitter" | "whatsapp" | "email"): void => {
+  const text = `Join me on this amazing investment platform and start earning! Use my referral code: ${referralData.referralCode}`;
+  const url = referralData.referralLink;
+
+  switch (platform) {
+    case "facebook":
+      window.open(
+        `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+        "_blank"
+      );
+      break;
+    case "twitter":
+      window.open(
+        `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
+        "_blank"
+      );
+      break;
+    case "whatsapp":
+      window.open(
+        `https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`,
+        "_blank"
+      );
+      break;
+    case "email":
+      window.location.href = `mailto:?subject=Join me on this investment platform&body=${encodeURIComponent(`${text}\n\n${url}`)}`;
+      break;
+  }
+};
+
+// Format date
+const formatDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
+
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
