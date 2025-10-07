@@ -3,7 +3,7 @@
 import React from "react";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
-import { Shield, TrendingUp, Users2, Globe2, Lightbulb } from "lucide-react";
+import { Shield, TrendingUp, Users2, Globe2} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Theme colors

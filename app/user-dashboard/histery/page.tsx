@@ -28,7 +28,6 @@ import {
   DollarSign,
   FileText,
   Activity,
-  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 // SHADCN UI DROPDOWN IMPORTS for Select (Already present)

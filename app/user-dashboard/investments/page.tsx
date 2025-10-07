@@ -7,9 +7,6 @@ import UserNav from "@/components/ui/user-nav";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import {
   TrendingUp,

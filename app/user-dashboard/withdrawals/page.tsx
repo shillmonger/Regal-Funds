@@ -18,8 +18,6 @@ import {
   XCircle,
   AlertCircle,
   DollarSign,
-  Calendar,
-  ArrowRight,
   Info,
   Copy,
   TrendingUp,

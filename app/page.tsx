@@ -15,19 +15,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "@/components/ui/accordion";
+
 import {
   Shield,
   Activity,
   Zap,
   DollarSign,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
 import { UserPlus, TrendingUp, Wallet } from "lucide-react";
 
