@@ -1,157 +1,175 @@
 "use client";
 
-import React from "react";
+import { useRef } from "react";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
-import { Shield, TrendingUp, Users2, Globe2} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import Link from "next/link";
 
-// Theme colors
-const primary = "text-emerald-500";
-const bg = "bg-white dark:bg-gray-950";
-const text = "text-gray-900 dark:text-gray-100";
-const subtext = "text-gray-600 dark:text-gray-400";
+export default function Home() {
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
 
-export default function AboutPage() {
   return (
-    <div className={`min-h-screen ${bg}`}>
+    <div className="min-h-screen bg-white text-gray-900">
+      {/* Header */}
       <Header />
 
-      {/* Hero / Intro Section */}
-      <section className="text-center py-20 px-6 max-w-4xl mx-auto">
-        <h2 className={`text-sm uppercase font-semibold tracking-wider ${primary}`}>
-          About US
-        </h2>
-        <h1 className={`text-3xl sm:text-4xl md:text-5xl font-bold mt-3 ${text}`}>
-          Redefining the Future of Global Trading
-        </h1>
-        <p
-  className={`${subtext} mt-6 leading-relaxed text-base sm:text-lg text-left sm:text-center`}
->
-  OctaveTrade is the next generation of visionaries continuing the legacy
-  of financial pioneers who shaped the markets of the past century.
-  We’re building on that foundation — with technology, transparency,
-  and trust — to lead the financial world of tomorrow.
-</p>
-
-      </section>
-
-      {/* Gradient Divider */}
-      <div className="max-w-7xl mx-auto">
-        <div className="h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent"></div>
-      </div>
+      {/* HERO SECTION */}
+      <section className="relative min-h-[800px] flex items-center overflow-hidden">
+        {/* Background Image with #373E50 overlay */}
+<div className="absolute inset-0 z-0">
+  <Image
+    src="/images/hero.jpg"
+    alt="Hero Background"
+    fill
+    className="object-cover"
+    priority
+  />
+  {/* Color overlay using #373E50 */}
+  <div className="absolute inset-0 bg-[#373E50]/50" />
+</div>
 
 
-      {/* Who We Are */}
-      <section className="max-w-5xl mx-auto px-6 py-10 text-center">
-        <h2 className={`text-2xl sm:text-3xl font-semibold mb-6 ${text}`}>
-          Who We Are
-        </h2>
-        <p
-  className={`${subtext} leading-relaxed text-base sm:text-lg max-w-3xl mx-auto text-left sm:text-center`}
->
-  OctaveTrade is a global online trading platform committed to delivering
-  seamless, secure, and transparent financial experiences. Since our
-  founding, we’ve empowered traders worldwide with access to
-  Forex, Stocks, ETFs, Binary Options, and Cryptocurrency markets — all
-  through innovative tools and trusted expertise.
-</p>
-
-<p
-  className={`${subtext} mt-6 leading-relaxed text-base sm:text-lg max-w-3xl mx-auto text-left sm:text-center`}
->
-  What sets us apart is our philosophy: trading should be built on knowledge,
-  strategy, and trust — not speculation. Our team brings years of experience
-  in market analytics, risk management, and modern financial technologies
-  to ensure that our clients trade with clarity and confidence.
-</p>
-
-      </section>
-
-      {/* Gradient Divider */}
-      <div className="max-w-7xl mx-auto">
-        <div className="h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent"></div>
-      </div>
-
-
-      {/* Core Values */}
-      <section className="max-w-7xl mx-auto px-6 py-10">
-        <h2 className={`text-center text-2xl sm:text-3xl font-semibold mb-12 ${text}`}>
-          Our Core Values
-        </h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          <Card className="border-0 shadow-md dark:bg-gray-900 bg-white text-center py-6 px-4">
-            <CardHeader>
-              <div className="flex justify-center mb-4">
-                <Shield className={`h-10 w-10 ${primary}`} />
-              </div>
-              <CardTitle className={`text-lg font-semibold ${text}`}>
-                Integrity
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className={`${subtext}`}>
-                Every decision we make is rooted in transparency and trust,
-                ensuring fairness and honesty in all our relationships.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-md dark:bg-gray-900 bg-white text-center py-6 px-4">
-            <CardHeader>
-              <div className="flex justify-center mb-4">
-                <TrendingUp className={`h-10 w-10 ${primary}`} />
-              </div>
-              <CardTitle className={`text-lg font-semibold ${text}`}>
-                Innovation
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className={`${subtext}`}>
-                We embrace technology to enhance trading efficiency, security,
-                and user experience staying ahead of market evolution.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-md dark:bg-gray-900 bg-white text-center py-6 px-4">
-            <CardHeader>
-              <div className="flex justify-center mb-4">
-                <Users2 className={`h-10 w-10 ${primary}`} />
-              </div>
-              <CardTitle className={`text-lg font-semibold ${text}`}>
-                Partnership
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className={`${subtext}`}>
-                We build long-term relationships with our clients growing
-                together through shared goals and mutual trust.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 shadow-md dark:bg-gray-900 bg-white text-center py-6 px-4">
-            <CardHeader>
-              <div className="flex justify-center mb-4">
-                <Globe2 className={`h-10 w-10 ${primary}`} />
-              </div>
-              <CardTitle className={`text-lg font-semibold ${text}`}>
-                Global Vision
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className={`${subtext}`}>
-                Our reach is worldwide but our focus is personal. We empower
-                traders everywhere to achieve success on their own terms.
-              </p>
-            </CardContent>
-          </Card>
+        {/* Hero Content */}
+        <div className="relative z-10 text-white px-6 sm:px-10 md:px-20 max-w-5xl mt-[100px]">
+          <h1 className="text-3xl font-serif sm:text-4xl md:text-4xl font-bold leading-snug">
+            Regal strongly believes in alignment with investors. Principals and
+            staff hold significant investments across all of Regal’s
+            strategies.
+          </h1>
         </div>
       </section>
 
+      {/* OVERVIEW SECTION (Styled to Match Screenshot) */}
+      <section className="max-w-7xl mx-auto py-20 px-6 md:px-10 lg:px-16">
+        <div className="grid md:grid-cols-[250px_1fr] gap-12">
+          {/* Left Sidebar */}
+          <aside>
+            {/* <aside className="lg:w-1/4 w-full lg:sticky lg:top-24 self-start h-fit"> */}
 
+            <div className="bg-[#f5f7f7] w-full lg:sticky lg:top-24 self-start h-fit border border-gray-200 rounded-none overflow-hidden w-full">
+              <nav className="flex flex-col">
+                {/* Active item */}
+                <Link
+                  href="#"
+                  className="bg-[#448D96] text-white font-medium py-3 px-4 border-b border-white"
+                >
+                  Overview
+                </Link>
+
+                {/* Inactive items */}
+                <Link
+                  href="#"
+                  className="text-gray-700 hover:bg-gray-100 py-3 px-4 border-b border-gray-200 transition"
+                >
+                  Regal Partners (ASX:RPL)
+                </Link>
+                <Link
+                  href="#"
+                  className="text-gray-700 hover:bg-gray-100 py-3 px-4 transition"
+                >
+                  News
+                </Link>
+              </nav>
+            </div>
+          </aside>
+
+          {/* Main Content */}
+          <div className="text-[15px] leading-relaxed text-gray-700">
+            <h2 className="text-[20px] md:text-[25px] font-semibold text-[#1a1a1a] mb-6 leading-snug">
+              Regal Funds Management is a multi-award winning specialist
+              alternatives investment manager, pioneering the hedge fund,
+              private markets and alternatives industry in Australia since it
+              was founded in 2004
+            </h2>
+
+            <p className="mb-4">
+              What started as a team of four, trading mostly long/short equities
+              out of a small office in Sydney, is now a team of around 180
+              people working together within the Regal Partners group to manage
+              approximately $19.2 billion of investor capital across offices
+              around Australia and offshore1. Four times awarded ‘Australian
+              Alternative Investment Manager of the Year2’, Regal has expanded
+              its strategies to include private markets, real & natural assets
+              (via Kilter Rural, Attunga Capital, Argyle Group, Ark Capital
+              Partners) and credit & royalties (via Regal Funds, Merricks
+              Capital and Taurus Funds Management), in addition to our heritage
+              in long/short equities (along with PM Capital).
+            </p>
+
+            {/* Subheading */}
+            <p className="font-semibold text-[#1a1a1a] mt-6 mb-4">
+              Our multi-asset investment capability leverages Regal’s
+              operational capabilities, scale and infrastructure.
+            </p>
+
+            {/* Feature list */}
+            <div className="space-y-8">
+              <div>
+                <h3 className="font-semibold text-[#1a1a1a] mb-2">
+                  1. Proprietary technology and operational infrastructure
+                </h3>
+                <p>
+                  Proprietary operational, risk and trading infrastructure
+                  provides an institutional-grade, back-office operating and
+                  accounting platform for each team. Supported by real-time risk
+                  monitoring and portfolio management tools, over 95% of global
+                  exchanges are accessible, with a 24-hour daily trade cycle.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-[#1a1a1a] mb-2">
+                  2. Extensive market relationships
+                </h3>
+                <p>
+                  Deep relationships across global equity players, origination,
+                  corporate access, and flow research broker networks. Our
+                  investment team accesses 200+ global brokers and
+                  counterparties daily.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-[#1a1a1a] mb-2">
+                  3. Multi-asset product development, innovation and access
+                </h3>
+                <p>
+                  The scale and sophistication of the platform enables the range
+                  of Regal capabilities to be structured and accessed across a
+                  broad number of pooled and single investment vehicles, both in
+                  Australia and globally.
+                </p>
+              </div>
+            </div>
+
+            {/* CTA Button */}
+            <div className="mt-10">
+              <button className="bg-[#448D96] hover:bg-[#3a7d85] text-white px-5 py-5 text-sm uppercase tracking-wide transition cursor-pointer">
+                VIEW CAPABILITIES &rarr;
+              </button>
+            </div>
+
+            {/* Footnotes */}
+            <div className="text-xs text-gray-500 mt-8 space-y-2 leading-snug">
+              <p>
+                1 Management estimate of funds under management (FUM) as at 31
+                August 2024. FUM includes both Regal and external investors.
+                Regal Partners Limited (ASX: RPL) is the parent company of Regal
+                Funds Management, VGI Partners, Kilter Rural, and Taurus Funds
+                Management.
+              </p>
+              <p>
+                2 Australian Alternative Investment Manager of the Year —
+                Australian Hedge Fund Awards 2016, 2018, 2019, 2020, 2023.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
       <Footer />
     </div>
   );

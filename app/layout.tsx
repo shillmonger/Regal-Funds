@@ -18,10 +18,10 @@ const geistMono = Geist_Mono({
 
 // ✅ Metadata
 export const metadata: Metadata = {
-  title: "cyberlearn",
-  description: "Master Cybersecurity through hands-on learning",
+  title: "crypto investment",
+  description: "the power of Crypto",
   icons: {
-    icon: "https://pub-8297b2aff6f242709e9a4e96eeb6a803.r2.dev/CyberYearn_favicon.png",
+    icon: "https://www.regalfm.com/content/images/regal_shield.png",
   },
 };
 

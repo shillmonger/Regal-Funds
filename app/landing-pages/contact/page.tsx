@@ -1,346 +1,277 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
-import { Phone, Mail, Send } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { toast } from "sonner";
+import Image from "next/image";
+import Link from "next/link";
 
-// Theme constants
-const primaryColorClass = "bg-emerald-500";
-const primaryDarkerClass = "bg-emerald-600";
-const primaryRingClass = "focus:ring-emerald-500";
-const primaryTextClass = "text-emerald-500";
+export default function ContactPage() {
+  const [openAccordion, setOpenAccordion] = useState<string | null>(null);
 
-const bgLight = "bg-white dark:bg-gray-950";
-const cardBg = "bg-white dark:bg-gray-900";
-const textDark = "text-gray-900 dark:text-gray-100";
-const textMedium = "text-gray-600 dark:text-gray-400";
-const textLabel = "text-gray-700 dark:text-gray-200";
-const borderLight = "border-gray-300 dark:border-gray-800";
-
-export default function ContactUsPage() {
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    contactReason: "",
-    message: "",
-  });
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSelectChange = (value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      contactReason: value,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (
-      !formData.firstName ||
-      !formData.lastName ||
-      !formData.email ||
-      !formData.message
-    ) {
-      toast.error("Please fill out all required fields");
-      return;
-    }
-
-    if (!formData.contactReason) {
-      toast.warning("Please select a contact reason");
-      return;
-    }
-
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success("Your message has been sent successfully!");
-
-      setFormData({
-        firstName: "",
-        lastName: "",
-        email: "",
-        contactReason: "",
-        message: "",
-      });
-    } catch (err) {
-      toast.error("Failed to send message. Please try again.");
-    }
+  const toggleAccordion = (id: string) => {
+    setOpenAccordion(openAccordion === id ? null : id);
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950">
+    <div className="min-h-screen bg-white text-gray-900">
+ {/* Header */}
       <Header />
 
-      <div className={`min-h-screen ${bgLight} py-8 sm:py-12`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8 sm:mb-12">
-            <h1
-              className={`text-2xl sm:text-3xl lg:text-4xl font-bold ${textDark} mb-4`}
-            >
-              Contact Us
-            </h1>
+      {/* HERO SECTION */}
+      <section className="relative min-h-[800px] flex items-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="/images/hero.jpg"
+            alt="Hero Background"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-[#373E50]/50" />
+        </div>
+
+        <div className="relative z-10 text-white px-6 sm:px-10 md:px-20 max-w-5xl mt-[100px]">
+          <h1 className="text-3xl font-serif sm:text-4xl md:text-4xl font-bold leading-snug">
+            Contact
+          </h1>
+        </div>
+      </section>
+
+      {/* General Enquiries Section */}
+      <section className="max-w-7xl mx-auto py-16 px-6 md:px-10 lg:px-12">
+        <div className="grid md:grid-cols-2 gap-20">
+          {/* Left Column */}
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-6">
+              General Enquiries
+            </h2>
+            <p className="text-sm text-gray-700 leading-relaxed mb-4">
+              For general enquiries, you can contact Regal's reception team by calling +61 2 8197 4358, or completing the enquiry form.
+            </p>
+            <p className="text-sm text-gray-700 leading-relaxed">
+              If you have any questions regarding Regal investment strategies, please contact our investor relations team using the details below. We have also included registry contact details for the listed investment vehicles managed by Regal: ASX: API and ASX: RGS; and our suite of Australian Unit Trusts.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-            {/* Contact Form */}
-            <div className="lg:col-span-2">
-              <Card className={`shadow-lg border-0 ${cardBg}`}>
-                <CardHeader>
-                  <CardTitle
-                    className={`text-xl sm:text-2xl font-semibold ${textDark}`}
-                  >
-                    Send us a message
-                  </CardTitle>
-                  <p className={`${textMedium} mt-2 text-sm sm:text-base`}>
-                    Do you have a question? Let us know and we&apos;ll do our
-                    best to answer it.
-                  </p>
-                </CardHeader>
-
-                <CardContent>
-                  <form className="space-y-6" onSubmit={handleSubmit}>
-                    {/* Name Fields */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="firstName" className={`py-3 ${textLabel}`}>
-                          First Name
-                        </Label>
-                        <Input
-                          id="firstName"
-                          name="firstName"
-                          value={formData.firstName}
-                          onChange={handleInputChange}
-                          placeholder="Enter your first name"
-                          required
-                          className={`py-6 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600 dark:placeholder-gray-400 ${primaryRingClass}`}
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="lastName" className={`py-3 ${textLabel}`}>
-                          Last Name
-                        </Label>
-                        <Input
-                          id="lastName"
-                          name="lastName"
-                          value={formData.lastName}
-                          onChange={handleInputChange}
-                          placeholder="Enter your last name"
-                          required
-                          className={`py-6 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600 dark:placeholder-gray-400 ${primaryRingClass}`}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Email & Contact Reason */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="email" className={`py-3 ${textLabel}`}>
-                          Email
-                        </Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleInputChange}
-                          placeholder="Enter your email address"
-                          required
-                          className={`py-6 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600 dark:placeholder-gray-400 ${primaryRingClass}`}
-                        />
-                      </div>
-
-                      <div>
-                        <Label
-                          htmlFor="contactReason"
-                          className={`py-3 ${textLabel}`}
-                        >
-                          Contact Reason
-                        </Label>
-                        <Select
-                          onValueChange={handleSelectChange}
-                          value={formData.contactReason}
-                        >
-                          <SelectTrigger
-                            className={`w-full h-11 rounded-md border ${borderLight} px-3 py-6 text-sm focus:outline-none focus:ring-2 ${primaryRingClass} focus:border-transparent cursor-pointer dark:bg-gray-800 dark:text-gray-100`}
-                          >
-                            <SelectValue placeholder="Select a reason" />
-                          </SelectTrigger>
-                          <SelectContent className="dark:bg-gray-800 dark:border-gray-600">
-  <SelectItem
-    value="general"
-    className="dark:text-gray-100 dark:hover:bg-gray-700"
-  >
-    General Inquiry
-  </SelectItem>
-  <SelectItem
-    value="account-support"
-    className="dark:text-gray-100 dark:hover:bg-gray-700"
-  >
-    Account Support
-  </SelectItem>
-  <SelectItem
-    value="verification"
-    className="dark:text-gray-100 dark:hover:bg-gray-700"
-  >
-    Verification & KYC
-  </SelectItem>
-  <SelectItem
-    value="transactions"
-    className="dark:text-gray-100 dark:hover:bg-gray-700"
-  >
-    Deposits & Withdrawals
-  </SelectItem>
-  <SelectItem
-    value="integration"
-    className="dark:text-gray-100 dark:hover:bg-gray-700"
-  >
-    API / Platform Integration
-  </SelectItem>
-  <SelectItem
-    value="security"
-    className="dark:text-gray-100 dark:hover:bg-gray-700"
-  >
-    Security & Privacy
-  </SelectItem>
-  <SelectItem
-    value="partnership"
-    className="dark:text-gray-100 dark:hover:bg-gray-700"
-  >
-    Partnerships & Collaboration
-  </SelectItem>
-  <SelectItem
-    value="billing"
-    className="dark:text-gray-100 dark:hover:bg-gray-700"
-  >
-    Payments & Billing
-  </SelectItem>
-  <SelectItem
-    value="career"
-    className="dark:text-gray-100 dark:hover:bg-gray-700"
-  >
-    Careers / Internships
-  </SelectItem>
-  <SelectItem
-    value="other"
-    className="dark:text-gray-100 dark:hover:bg-gray-700"
-  >
-    Other
-  </SelectItem>
-</SelectContent>
-
-                        </Select>
-                      </div>
-                    </div>
-
-                    {/* Message */}
-                    <div>
-                      <Label htmlFor="message" className={`py-3 ${textLabel}`}>
-                        Message
-                      </Label>
-                      <textarea
-                        id="message"
-                        name="message"
-                        rows={5}
-                        value={formData.message}
-                        onChange={handleInputChange}
-                        placeholder="Enter your message"
-                        className={`w-full rounded-md border ${borderLight} px-3 py-2 text-sm focus:outline-none focus:ring-2 ${primaryRingClass} focus:border-transparent resize-vertical dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400`}
-                        required
-                      />
-                    </div>
-
-                    {/* Submit Button */}
-                    <Button
-                      type="submit"
-                      className={`inline-flex items-center gap-2 ${primaryColorClass} hover:${primaryDarkerClass} text-white font-medium py-6 cursor-pointer`}
-                    >
-                      <Send className="h-4 w-4" />
-                      Send Message
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Sidebar */}
-            <div className="lg:col-span-1">
-              <div className={`rounded-3xl p-6 sm:p-8 text-white bg-emerald-600`}>
-                <h3 className="text-lg sm:text-xl font-semibold mb-2">
-                  We are always here to help you.
-                </h3>
-                <p className={`text-green-50 mb-6 sm:mb-8 text-sm sm:text-base`}>
-                  Get in touch with us for any queries or support.
-                </p>
-
-                <div className="space-y-6">
-                  <div className="flex items-start gap-3">
-                    <div
-                      className={`flex-shrink-0 w-8 h-8 ${primaryColorClass} rounded-full flex items-center justify-center`}
-                    >
-                      <Phone className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm sm:text-base">Hotline</p>
-                      <p className={`text-green-50 text-sm`}>+84 906 088 009</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <div
-                      className={`flex-shrink-0 w-8 h-8 ${primaryColorClass} rounded-full flex items-center justify-center`}
-                    >
-                      <Phone className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm sm:text-base">WhatsApp</p>
-                      <p className={`text-green-50 text-sm`}>+84 374 559 209</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <div
-                      className={`flex-shrink-0 w-8 h-8 ${primaryColorClass} rounded-full flex items-center justify-center`}
-                    >
-                      <Mail className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm sm:text-base">Email</p>
-                      <p className={`text-green-50 text-sm`}>
-                        info@cyberlearn.com
-                      </p>
-                    </div>
-                  </div>
-                </div>
+          {/* Right Column - Form */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 mb-6">
+              Submit a general enquiry
+            </h3>
+            <div className="space-y-4">
+              <input
+                type="text"
+                placeholder="Please enter your name here*"
+                className="w-full px-4 py-3 border border-gray-300 text-sm focus:outline-none focus:border-[#448D96]"
+              />
+              <input
+                type="email"
+                placeholder="Your email address here*"
+                className="w-full px-4 py-3 border border-gray-300 text-sm focus:outline-none focus:border-[#448D96]"
+              />
+              <input
+                type="tel"
+                placeholder="Your phone number here"
+                className="w-full px-4 py-3 border border-gray-300 text-sm focus:outline-none focus:border-[#448D96]"
+              />
+              <select className="w-full px-4 py-3 border border-gray-300 text-sm text-gray-600 focus:outline-none focus:border-[#448D96]">
+                <option>Method of contact*</option>
+                <option>Email</option>
+                <option>Phone</option>
+              </select>
+              <textarea
+                placeholder="Please leave your message here*"
+                rows={4}
+                className="w-full px-4 py-3 border border-gray-300 text-sm focus:outline-none focus:border-[#448D96] resize-none"
+              />
+              <p className="text-xs text-gray-600 leading-relaxed">
+                Regal may collect and use your personal information to offer you products and services we believe may interest you. Your personal information will be handled in accordance with our{" "}
+                <Link href="#" className="text-[#448D96] hover:underline">
+                  Privacy Policy
+                </Link>
+                .
+              </p>
+              <div className="flex items-start space-x-3">
+                <input type="checkbox" id="recaptcha" className="mt-1" />
+                <label htmlFor="recaptcha" className="text-xs text-gray-600">
+                  I'm not a robot
+                </label>
               </div>
+              <Button className="bg-[#448D96] hover:bg-[#3a7d85] text-white px-3 py-6 rounded-none text-sm font-semibold transition">
+                SEND MESSAGE
+              </Button>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
+      {/* Accordion Sections */}
+      <section className="max-w-7xl mx-auto pb-16 px-6 md:px-10 lg:px-12">
+        <div className="border-t border-gray-300">
+          {/* Investor relations */}
+          <div className="border-b border-gray-300">
+            <div 
+              className="py-6 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition"
+              onClick={() => toggleAccordion('investor')}
+            >
+              <h3 className="text-xl font-serif text-gray-800">
+                Investor relations enquiries
+              </h3>
+              <button className="w-10 h-10 bg-[#448D96] text-white flex items-center justify-center text-2xl hover:bg-[#3a7d85] transition">
+                {openAccordion === 'investor' ? '−' : '+'}
+              </button>
+            </div>
+            {openAccordion === 'investor' && (
+              <div className="pb-8 pt-2">
+                <div className="grid md:grid-cols-2 gap-12">
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900 mb-3">Australia and New Zealand</h4>
+                    <p className="text-sm text-gray-700 mb-1">+43 688 8799 37235</p>
+                    <p className="text-sm text-gray-700 mb-6">donaldevens86@gmail.com</p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900 mb-3">International</h4>
+                    <p className="text-sm text-gray-700 mb-1">+43 688 8799 37235</p>
+                    <p className="text-sm text-gray-700 mb-6">donaldevens86@gmail.com</p>
+                  </div>
+                </div>
+                <Button className="bg-[#448D96] hover:bg-[#3a7d85] text-white px-3 py-6 rounded-none text-[15px] font-semibold transition">
+                  SUBSCRIBE 
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Registry enquiries */}
+          <div className="border-b border-gray-300">
+            <div 
+              className="py-6 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition"
+              onClick={() => toggleAccordion('registry')}
+            >
+              <h3 className="text-xl font-serif text-gray-800">Registry enquiries</h3>
+              <button className="w-10 h-10 bg-[#448D96] text-white flex items-center justify-center text-2xl hover:bg-[#3a7d85] transition">
+                {openAccordion === 'registry' ? '−' : '+'}
+              </button>
+            </div>
+            {openAccordion === 'registry' && (
+              <div className="pb-8 pt-2">
+                <div className="grid md:grid-cols-3 gap-8">
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900 mb-3">Australian Unit Trusts</h4>
+                    <p className="text-sm text-gray-700 mb-1">Boardroom Pty Limited</p>
+                    <p className="text-sm text-gray-700 mb-1">1300 737 760 (within Australia)</p>
+                    <p className="text-sm text-gray-700 mb-1">+43 688 8799 37235 (outside Australia)</p>
+                    <p className="text-sm text-gray-700 mb-6">donaldevens86@gmail.com</p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900 mb-3">Regal Investment Fund (ASX:RF1)</h4>
+                    <p className="text-sm text-gray-700 mb-1">Link Market Services</p>
+                    <p className="text-sm text-gray-700 mb-1">1800 221 227 (within Australia)</p>
+                    <p className="text-sm text-gray-700 mb-6">donaldevens86@gmail.com</p>
+                    <Button className="bg-[#448D96] hover:bg-[#3a7d85] text-white px-3 py-6 rounded-none text-[15px] font-semibold transition">
+                      SUBSCRIBE TO RF1 
+                    </Button>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900 mb-3">Regal Asian Investments Limited (ASX:RGI8)</h4>
+                    <p className="text-sm text-gray-700 mb-1">Boardroom Pty Limited</p>
+                    <p className="text-sm text-gray-700 mb-1">1300 737 760 (within Australia)</p>
+                    <p className="text-sm text-gray-700 mb-1">+43 688 8799 37235 (outside Australia)</p>
+                    <p className="text-sm text-gray-700 mb-6">donaldevens86@gmail.com</p>
+                    <Button className="bg-[#448D96] hover:bg-[#3a7d85] text-white px-3 py-6 rounded-none text-[15px] font-semibold transition">
+                      SUBSCRIBE TO RGI8 
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Companies seeking capital */}
+          <div className="border-b border-gray-300">
+            <div 
+              className="py-6 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition"
+              onClick={() => toggleAccordion('capital')}
+            >
+              <h3 className="text-xl font-serif text-gray-800">Companies seeking capital</h3>
+              <button className="w-10 h-10 bg-[#448D96] text-white flex items-center justify-center text-2xl hover:bg-[#3a7d85] transition">
+                {openAccordion === 'capital' ? '−' : '+'}
+              </button>
+            </div>
+            {openAccordion === 'capital' && (
+              <div className="pb-8 pt-2">
+                <p className="text-sm text-gray-700">
+                  Regal is a significant provider of debt and equity capital. For corporates seeking to contact us, please email info@regalfm.com.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Careers at Regal */}
+          <div className="border-b border-gray-300">
+            <div 
+              className="py-6 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition"
+              onClick={() => toggleAccordion('careers')}
+            >
+              <h3 className="text-xl font-serif text-gray-800">Careers at Regal</h3>
+              <button className="w-10 h-10 bg-[#448D96] text-white flex items-center justify-center text-2xl hover:bg-[#3a7d85] transition">
+                {openAccordion === 'careers' ? '−' : '+'}
+              </button>
+            </div>
+            {openAccordion === 'careers' && (
+              <div className="pb-8 pt-2">
+                <p className="text-sm text-gray-700 mb-4">
+                  Regal is always open to discussions with high calibre fundamental analysts and portfolio managers. We are currently focusing on recruiting professionals with Asian equities experience for our Singapore office, but also have openings in Sydney and New York.
+                </p>
+                <p className="text-sm text-gray-700">
+                  Please send your interest in working at Regal to donaldevens86@gmail.com.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Offices */}
+          <div className="border-b border-gray-300">
+            <div 
+              className="py-6 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition"
+              onClick={() => toggleAccordion('offices')}
+            >
+              <h3 className="text-xl font-serif text-gray-800">Offices</h3>
+              <button className="w-10 h-10 bg-[#448D96] text-white flex items-center justify-center text-2xl hover:bg-[#3a7d85] transition">
+                {openAccordion === 'offices' ? '−' : '+'}
+              </button>
+            </div>
+            {openAccordion === 'offices' && (
+              <div className="pb-8 pt-2">
+                <div className="grid md:grid-cols-3 gap-8">
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900 mb-3">Sydney</h4>
+                    <p className="text-sm text-gray-700">L46 Gateway Building</p>
+                    <p className="text-sm text-gray-700">1 Macquarie Place</p>
+                    <p className="text-sm text-gray-700">Sydney, NSW, Australia 2000</p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900 mb-3">Singapore</h4>
+                    <p className="text-sm text-gray-700">2 Central Boulevard #30-01A</p>
+                    <p className="text-sm text-gray-700">IOI Central Boulevard West Tower</p>
+                    <p className="text-sm text-gray-700">Singapore 018915</p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900 mb-3">New York</h4>
+                    <p className="text-sm text-gray-700">Suite 2101</p>
+                    <p className="text-sm text-gray-700">600 Madison Avenue</p>
+                    <p className="text-sm text-gray-700">New York, NY USA 10022</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+         {/* Footer */}
       <Footer />
     </div>
   );

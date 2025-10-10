@@ -6,8 +6,16 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
 
-  // You can still add other config options below
-  /* config options here */
+  // ✅ Allow external images (Regal FM domain)
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "www.regalfm.com",
+        pathname: "/**",
+      },
+    ],
+  },
 };
 
 export default nextConfig;
