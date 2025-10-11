@@ -22,26 +22,10 @@ import {
   ArrowDownRight,
   Activity,
 } from "lucide-react";
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
-// Sample data for charts (kept for 'Monthly Earnings' chart)
-const earningsData = [
-  { month: "Jan", earnings: 320 },
-  { month: "Feb", earnings: 450 },
-  { month: "Mar", earnings: 380 },
-  { month: "Apr", earnings: 620 },
-  { month: "May", earnings: 890 },
-  { month: "Jun", earnings: 1050 },
-];
+// Recent activity data (empty for now)
+const recentActivities: any[] = [];
 
-// Recent activity data (kept)
-const recentActivities = [
-  { id: 1, type: "Deposit", amount: 0, status: "Completed", date: "2025-10-05", icon: ArrowDownRight, color: "text-green-600" },
-  { id: 2, type: "Investment", amount: 0, status: "Active", date: "2025-10-04", icon: TrendingUp, color: "text-blue-600" },
-  { id: 3, type: "Withdrawal", amount: 0, status: "Pending", date: "2025-10-03", icon: ArrowUpRight, color: "text-orange-600" },
-  { id: 4, type: "Referral Bonus", amount: 0, status: "Completed", date: "2025-10-02", icon: Users, color: "text-purple-600" },
-  { id: 5, type: "ROI Payout", amount: 0, status: "Completed", date: "2025-10-01", icon: DollarSign, color: "text-emerald-600" },
-];
 
 // Notifications data is removed as it's no longer used
 
@@ -187,35 +171,50 @@ export default function AdminDashboard() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {recentActivities.map((activity) => {
-                    const IconComponent = activity.icon;
-                    return (
-                      <div
-                        key={activity.id}
-                        className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className={`w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center ${activity.color}`}>
-                            <IconComponent className="w-5 h-5" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-900 dark:text-gray-100">
-                              {activity.type}
-                            </p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                              {activity.date} • {activity.status}
-                            </p>
-                          </div>
-                        </div>
-                        <p className="font-semibold text-gray-900 dark:text-gray-100">
-                          ${activity.amount.toLocaleString()}
-                        </p>
-                      </div>
-                    );
-                  })}
-                </div>
-              </CardContent>
+  {recentActivities.length === 0 ? (
+    <div className="text-center py-10">
+      <Activity className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
+        No Recent Activity
+      </h3>
+      <p className="text-gray-600 dark:text-gray-400">
+        Your latest transactions will appear here
+      </p>
+    </div>
+  ) : (
+    <div className="space-y-4">
+      {recentActivities.map((activity) => {
+        const IconComponent = activity.icon;
+        return (
+          <div
+            key={activity.id}
+            className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+          >
+            <div className="flex items-center gap-4">
+              <div
+                className={`w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center ${activity.color}`}
+              >
+                <IconComponent className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="font-medium text-gray-900 dark:text-gray-100">
+                  {activity.type}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {activity.date} • {activity.status}
+                </p>
+              </div>
+            </div>
+            <p className="font-semibold text-gray-900 dark:text-gray-100">
+              ${activity.amount.toLocaleString()}
+            </p>
+          </div>
+        );
+      })}
+    </div>
+  )}
+</CardContent>
+
             </Card>
             
             {/* The Notifications Card was here, but has been removed. */}

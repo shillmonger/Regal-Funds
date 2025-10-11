@@ -40,140 +40,9 @@ import {
 } from "@/components/ui/select";
 
 // Complete transaction history
-const transactionHistory = [
-  {
-    id: 1,
-    type: "investment",
-    description: "Gold Plan Investment",
-    amount: 5000,
-    status: "completed",
-    date: "2025-10-05",
-    time: "14:30",
-    reference: "INV-001234",
-    details: "21 days plan with 40% ROI",
-  },
-  {
-    id: 2,
-    type: "withdrawal",
-    description: "Bitcoin Withdrawal",
-    amount: 1200,
-    status: "pending",
-    date: "2025-10-05",
-    time: "10:15",
-    reference: "WTH-005678",
-    details: "Processing to BTC wallet",
-  },
-  {
-    id: 3,
-    type: "referral",
-    description: "Referral Commission from John D.",
-    amount: 500,
-    status: "completed",
-    date: "2025-10-04",
-    time: "16:45",
-    reference: "REF-002345",
-    details: "10% commission on $5,000 investment",
-  },
-  {
-    id: 4,
-    type: "deposit",
-    description: "Ethereum Deposit",
-    amount: 3000,
-    status: "completed",
-    date: "2025-10-03",
-    time: "09:20",
-    reference: "DEP-003456",
-    details: "Payment verification completed",
-  },
-  {
-    id: 5,
-    type: "roi",
-    description: "Silver Plan ROI Payout",
-    amount: 450,
-    status: "completed",
-    date: "2025-10-02",
-    time: "12:00",
-    reference: "ROI-004567",
-    details: "Daily ROI credit",
-  },
-  {
-    id: 6,
-    type: "withdrawal",
-    description: "USDT Withdrawal",
-    amount: 800,
-    status: "completed",
-    date: "2025-10-01",
-    time: "15:30",
-    reference: "WTH-005679",
-    details: "Successfully paid",
-  },
-  {
-    id: 7,
-    type: "admin",
-    description: "Bonus Credit",
-    amount: 100,
-    status: "completed",
-    date: "2025-09-30",
-    time: "11:00",
-    reference: "ADM-006789",
-    details: "Welcome bonus from admin",
-  },
-  {
-    id: 8,
-    type: "investment",
-    description: "Platinum Plan Investment",
-    amount: 15000,
-    status: "completed",
-    date: "2025-09-28",
-    time: "13:45",
-    reference: "INV-001235",
-    details: "30 days plan with 60% ROI",
-  },
-  {
-    id: 9,
-    type: "referral",
-    description: "Referral Commission from Sarah M.",
-    amount: 300,
-    status: "completed",
-    date: "2025-09-27",
-    time: "10:30",
-    reference: "REF-002346",
-    details: "10% commission on $3,000 investment",
-  },
-  {
-    id: 10,
-    type: "withdrawal",
-    description: "Bitcoin Withdrawal",
-    amount: 500,
-    status: "declined",
-    date: "2025-09-26",
-    time: "14:20",
-    reference: "WTH-005680",
-    details: "Insufficient investment period",
-  },
-  {
-    id: 11,
-    type: "deposit",
-    description: "Bitcoin Deposit",
-    amount: 2000,
-    status: "completed",
-    date: "2025-09-25",
-    time: "08:15",
-    reference: "DEP-003457",
-    details: "Payment verification completed",
-  },
-  {
-    id: 12,
-    type: "roi",
-    description: "Gold Plan ROI Payout",
-    amount: 285,
-    status: "completed",
-    date: "2025-09-24",
-    time: "12:00",
-    reference: "ROI-004568",
-    details: "Daily ROI credit",
-  },
-];
+// Complete transaction history (empty for now)
+const transactionHistory: any[] = [];
+
 
 // Transaction type configurations
 const transactionTypes = {
@@ -350,7 +219,7 @@ export default function HistoryPage() {
                     No Transactions Found
                   </h3>
                   <p className="text-gray-600 dark:text-gray-400">
-                    Try adjusting your filters or search query
+                    Start making transactions to see them listed here.
                   </p>
                 </div>
               ) : (
