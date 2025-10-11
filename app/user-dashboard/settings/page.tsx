@@ -95,46 +95,51 @@ export default function AccountSettings() {
   }, []);
 
   // Save profile (name, email, username and wallets)
-  const handleSaveProfile = async () => {
-    try {
-      setLoadingSave(true);
-      // Save name + username
-      const res = await fetch("/api/users/profile", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fullName: profile.name, username: profile.username }),
-      });
-      if (!res.ok) {
-        const j = await res.json();
-        throw new Error(j.error || "Failed to update profile");
-      }
-      // Save wallets present
-      const walletEntries: Array<[string, string]> = [
-        ["btc", profile.btcWallet],
-        ["eth", profile.ethWallet],
-        ["usdt", profile.usdtWallet],
-        ["bnb", profile.bnbWallet],
-      ];
-      for (const [type, address] of walletEntries) {
-        if (address && address.trim()) {
-          const w = await fetch("/api/users/wallet", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ type, address: address.trim() }),
-          });
-          if (!w.ok) {
-            const jj = await w.json();
-            throw new Error(jj.error || `Failed saving ${type.toUpperCase()} wallet`);
-          }
+const handleSaveProfile = async () => {
+  try {
+    setLoadingSave(true);
+    const res = await fetch("/api/users/profile", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fullName: profile.name,
+        username: profile.username,
+        email: profile.email, // ✅ add this
+      }),
+    });
+    if (!res.ok) {
+      const j = await res.json();
+      throw new Error(j.error || "Failed to update profile");
+    }
+
+    // Wallet saving stays the same
+    const walletEntries = [
+      ["btc", profile.btcWallet],
+      ["eth", profile.ethWallet],
+      ["usdt", profile.usdtWallet],
+      ["bnb", profile.bnbWallet],
+    ];
+    for (const [type, address] of walletEntries) {
+      if (address && address.trim()) {
+        const w = await fetch("/api/users/wallet", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type, address: address.trim() }),
+        });
+        if (!w.ok) {
+          const jj = await w.json();
+          throw new Error(jj.error || `Failed saving ${type.toUpperCase()} wallet`);
         }
       }
-      toast.success("Settings saved");
-    } catch (e: any) {
-      toast.error(e.message || "Save failed");
-    } finally {
-      setLoadingSave(false);
     }
-  };
+    toast.success("Settings saved");
+  } catch (e: any) {
+    toast.error(e.message || "Save failed");
+  } finally {
+    setLoadingSave(false);
+  }
+};
+
 
   // Toggle 2FA and login alerts
   const toggleTwoFA = async () => {
