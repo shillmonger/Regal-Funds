@@ -28,7 +28,7 @@ import {
   CheckCircle,
   Filter,
   ArrowUpDown,
-  ChevronDown, 
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -134,7 +134,7 @@ const investmentPlans: Plan[] = [
     name: "Diamond Plan",
     minInvestment: 25000,
     // 👇 Updated to include a maxInvestment
-    maxInvestment: 50000, 
+    maxInvestment: 50000,
     roi: 10,
     duration: 30,
     description: "Ultimate investment package for portfolio maximization",
@@ -194,20 +194,19 @@ const colorSchemes = {
 
 // Define sorting options
 const sortOptions = [
-    { value: "roi", label: "ROI (High to Low)" },
-    { value: "duration", label: "Duration (Short to Long)" },
-    { value: "minInvestment", label: "Min. Investment (Low to High)" },
+  { value: "roi", label: "ROI (High to Low)" },
+  { value: "duration", label: "Duration (Short to Long)" },
+  { value: "minInvestment", label: "Min. Investment (Low to High)" },
 ];
-
 
 export default function InvestmentPlansPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [sortBy, setSortBy] = useState("roi");
   const [showFilters, setShowFilters] = useState(false);
-  
+
   // 👈 State for the custom investment amount
-  const [customAmount, setCustomAmount] = useState<number | string>(100); 
+  const [customAmount, setCustomAmount] = useState<number | string>(100);
 
   // Filter and sort plans
   const filteredPlans = investmentPlans
@@ -221,33 +220,35 @@ export default function InvestmentPlansPage() {
       return 0;
     });
 
-    const handleCustomAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        // Allow empty string for temporary input, but convert to number for logic
-        if (value === "") {
-            setCustomAmount("");
-            return;
-        }
-        const numValue = Number(value);
-        if (!isNaN(numValue) && numValue >= 0) {
-            setCustomAmount(numValue);
-        }
-    };
+  const handleCustomAmountChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = e.target.value;
+    // Allow empty string for temporary input, but convert to number for logic
+    if (value === "") {
+      setCustomAmount("");
+      return;
+    }
+    const numValue = Number(value);
+    if (!isNaN(numValue) && numValue >= 0) {
+      setCustomAmount(numValue);
+    }
+  };
 
-    // Calculate details for the custom plan section
-    const minAmount = 100;
-    const currentCustomAmount = Number(customAmount) || 0;
-    const isCustomPlanValid = currentCustomAmount >= minAmount;
+  // Calculate details for the custom plan section
+  const minAmount = 100;
+  const currentCustomAmount = Number(customAmount) || 0;
+  const isCustomPlanValid = currentCustomAmount >= minAmount;
 
-    // Check if the custom amount falls within any existing plan
-    const isCoveredByPlan = investmentPlans.some(
-        (plan) =>
-            currentCustomAmount >= plan.minInvestment &&
-            (plan.maxInvestment === null || currentCustomAmount <= plan.maxInvestment)
-    );
+  // Check if the custom amount falls within any existing plan
+  const isCoveredByPlan = investmentPlans.some(
+    (plan) =>
+      currentCustomAmount >= plan.minInvestment &&
+      (plan.maxInvestment === null || currentCustomAmount <= plan.maxInvestment)
+  );
 
-    const customROI = isCoveredByPlan ? null : 10;
-    const customDuration = isCoveredByPlan ? null : 30; // 1 month = 30 days
+  const customROI = isCoveredByPlan ? null : 10;
+  const customDuration = isCoveredByPlan ? null : 30; // 1 month = 30 days
 
   const router = useRouter();
 
@@ -260,12 +261,15 @@ export default function InvestmentPlansPage() {
     const matchingPlan = investmentPlans.find(
       (plan) =>
         currentCustomAmount >= plan.minInvestment &&
-        (plan.maxInvestment === null || currentCustomAmount <= plan.maxInvestment)
+        (plan.maxInvestment === null ||
+          currentCustomAmount <= plan.maxInvestment)
     );
     if (matchingPlan) {
       router.push(`/user-dashboard/plan-details/${matchingPlan.id}`);
     } else {
-      router.push(`/user-dashboard/plan-details/custom?amount=${currentCustomAmount}`);
+      router.push(
+        `/user-dashboard/plan-details/custom?amount=${currentCustomAmount}`
+      );
     }
   };
 
@@ -286,143 +290,9 @@ export default function InvestmentPlansPage() {
               Investment Plans
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Choose the perfect plan to grow your wealth with guaranteed returns
+              Choose the perfect plan to grow your wealth with guaranteed
+              returns
             </p>
-          </div>
-
-          {/* Stats Banner */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
-            <Card className="bg-gradient-to-br from-emerald-500 to-emerald-600 border-0 text-white">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-emerald-100 text-sm mb-1">Total Plans</p>
-                    <p className="text-2xl font-bold">
-                      {investmentPlans.length}
-                    </p>
-                  </div>
-                  <TrendingUp className="w-8 h-8 opacity-80" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-blue-500 to-blue-600 border-0 text-white">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-blue-100 text-sm mb-1">Highest ROI</p>
-                    <p className="text-2xl font-bold">85%</p>
-                  </div>
-                  <DollarSign className="w-8 h-8 opacity-80" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-purple-500 to-purple-600 border-0 text-white">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-purple-100 text-sm mb-1">Min. Duration</p>
-                    <p className="text-2xl font-bold">7 Days</p>
-                  </div>
-                  <Clock className="w-8 h-8 opacity-80" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-         
-
-
-          {/* Filters and Sort */}
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 mb-6">
-            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-              <div className="flex gap-2 items-center flex-wrap">
-                <button
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition"
-                >
-                  <Filter className="w-4 h-4" />
-                  Filters
-                </button>
-
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setSelectedCategory("all")}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                      selectedCategory === "all"
-                        ? "bg-emerald-500 text-white"
-                        : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
-                    }`}
-                  >
-                    All Plans
-                  </button>
-                  <button
-                    onClick={() => setSelectedCategory("short")}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                      selectedCategory === "short"
-                        ? "bg-emerald-500 text-white"
-                        : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
-                    }`}
-                  >
-                    Short Term
-                  </button>
-                  <button
-                    onClick={() => setSelectedCategory("medium")}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                      selectedCategory === "medium"
-                        ? "bg-emerald-500 text-white"
-                        : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
-                    }`}
-                  >
-                    Medium Term
-                  </button>
-                  <button
-                    onClick={() => setSelectedCategory("long")}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                      selectedCategory === "long"
-                        ? "bg-emerald-500 text-white"
-                        : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
-                    }`}
-                  >
-                    Long Term
-                  </button>
-                </div>
-              </div>
-
-              {/* 🚀 SHADCN DROPDOWN IMPLEMENTATION 🚀 */}
-              <div className="flex items-center gap-2">
-                <ArrowUpDown className="w-4 h-4 text-gray-500" />
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button
-                            variant="outline"
-                            className="flex items-center justify-between gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 focus:ring-2 focus:ring-emerald-500 w-[220px]"
-                        >
-                            {sortOptions.find(option => option.value === sortBy)?.label || sortOptions[0].label}
-                            <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    {/* Width adjustment for consistency */}
-                    <DropdownMenuContent style={{ width: 'var(--radix-dropdown-menu-trigger-width)' }}>
-                        {sortOptions.map((option) => (
-                            <DropdownMenuItem
-                                key={option.value}
-                                onSelect={() => setSortBy(option.value)}
-                                className={`cursor-pointer ${
-                                    sortBy === option.value 
-                                        ? "text-emerald-600 dark:text-emerald-400 font-semibold"
-                                        : ""
-                                }`}
-                            >
-                                {option.label}
-                            </DropdownMenuItem>
-                        ))}
-                    </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-              {/* 🚀 END DROPDOWN IMPLEMENTATION 🚀 */}
-            </div>
           </div>
 
           {/* Plans Grid */}
@@ -536,67 +406,87 @@ export default function InvestmentPlansPage() {
             })}
           </div>
 
-
- {/* Custom Investment Section */}
- <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 mb-6">
+          {/* Custom Investment Section */}
+          <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 mb-6">
             <CardHeader className="p-0 mb-4">
-                <CardTitle className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center">
-                    <DollarSign className="w-5 h-5 mr-2 text-emerald-500"/>
-                    Custom Investment Amount
-                </CardTitle>
-                <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
-                    Enter the amount you wish to invest. Minimum investment is ${minAmount.toLocaleString()}.
-                </CardDescription>
+              <CardTitle className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center">
+                <DollarSign className="w-5 h-5 mr-2 text-emerald-500" />
+                Custom Investment Amount
+              </CardTitle>
+              <CardDescription className="text-sm text-gray-600 dark:text-gray-400">
+                Enter the amount you wish to invest. Minimum investment is $
+                {minAmount.toLocaleString()}.
+              </CardDescription>
             </CardHeader>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="md:col-span-1">
-                    <Label htmlFor="custom-amount" className="text-gray-900 dark:text-gray-100">
-                        Investment Amount (USD)
-                    </Label>
-                    <Input
-                        id="custom-amount"
-                        type="number"
-                        min={minAmount}
-                        placeholder={`Minimum ${minAmount}`}
-                        value={customAmount}
-                        onChange={handleCustomAmountChange}
-                        className="mt-1"
-                    />
-                </div>
+              <div className="md:col-span-1">
+                <Label
+                  htmlFor="custom-amount"
+                  className="text-gray-900 dark:text-gray-100"
+                >
+                  Investment Amount (USD)
+                </Label>
+                <Input
+                  id="custom-amount"
+                  type="number"
+                  min={minAmount}
+                  placeholder={`Minimum ${minAmount}`}
+                  value={customAmount}
+                  onChange={handleCustomAmountChange}
+                  className="mt-1"
+                />
+              </div>
 
-                <div className="md:col-span-2 space-y-2">
-                    <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Calculated ROI
-                        </span>
-                        <span className={`text-lg font-bold ${customROI ? 'text-red-500' : 'text-emerald-500'}`}>
-                           {customROI ? `${customROI}% (Default)` : 'Covered by Plan'}
-                        </span>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Duration
-                        </span>
-                        <span className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                            {customDuration ? `${customDuration} Days (Default)` : 'As per Plan'}
-                        </span>
-                    </div>
-                    <Button
-                        onClick={handleCustomInvest}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 text-base transition-all duration-300"
-                        disabled={!isCustomPlanValid}
-                    >
-                        {isCoveredByPlan ? `Covered by Plan: ${investmentPlans.find(p => currentCustomAmount >= p.minInvestment && (p.maxInvestment === null || currentCustomAmount <= p.maxInvestment))?.name}` : "Invest with Custom Amount"}
-                    </Button>
-                    {!isCustomPlanValid && (
-                        <p className="text-xs text-red-500 mt-2">
-                            Please enter an amount of ${minAmount.toLocaleString()} or more.
-                        </p>
-                    )}
+              <div className="md:col-span-2 space-y-2">
+                <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Calculated ROI
+                  </span>
+                  <span
+                    className={`text-lg font-bold ${
+                      customROI ? "text-red-500" : "text-emerald-500"
+                    }`}
+                  >
+                    {customROI
+                      ? `${customROI}% (Default)`
+                      : "Covered by Plan"}
+                  </span>
                 </div>
+                <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Duration
+                  </span>
+                  <span className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                    {customDuration
+                      ? `${customDuration} Days (Default)`
+                      : "As per Plan"}
+                  </span>
+                </div>
+                <Button
+                  onClick={handleCustomInvest}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 text-base transition-all duration-300"
+                  disabled={!isCustomPlanValid}
+                >
+                  {isCoveredByPlan
+                    ? `Covered by Plan: ${
+                        investmentPlans.find(
+                          (p) =>
+                            currentCustomAmount >= p.minInvestment &&
+                            (p.maxInvestment === null ||
+                              currentCustomAmount <= p.maxInvestment)
+                        )?.name
+                      }`
+                    : "Invest with Custom Amount"}
+                </Button>
+                {!isCustomPlanValid && (
+                  <p className="text-xs text-red-500 mt-2">
+                    Please enter an amount of ${minAmount.toLocaleString()} or
+                    more.
+                  </p>
+                )}
+              </div>
             </div>
           </Card>
-
 
           {/* Bottom Info Banner */}
           <Card className="mt-8 bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-gray-900 dark:to-gray-900 border border-emerald-200 dark:border-emerald-800">

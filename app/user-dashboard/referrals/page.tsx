@@ -31,11 +31,11 @@ import { Button } from "@/components/ui/button";
 const referralData = {
   referralCode: "KING2025",
   referralLink: "https://platform.com/ref/KING2025",
-  totalReferrals: 12,
-  activeReferrals: 8,
-  totalEarnings: 2450,
-  pendingEarnings: 350,
-  commissionRate: 10,
+  totalReferrals: 0,
+  activeReferrals: 0,
+  totalEarnings: 0,
+  pendingEarnings: 0,
+  commissionRate: 0,
 };
 
 // Referral history (Your Referrals)

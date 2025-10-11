@@ -36,11 +36,11 @@ const earningsData = [
 
 // Recent activity data (kept)
 const recentActivities = [
-  { id: 1, type: "Deposit", amount: 5000, status: "Completed", date: "2025-10-05", icon: ArrowDownRight, color: "text-green-600" },
-  { id: 2, type: "Investment", amount: 3000, status: "Active", date: "2025-10-04", icon: TrendingUp, color: "text-blue-600" },
-  { id: 3, type: "Withdrawal", amount: 1200, status: "Pending", date: "2025-10-03", icon: ArrowUpRight, color: "text-orange-600" },
-  { id: 4, type: "Referral Bonus", amount: 150, status: "Completed", date: "2025-10-02", icon: Users, color: "text-purple-600" },
-  { id: 5, type: "ROI Payout", amount: 450, status: "Completed", date: "2025-10-01", icon: DollarSign, color: "text-emerald-600" },
+  { id: 1, type: "Deposit", amount: 0, status: "Completed", date: "2025-10-05", icon: ArrowDownRight, color: "text-green-600" },
+  { id: 2, type: "Investment", amount: 0, status: "Active", date: "2025-10-04", icon: TrendingUp, color: "text-blue-600" },
+  { id: 3, type: "Withdrawal", amount: 0, status: "Pending", date: "2025-10-03", icon: ArrowUpRight, color: "text-orange-600" },
+  { id: 4, type: "Referral Bonus", amount: 0, status: "Completed", date: "2025-10-02", icon: Users, color: "text-purple-600" },
+  { id: 5, type: "ROI Payout", amount: 0, status: "Completed", date: "2025-10-01", icon: DollarSign, color: "text-emerald-600" },
 ];
 
 // Notifications data is removed as it's no longer used
@@ -84,11 +84,11 @@ export default function AdminDashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
-                      $15,420
+                      $0
                     </p>
                     <p className="text-sm text-green-600 dark:text-green-400 flex items-center mt-1">
                       <TrendingUp className="w-4 h-4 mr-1" />
-                      +12.5% this month
+                      +0% this month
                     </p>
                   </div>
                   <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
@@ -109,10 +109,10 @@ export default function AdminDashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
-                      8
+                      0
                     </p>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      Across 4 plans
+                      Across 0 plans
                     </p>
                   </div>
                   <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center">
@@ -133,11 +133,11 @@ export default function AdminDashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
-                      $8,940
+                      $0
                     </p>
                     <p className="text-sm text-green-600 dark:text-green-400 flex items-center mt-1">
                       <ArrowUpRight className="w-4 h-4 mr-1" />
-                      +8.2% ROI
+                      +0% ROI
                     </p>
                   </div>
                   <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
@@ -158,10 +158,10 @@ export default function AdminDashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
-                      $1,250
+                      $0
                     </p>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      12 active referrals
+                      0 active referrals
                     </p>
                   </div>
                   <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
@@ -172,40 +172,6 @@ export default function AdminDashboard() {
             </Card>
           </div>
 
-          {/* Charts Section - Now only contains the Earnings Chart */}
-          {/* The grid layout is updated to span all columns for the single chart */}
-          <div className="grid grid-cols-1 gap-6 mb-8">
-            
-            {/* Monthly Earnings Chart (Now spans full width) */}
-            <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
-              <CardHeader>
-                <CardTitle className="text-gray-900 dark:text-gray-100">
-                  Monthly Earnings
-                </CardTitle>
-                <CardDescription className="text-gray-600 dark:text-gray-400">
-                  ROI and commission earnings breakdown
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={earningsData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.1} />
-                    <XAxis dataKey="month" stroke="#6B7280" />
-                    <YAxis stroke="#6B7280" />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "#1F2937",
-                        border: "none",
-                        borderRadius: "8px",
-                        color: "#F9FAFB",
-                      }}
-                    />
-                    <Bar dataKey="earnings" fill="#8B5CF6" radius={[8, 8, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
 
           {/* Recent Activity Section - Now spans full width on large screens */}
           {/* The grid layout is updated to span all columns */}

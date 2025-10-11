@@ -56,7 +56,7 @@ export default function Footer() {
         <div className="flex items-center space-x-2">
           <span>SITE BY</span>
           <img
-            src="images/logo.png"
+            src="https://www.regalfm.com/content/images/irm-logo-small-white.png"
             alt="IRM Logo"
             className="h-4 w-auto"
           />
