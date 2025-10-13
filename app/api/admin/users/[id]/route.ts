@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import clientPromise from "@/lib/mongodb";
@@ -12,10 +12,11 @@ function isAdminSession(session: any) {
 }
 
 export async function PATCH(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params;
     const session = await getServerSession(authOptions);
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     if (!isAdminSession(session)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -31,9 +32,13 @@ export async function PATCH(
 
     const dbStatus = status === "Active" ? "active" : "blocked";
 
+    if (!ObjectId.isValid(id)) {
+      return NextResponse.json({ error: "Invalid user id" }, { status: 400 });
+    }
+
     await db
       .collection("users")
-      .updateOne({ _id: new ObjectId(params.id) }, { $set: { status: dbStatus } });
+      .updateOne({ _id: new ObjectId(id) }, { $set: { status: dbStatus } });
 
     return NextResponse.json({ success: true });
   } catch (e) {
@@ -43,10 +48,11 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params;
     const session = await getServerSession(authOptions);
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     if (!isAdminSession(session)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -54,7 +60,11 @@ export async function DELETE(
     const client = await clientPromise;
     const db = client.db("crypto-investment");
 
-    await db.collection("users").deleteOne({ _id: new ObjectId(params.id) });
+    if (!ObjectId.isValid(id)) {
+      return NextResponse.json({ error: "Invalid user id" }, { status: 400 });
+    }
+
+    await db.collection("users").deleteOne({ _id: new ObjectId(id) });
 
     return NextResponse.json({ success: true });
   } catch (e) {
