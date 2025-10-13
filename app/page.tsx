@@ -352,7 +352,7 @@ export default function Home() {
                     <p className="text-5xl font-bold mb-2">$3.33</p>
                     <p className="text-gray-700">RF1 Mkt Cap: -</p>
                     <p className="text-gray-500 text-sm mt-1">
-                      The Market is currently Closed
+                      The Market is currently Open
                     </p>
                   </div>
 
@@ -501,7 +501,7 @@ export default function Home() {
                     </h2>
                     <div className="space-y-4 text-gray-700 leading-relaxed">
                         <p>
-                            If you are a securityholder and require assistance, please contact{" "}
+                            If you are a securityholder and require assistance, please contact us on whatsapp{" "}
                             <span className="text-[#448D96]">
                                 +43 6888 7993 7235 
                             </span> (within Australia)

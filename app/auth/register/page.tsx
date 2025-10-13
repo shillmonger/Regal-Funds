@@ -12,6 +12,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { signIn } from "next-auth/react";
 
 // 🎨 Theme constants (matches Login page)
 const primaryColor = "#448D96"; // teal-green
@@ -60,7 +61,13 @@ export default function RegisterPage() {
       }
 
       toast.success("Account created successfully!");
-      router.push("/user-dashboard/dashboard");
+      // Auto sign-in using the same credentials
+      await signIn("credentials", {
+        redirect: false,
+        email: form.email,
+        password: form.password,
+      });
+      router.push("/user-dashboard/dashboard?welcome=1");
     } catch (error) {
       console.error(error);
       toast.error("Something went wrong. Please try again later.");

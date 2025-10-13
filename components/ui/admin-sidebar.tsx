@@ -4,15 +4,17 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Home,
+  CreditCard,
   Users,
-  BarChart3,
-  ToggleLeft,
-  Activity,
+  Coins,
+  DollarSign,
+  LayoutDashboard,
   Settings,
-  Shield,
   LogOut,
+  UserSquare2,
   GraduationCap,
+  Briefcase,
+  Wallet,
   X,
 } from "lucide-react";
 
@@ -31,18 +33,37 @@ export default function AdminSidebar({
 
   const basePath = "/admin-dashboard";
 
+  // ✅ Updated icons to better represent each page
   const sidebarItems = [
-    { name: "Overview", icon: Home, href: `${basePath}/overview` },
-    { name: "User Management", icon: Users, href: `${basePath}/users` },
-    { name: "Metrics & Reports", icon: BarChart3, href: `${basePath}/metrics` },
-    { name: "Feature Flags", icon: ToggleLeft, href: `${basePath}/feature-flags` },
-    { name: "Audit Logs", icon: Activity, href: `${basePath}/audit` },
-    { name: "Platform Settings", icon: Settings, href: `${basePath}/settings` },
-    { name: "Security", icon: Shield, href: `${basePath}/security` },
     {
-      name: "Switch to Learner",
-      icon: GraduationCap,
-      href: `/learner-dashboard/dashboard`,
+      name: "All Payments",
+      icon: Wallet, // 💰 Financial overview
+      href: `${basePath}/payments`,
+    },
+    {
+      name: "User Management",
+      icon: Users, // 👥 Better fit than UserSquare2 for management
+      href: `${basePath}/user-management`,
+    },
+    {
+      name: "Referral Payouts",
+      icon: Coins, // 🪙 Keeps the referral/reward theme
+      href: `${basePath}/referral-payouts`,
+    },
+    {
+      name: "Investment Payouts",
+      icon: Briefcase, // 💼 Represents investment-related payouts
+      href: `${basePath}/investment-payouts`,
+    },
+    {
+      name: "Role Settings",
+      icon: Settings, // 💼 Represents investment-related payouts
+      href: `${basePath}/settings`,
+    },
+    {
+      name: "Switch to User",
+      icon: GraduationCap, // 🎓 Keeps the idea of “switching roles”
+      href: `/user-dashboard/dashboard`,
     },
   ];
 
@@ -56,7 +77,7 @@ export default function AdminSidebar({
 
   return (
     <>
-      {/* ✅ Blurred overlay for the rest of the screen */}
+      {/* ✅ Overlay when sidebar is open */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-20 bg-black/30 backdrop-blur-sm lg:hidden"
@@ -64,7 +85,7 @@ export default function AdminSidebar({
         />
       )}
 
-      {/* ✅ Sidebar */}
+      {/* ✅ Sidebar container */}
       <aside
         className={`${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -74,18 +95,16 @@ export default function AdminSidebar({
         transition-transform duration-200 ease-in-out
         lg:translate-x-0 lg:static lg:inset-0 shadow-xl`}
       >
-        {/* Logo and Close */}
+        {/* ✅ Logo + Close Button */}
         <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2">
-            {/* Light mode logo */}
             <img
-              src="https://pub-8297b2aff6f242709e9a4e96eeb6a803.r2.dev/dark%20logo.png"
+              src="https://www.regalfm.com/irmcustomizationfile/574/regal_logo_inverte"
               alt="Logo"
               className="h-10 w-auto block dark:hidden"
             />
-            {/* Dark mode logo */}
             <img
-              src="https://pub-8297b2aff6f242709e9a4e96eeb6a803.r2.dev/light%20logo.png"
+              src="https://www.regalfm.com/irmcustomizationfile/574/regal_logo_inverte"
               alt="Logo"
               className="h-10 w-auto hidden dark:block"
             />
@@ -98,7 +117,7 @@ export default function AdminSidebar({
           </button>
         </div>
 
-        {/* Nav Items */}
+        {/* ✅ Navigation Items */}
         <nav className="px-3 py-6 space-y-1 overflow-y-auto h-[calc(100%-4rem)]">
           {sidebarItems.map(({ name, icon: Icon, href }) => (
             <Link
@@ -115,7 +134,7 @@ export default function AdminSidebar({
             </Link>
           ))}
 
-          {/* Logout */}
+          {/* ✅ Logout */}
           <button
             onClick={() => setShowLogoutConfirm(true)}
             className="flex items-center w-full px-3 py-2 text-gray-700 dark:text-gray-200 hover:bg-[#72a210] hover:text-white transition-colors duration-200 rounded-md"

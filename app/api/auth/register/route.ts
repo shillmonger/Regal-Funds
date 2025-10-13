@@ -33,6 +33,10 @@ export async function POST(req: Request) {
       passwordHash: hashedPassword,
       role: "user",
       status: "active",
+      balance: 5, // welcome bonus
+      totalInvested: 0,
+      totalEarnings: 5, // count welcome bonus as earnings
+      welcomeBonusGranted: true,
       createdAt: new Date(),
     });
 

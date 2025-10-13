@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "@/components/ui/user-sidebar";
 import Header from "@/components/ui/user-header";
 import UserNav from "@/components/ui/user-nav";
@@ -22,16 +22,82 @@ import {
   ArrowDownRight,
   Activity,
 } from "lucide-react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
 
-// Recent activity data (empty for now)
-const recentActivities: any[] = [];
-
+// Recent activity data state is declared inside the component below
 
 // Notifications data is removed as it's no longer used
 
 export default function AdminDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { data: session, status } = useSession();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [stats, setStats] = useState({
+    balance: 0,
+    totalInvested: 0,
+    activeInvestmentsCount: 0,
+    totalEarnings: 0,
+    earningsToday: 0,
+  });
+  const [loadingStats, setLoadingStats] = useState(false);
+  const [statsError, setStatsError] = useState<string | null>(null);
+  const [recentActivities, setRecentActivities] = useState<any[]>([]);
+  const [loadingActivity, setLoadingActivity] = useState(false);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (status !== "authenticated") return;
+      setLoadingStats(true);
+      setStatsError(null);
+      try {
+        const res = await fetch("/api/user/stats");
+        if (!res.ok) throw new Error("Failed to load stats");
+        const data = await res.json();
+        setStats({
+          balance: Number(data.balance) || 0,
+          totalInvested: Number(data.totalInvested) || 0,
+          activeInvestmentsCount: Number(data.activeInvestmentsCount) || 0,
+          totalEarnings: Number(data.totalEarnings) || 0,
+          earningsToday: Number(data.earningsToday) || 0,
+        });
+      } catch (e: any) {
+        setStatsError(e?.message || "Unable to load stats");
+      } finally {
+        setLoadingStats(false);
+      }
+    };
+    fetchStats();
+  }, [status]);
+
+  // Show welcome bonus toast when redirected after registration
+  useEffect(() => {
+    const flag = searchParams?.get("welcome");
+    if (flag === "1") {
+      toast.success("You just earned $5 welcome bonus 🎉");
+      // remove the query param to avoid repeated toasts
+      const url = new URL(window.location.href);
+      url.searchParams.delete("welcome");
+      router.replace(url.pathname + (url.search ? `?${url.searchParams.toString()}` : ""));
+    }
+  }, [searchParams, router]);
+
+  useEffect(() => {
+    const fetchActivity = async () => {
+      if (status !== "authenticated") return;
+      setLoadingActivity(true);
+      try {
+        const res = await fetch("/api/user/activity", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = await res.json();
+        setRecentActivities(Array.isArray(data) ? data : []);
+      } finally {
+        setLoadingActivity(false);
+      }
+    };
+    fetchActivity();
+  }, [status]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
@@ -68,11 +134,9 @@ export default function AdminDashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
-                      $0
-                    </p>
-                    <p className="text-sm text-green-600 dark:text-green-400 flex items-center mt-1">
-                      <TrendingUp className="w-4 h-4 mr-1" />
-                      +0% this month
+                      {loadingStats
+                        ? "Loading..."
+                        : `$${stats.totalInvested.toLocaleString()}`}
                     </p>
                   </div>
                   <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
@@ -93,10 +157,13 @@ export default function AdminDashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
-                      0
+                      {loadingStats
+                        ? "Loading..."
+                        : `$${stats.balance.toLocaleString()}`}
                     </p>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      Across 0 plans
+                      Across {loadingStats ? "-" : stats.activeInvestmentsCount}{" "}
+                      {stats.activeInvestmentsCount === 1 ? "plan" : "plans"}
                     </p>
                   </div>
                   <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center">
@@ -117,11 +184,12 @@ export default function AdminDashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
-                      $0
+                      {loadingStats
+                        ? "Loading..."
+                        : `$${stats.totalEarnings.toLocaleString()}`}
                     </p>
-                    <p className="text-sm text-green-600 dark:text-green-400 flex items-center mt-1">
-                      <ArrowUpRight className="w-4 h-4 mr-1" />
-                      +0% ROI
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      Earnings today: {loadingStats ? "-" : `$${stats.earningsToday.toLocaleString()}`}
                     </p>
                   </div>
                   <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
@@ -156,10 +224,9 @@ export default function AdminDashboard() {
             </Card>
           </div>
 
-
           {/* Recent Activity Section - Now spans full width on large screens */}
           {/* The grid layout is updated to span all columns */}
-          <div className="grid grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 gap-5">
             {/* Recent Activity (Now spans full width on all screens) */}
             <Card className="lg:col-span-1 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
               <CardHeader>
@@ -171,56 +238,70 @@ export default function AdminDashboard() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-  {recentActivities.length === 0 ? (
-    <div className="text-center py-10">
-      <Activity className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
-        No Recent Activity
-      </h3>
-      <p className="text-gray-600 dark:text-gray-400">
-        Your latest transactions will appear here
-      </p>
-    </div>
-  ) : (
-    <div className="space-y-4">
-      {recentActivities.map((activity) => {
-        const IconComponent = activity.icon;
-        return (
-          <div
-            key={activity.id}
-            className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition"
-          >
-            <div className="flex items-center gap-4">
-              <div
-                className={`w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center ${activity.color}`}
-              >
-                <IconComponent className="w-5 h-5" />
-              </div>
-              <div>
-                <p className="font-medium text-gray-900 dark:text-gray-100">
-                  {activity.type}
-                </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {activity.date} • {activity.status}
-                </p>
-              </div>
-            </div>
-            <p className="font-semibold text-gray-900 dark:text-gray-100">
-              ${activity.amount.toLocaleString()}
-            </p>
-          </div>
-        );
-      })}
-    </div>
-  )}
-</CardContent>
-
+                {loadingActivity ? (
+                  <div className="text-center py-10">
+                    <Activity className="w-12 h-12 text-gray-400 mx-auto mb-3 animate-spin" />
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                      Loading Activity
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      Fetching your latest transactions
+                    </p>
+                  </div>
+                ) : recentActivities.length === 0 ? (
+                  <div className="text-center py-10">
+                    <Activity className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                      No Recent Activity
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      Your latest transactions will appear here
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {recentActivities.map((activity) => {
+                      const isPayment = activity.kind === "payment";
+                      const TitleIcon = isPayment ? DollarSign : Activity;
+                      const when = activity.date
+                        ? new Date(activity.date).toLocaleString()
+                        : "";
+                      const title = `${isPayment ? "Payment" : "Investment"} ${
+                        activity.status
+                      }`;
+                      const subtitle = `${when} • ${activity.planName || ""}`;
+                      const amount = Number(activity.amount || 0);
+                      return (
+                        <div
+                          key={activity.id}
+                          className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+                        >
+                          <div className="flex items-center gap-4">
+<div className="hidden sm:flex w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 items-center justify-center">
+                              <TitleIcon className="w-5 h-5" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-900 dark:text-gray-100">
+                                {title}
+                              </p>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">
+                                {subtitle}
+                              </p>
+                            </div>
+                          </div>
+                          <p className="font-semibold text-gray-900 dark:text-gray-100">
+                            ${amount.toLocaleString()}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
             </Card>
-            
-            {/* The Notifications Card was here, but has been removed. */}
-            
-          </div>
 
+            {/* The Notifications Card was here, but has been removed. */}
+          </div>
         </main>
 
         {/* Mobile Bottom Navigation */}

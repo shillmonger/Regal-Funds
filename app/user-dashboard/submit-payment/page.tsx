@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+
 import { useSearchParams } from "next/navigation";
 import Sidebar from "@/components/ui/user-sidebar";
 import Header from "@/components/ui/user-header";
@@ -183,29 +184,43 @@ export default function SubmitPaymentPage() {
   };
 
   // Submit
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!uploadedFile && !transactionId) {
-      // Validation: require at least one proof
+      // Validation: require at least one proof (either file or tx id)
       return;
     }
 
-    setSubmitStatus("pending");
+    try {
+      setSubmitStatus("pending");
+      const res = await fetch("/api/payments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: selectedPlan.amount,
+          planId: selectedPlan.id,
+          planName: selectedPlan.name,
+          roi: selectedPlan.roi,
+          duration: selectedPlan.duration,
+          crypto: selectedWallet.crypto,
+          walletAddress: selectedWallet.address,
+          transactionId: transactionId || undefined,
+          notes: notes || undefined,
+        }),
+      });
 
-    setTimeout(() => {
-      const mockResult = Math.random() < 0.8 ? "approved" : "rejected";
-      setSubmitStatus(mockResult as "approved" | "rejected");
-    }, 5000);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        console.error("Payment submit failed", err);
+        setSubmitStatus(null);
+        return;
+      }
 
-    console.log({
-      plan: selectedPlan,
-      crypto: selectedWallet,
-      transactionId,
-      notes,
-      file: uploadedFile
-        ? { name: uploadedFile.name, size: uploadedFile.size }
-        : null,
-    });
+      // Keep status as pending; admin will approve/reject from dashboard
+    } catch (error) {
+      console.error("Payment submit error", error);
+      setSubmitStatus(null);
+    }
   };
 
   return (

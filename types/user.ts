@@ -7,4 +7,8 @@ export interface User {
   role?: "user" | "admin";
   status?: "active" | "blocked" | "banned";
   createdAt?: Date;
+  balance?: number;
+  totalInvested?: number;
+  totalEarnings?: number;
+  welcomeBonusGranted?: boolean;
 }

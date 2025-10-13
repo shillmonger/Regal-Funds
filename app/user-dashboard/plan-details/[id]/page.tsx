@@ -215,7 +215,7 @@ export default function PlanDetailsPage() {
       id: String(id),
     }).toString();
 
-    toast.success("Amount accepted! Redirecting...");
+    toast.success("Redirecting...");
     setTimeout(() => {
       router.push(`/user-dashboard/submit-payment?${query}`);
     }, 1000);

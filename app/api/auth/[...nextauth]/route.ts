@@ -23,6 +23,11 @@ export const authOptions: NextAuthOptions = {
 
         if (!user) throw new Error("No user found with this email");
 
+        // deny access if user is blocked/banned
+        if (user.status && ["blocked", "banned"].includes(String(user.status).toLowerCase())) {
+          throw new Error("Your account is suspended.");
+        }
+
         const isValid = await compare(credentials!.password, user.passwordHash);
         if (!isValid) throw new Error("Invalid password");
 
@@ -65,16 +70,33 @@ async redirect({ url, baseUrl }) {
 
 
 
-    // 🔹 Persist ID and role in JWT
+    // 🔹 Persist ID and role in JWT; keep role in sync with DB
     async jwt({ token, user }) {
-      if (user) {
-        token.id = (user as any).id;
-        (token as any).role = (user as any).role;
+      try {
+        if (user) {
+          token.id = (user as any).id;
+          (token as any).role = (user as any).role;
+          return token;
+        }
+        // On subsequent calls (no `user`), refresh role from DB if possible
+        if (token?.id) {
+          const client = await clientPromise;
+          const db = client.db("crypto-investment");
+          const dbUser = await db
+            .collection("users")
+            .findOne({ _id: new ObjectId(token.id as string) });
+          if (dbUser?.role) {
+            (token as any).role = dbUser.role;
+          }
+        }
+      } catch (e) {
+        // best-effort; keep existing token on failure
+        console.error("JWT role refresh failed:", e);
       }
       return token;
     },
 
-    // 🔹 Enrich session from DB
+    // 🔹 Enrich session from DB; prefer live DB role when available
     async session({ session, token }) {
       if (token) {
         try {
@@ -87,7 +109,7 @@ async redirect({ url, baseUrl }) {
           session.user = {
             ...session.user,
             id: token.id as string,
-            role: (token as any).role as string,
+            role: (dbUser?.role as string) ?? ((token as any).role as string),
             name: dbUser?.name ?? session.user?.name,
             email: dbUser?.email ?? session.user?.email,
             username: dbUser?.username || undefined,

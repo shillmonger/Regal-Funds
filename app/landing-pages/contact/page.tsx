@@ -48,7 +48,7 @@ export default function ContactPage() {
               General Enquiries
             </h2>
             <p className="text-sm text-gray-700 leading-relaxed mb-4">
-              For general enquiries, you can contact Regal's reception team by calling +61 2 8197 4358, or completing the enquiry form.
+              For general enquiries, you can contact Regal's reception team by calling +43 6888 7993 7235, or completing the enquiry form.
             </p>
             <p className="text-sm text-gray-700 leading-relaxed">
               If you have any questions regarding Regal investment strategies, please contact our investor relations team using the details below. We have also included registry contact details for the listed investment vehicles managed by Regal: ASX: API and ASX: RGS; and our suite of Australian Unit Trusts.

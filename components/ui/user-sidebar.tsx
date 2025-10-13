@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+
 import {
   Home,
   Layers,
@@ -27,8 +29,20 @@ interface SidebarProps {
 export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const { data: session, status } = useSession();
 
   const basePath = "/user-dashboard";
+
+  // Avoid hydration mismatch by only showing admin link after mount when session is known
+  const [showAdmin, setShowAdmin] = useState(false);
+  useEffect(() => {
+    if (status === "authenticated") {
+      const role = (session?.user as any)?.role;
+      setShowAdmin(role === "admin");
+    } else if (status === "unauthenticated") {
+      setShowAdmin(false);
+    }
+  }, [status, session]);
 
   const sidebarItems = [
     { name: "Dashboard", icon: Home, href: `${basePath}/dashboard` },
@@ -38,7 +52,8 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
     { name: "Connect Wallet", icon: Wallet, href: `${basePath}/connect-wallet` },
     { name: "Overall Histery", icon: Clock, href: `${basePath}/histery` },
     { name: "Account Settings", icon: Settings, href: `${basePath}/settings` },
-    { name: "Submit Payment Proof", icon: FileCheck, href: `${basePath}/submit-payment` },
+    // { name: "Submit Payment Proof", icon: FileCheck, href: `${basePath}/submit-payment` },
+    // admin link is conditionally added below
   ];
 
   const isActive = (href: string) =>
@@ -85,7 +100,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
 
         {/* Navigation Links */}
         <nav className="px-3 py-6 space-y-1 overflow-y-auto h-[calc(100%-4rem)]">
-          {sidebarItems.map(({ name, icon: Icon, href }) => (
+          {[...sidebarItems, ...(showAdmin ? [{ name: "Switch to Admin", icon: FileCheck, href: "/admin-dashboard/payments" }] : [])].map(({ name, icon: Icon, href }) => (
             <Link
               key={name}
               href={href}

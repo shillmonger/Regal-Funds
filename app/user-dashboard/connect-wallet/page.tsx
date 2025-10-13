@@ -147,14 +147,14 @@ export default function ConnectWalletPage() {
                       <DropdownMenuContent className="w-full">
                         {paymentWallets.map((wallet) => (
                           <DropdownMenuItem
-                            key={wallet.address}
+                            key={wallet.key}
                             onSelect={() => {
                               setSelectedAddress(wallet);
                               const fromDb = (savedWallets as any)[wallet.key] as string | undefined;
                               setWalletAddress(fromDb || wallet.address);
                             }}
                             className={`cursor-pointer ${
-                              selectedAddress.address === wallet.address
+                              selectedAddress.key === wallet.key
                                 ? "bg-emerald-100 dark:bg-emerald-900/20"
                                 : ""
                             }`}
