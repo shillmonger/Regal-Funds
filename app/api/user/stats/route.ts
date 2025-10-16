@@ -49,6 +49,17 @@ export async function GET() {
             $set: { lastAccruedAt: now.toISOString() },
           }
         );
+        // Log ROI accrual into earnings_logs (single aggregate entry for this run)
+        await db.collection("earnings_logs").insertOne({
+          userId: session.user.id,
+          investmentId: (inv as any)._id?.toString?.() || null,
+          amount: accrueAmount,
+          days: toAccrueDays,
+          dailyPercent,
+          createdAt: now.toISOString(),
+          type: "roi",
+          planName: (inv as any).planName,
+        });
       }
     }
 
@@ -85,12 +96,28 @@ export async function GET() {
     const totalInvested = (user as any)?.totalInvested ?? totalInvestedFromAgg;
     const totalEarnings = (user as any)?.totalEarnings ?? totalEarningsFromAgg;
 
+    // Referral totals
+    const [refAgg, refCount] = await Promise.all([
+      db
+        .collection("referral_payouts")
+        .aggregate([
+          { $match: { referrerId: session.user.id } },
+          { $group: { _id: null, total: { $sum: "$amount" } } },
+        ])
+        .toArray(),
+      db.collection("users").countDocuments({ referredBy: session.user.id }),
+    ]);
+    const referralEarnings = Number(refAgg[0]?.total || 0);
+    const referralCount = Number(refCount || 0);
+
     return NextResponse.json({
       balance,
       totalInvested,
       activeInvestmentsCount,
       totalEarnings,
       earningsToday: accruedTotal,
+      referralEarnings,
+      referralCount,
     });
   } catch (e) {
     console.error("GET /api/user/stats error", e);

@@ -62,25 +62,25 @@ const TEXT_SECONDARY = "text-gray-600 dark:text-gray-400";
 const paymentWallets = [
   {
     crypto: "Bitcoin (BTC)",
-    address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+    address: "bc1qyywpvkqpepv3m5w858egclkpazcyy9ckyq2e2t",
     network: "Bitcoin Network",
     color: "text-orange-500",
   },
   {
     crypto: "Ethereum (ETH)",
-    address: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
+    address: "0x40d72384cb6EDd9E362CEd310bA729548F10C72D",
     network: "ERC-20",
     color: "text-blue-500",
   },
   {
     crypto: "Tether (USDT)",
-    address: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
-    network: "TRC-20 / ERC-20",
+    address: "TM4zFPcdM35pbRyZmWGETVUgxXgX9CQ9U1",
+    network: "TRC-20",
     color: "text-green-500",
   },
   {
     crypto: "BNB",
-    address: "bnb1xy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+    address: "0x40d72384cb6EDd9E362CEd310bA729548F10C72D",
     network: "BEP-20",
     color: "text-yellow-500",
   },

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "@/components/ui/user-sidebar";
 import Header from "@/components/ui/user-header";
 import UserNav from "@/components/ui/user-nav";
@@ -26,21 +26,43 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
-const referralData = {
-  referralCode: "KING2025",
-  referralLink: "https://platform.com/ref/KING2025",
-  totalReferrals: 0,
-  activeReferrals: 0,
-  totalEarnings: 0,
-  pendingEarnings: 0,
-  commissionRate: 0,
+type ReferralsMe = {
+  referralCode: string;
+  referralURL: string;
+  totalReferrals: number;
+  totalReferralEarnings: number;
 };
 
 export default function ReferralsPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
+  const [ref, setRef] = useState<ReferralsMe | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      try {
+        const meRes = await fetch("/api/referrals/me", { cache: "no-store" });
+        if (!meRes.ok) throw new Error("Failed to load referral info");
+        const data = await meRes.json();
+        setRef({
+          referralCode: data.referralCode,
+          referralURL: data.referralURL,
+          totalReferrals: Number(data.totalReferrals) || 0,
+          totalReferralEarnings: Number(data.totalReferralEarnings) || 0,
+        });
+      } catch (e: any) {
+        toast.error(e?.message || "Unable to load referral info");
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
 
   const copyToClipboard = (text: string, type: "link" | "code"): void => {
     navigator.clipboard.writeText(text);
@@ -54,8 +76,9 @@ export default function ReferralsPage() {
   };
 
   const shareVia = (platform: "facebook" | "twitter" | "whatsapp" | "email"): void => {
-    const text = `Join me on this amazing investment platform and start earning! Use my referral code: ${referralData.referralCode}`;
-    const url = referralData.referralLink;
+    const code = ref?.referralCode || "";
+    const url = ref?.referralURL || "";
+    const text = `Join me on this amazing investment platform and start earning! Use my referral code: ${code}`;
 
     switch (platform) {
       case "facebook":
@@ -89,51 +112,28 @@ export default function ReferralsPage() {
               Referral Program 🎁
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Invite friends and earn {referralData.commissionRate}% commission on their investments
+              Share your unique referral link and earn $10 when your referral buys a plan.
             </p>
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-6 mb-8">
             <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-2">
                   <Users className="w-8 h-8 opacity-80" />
-                  <span className="text-xs bg-emerald-400/30 px-2 py-1 rounded-full">
-                    {referralData.activeReferrals} Active
-                  </span>
+                  <span className="text-xs bg-emerald-400/30 px-2 py-1 rounded-full">Referrals</span>
                 </div>
                 <p className="text-sm mb-1 text-gray-600 dark:text-gray-400">Total Referrals</p>
-                <p className="text-3xl font-bold">{referralData.totalReferrals}</p>
+                <p className="text-3xl font-bold">{ref?.totalReferrals ?? 0}</p>
               </CardContent>
             </Card>
 
             <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
               <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <DollarSign className="w-8 h-8 opacity-80" />
-                  <span className="text-xs bg-emerald-400/30 px-2 py-1 rounded-full">
-                    Rate: {referralData.commissionRate}%
-                  </span>
-                </div>
+                <div className="flex items-center justify-between mb-2"><DollarSign className="w-8 h-8 opacity-80" /></div>
                 <p className="text-sm mb-1 text-gray-600 dark:text-gray-400">Total Earnings</p>
-                <p className="text-3xl font-bold">${referralData.totalEarnings.toLocaleString()}</p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
-              <CardContent className="p-6">
-                <Gift className="w-8 h-8 opacity-80 mb-2" />
-                <p className="text-sm mb-1 text-gray-600 dark:text-gray-400">Pending Earnings</p>
-                <p className="text-3xl font-bold">${referralData.pendingEarnings.toLocaleString()}</p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
-              <CardContent className="p-6">
-                <TrendingUp className="w-8 h-8 opacity-80 mb-2" />
-                <p className="text-sm mb-1 text-gray-600 dark:text-gray-400">Commission Rate</p>
-                <p className="text-3xl font-bold">{referralData.commissionRate}%</p>
+                <p className="text-3xl font-bold">{`$${(ref?.totalReferralEarnings ?? 0).toLocaleString()}`}</p>
               </CardContent>
             </Card>
           </div>
@@ -157,9 +157,9 @@ export default function ReferralsPage() {
                   <div>
                     <p className="text-emerald-100 text-sm mb-2">Referral Code</p>
                     <div className="flex items-center gap-2 bg-white/20 p-3 rounded-lg">
-                      <code className="flex-1 font-mono text-lg font-bold">{referralData.referralCode}</code>
+                      <code className="flex-1 font-mono text-lg font-bold">{ref?.referralCode || (loading ? "Loading..." : "-")}</code>
                       <button
-                        onClick={() => copyToClipboard(referralData.referralCode, "code")}
+                        onClick={() => ref?.referralCode && copyToClipboard(ref.referralCode, "code")}
                         className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition"
                       >
                         {copiedCode ? <CheckCircle className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
@@ -170,9 +170,9 @@ export default function ReferralsPage() {
                   <div>
                     <p className="text-emerald-100 text-sm mb-2">Referral URL</p>
                     <div className="flex items-center gap-2 bg-white/20 p-3 rounded-lg">
-                      <p className="flex-1 font-mono text-sm truncate">{referralData.referralLink}</p>
+                      <p className="flex-1 font-mono text-sm truncate">{ref?.referralURL || (loading ? "Loading..." : "-")}</p>
                       <button
-                        onClick={() => copyToClipboard(referralData.referralLink, "link")}
+                        onClick={() => ref?.referralURL && copyToClipboard(ref.referralURL, "link")}
                         className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition"
                       >
                         {copiedLink ? <CheckCircle className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
@@ -181,7 +181,7 @@ export default function ReferralsPage() {
                   </div>
 
                   <Button
-                    onClick={() => copyToClipboard(referralData.referralLink, "link")}
+                    onClick={() => ref?.referralURL && copyToClipboard(ref.referralURL, "link")}
                     className="w-full bg-white text-emerald-600 hover:bg-emerald-50 font-semibold py-6"
                   >
                     {copiedLink ? "Link Copied!" : "Copy Referral Link"}
@@ -243,8 +243,8 @@ export default function ReferralsPage() {
                     <li className="flex gap-3">
                       <span className="flex-shrink-0 w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center text-sm font-bold">3</span>
                       <div>
-                        <p className="font-medium text-gray-900 dark:text-gray-100">You Earn {referralData.commissionRate}%</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Earn commissions on their initial investment.</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">You Earn $10</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">When their first plan is approved.</p>
                       </div>
                     </li>
                   </ol>
@@ -258,19 +258,22 @@ export default function ReferralsPage() {
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2 text-sm text-blue-800 dark:text-blue-300">
-                    <li>• Earn {referralData.commissionRate}% on first investment only</li>
+                    <li>• Earn $10 on your referral's first approved investment</li>
                     <li>• Minimum referral investment: $100</li>
-                    <li>• Commissions credited within 24 hours</li>
+                    <li>• Bonuses are credited after admin approval</li>
                     <li>• No limit on number of referrals</li>
                     <li>• Fraud results in account suspension</li>
                   </ul>
                 </CardContent>
               </Card>
+
             </div>
           </div>
         </main>
 
-        <UserNav />
+
+        {/* Mobile Bottom Navigation */}
+                <UserNav />
       </div>
     </div>
   );

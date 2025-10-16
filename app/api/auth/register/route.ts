@@ -4,7 +4,11 @@ import { hash } from "bcrypt";
 
 export async function POST(req: Request) {
   try {
-    const { username, email, password, confirmPassword } = await req.json();
+    const url = new URL(req.url);
+    const refFromQuery = url.searchParams.get("ref");
+    const body = await req.json();
+    const { username, email, password, confirmPassword } = body as any;
+    const refFromBody: string | null = body?.ref || body?.referralCode || body?.referredByCode || null;
 
     if (!username || !email || !password || !confirmPassword) {
       return NextResponse.json({ error: "All fields are required" }, { status: 400 });
@@ -27,6 +31,17 @@ export async function POST(req: Request) {
     }
 
     const hashedPassword = await hash(password, 10);
+
+    // Resolve referrer by referralCode if provided
+    let referredBy: string | undefined = undefined;
+    const ref = refFromBody || refFromQuery || null;
+    if (ref) {
+      const referrer = await db.collection("users").findOne({ referralCode: ref });
+      if (referrer?._id) {
+        referredBy = referrer._id.toString();
+      }
+    }
+
     const result = await db.collection("users").insertOne({
       name: username,
       email,
@@ -37,6 +52,7 @@ export async function POST(req: Request) {
       totalInvested: 0,
       totalEarnings: 5, // count welcome bonus as earnings
       welcomeBonusGranted: true,
+      referredBy: referredBy || null,
       createdAt: new Date(),
     });
 

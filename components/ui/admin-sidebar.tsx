@@ -46,11 +46,6 @@ export default function AdminSidebar({
       href: `${basePath}/user-management`,
     },
     {
-      name: "Referral Payouts",
-      icon: Coins, // 🪙 Keeps the referral/reward theme
-      href: `${basePath}/referral-payouts`,
-    },
-    {
       name: "Investment Payouts",
       icon: Briefcase, // 💼 Represents investment-related payouts
       href: `${basePath}/investment-payouts`,

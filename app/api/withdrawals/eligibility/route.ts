@@ -1,0 +1,39 @@
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import clientPromise from "@/lib/mongodb";
+import { ObjectId } from "mongodb";
+
+export async function GET() {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const client = await clientPromise;
+    const db = client.db("crypto-investment");
+
+    const maturedCount = await db.collection("investments").countDocuments({
+      userId: session.user.id,
+      status: "Active",
+      $expr: { $gte: ["$daysAccrued", "$durationDays"] },
+    });
+
+    const userDoc = await db
+      .collection("users")
+      .findOne({ _id: new ObjectId(session.user.id) });
+
+    const balance = Number((userDoc as any)?.balance ?? 0);
+
+    return NextResponse.json({
+      eligible: maturedCount > 0,
+      maturedInvestments: maturedCount,
+      balance,
+      minimumWithdrawal: 50,
+    });
+  } catch (e) {
+    console.error("GET /api/withdrawals/eligibility error", e);
+    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+  }
+}

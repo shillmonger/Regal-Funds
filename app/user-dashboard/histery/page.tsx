@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 // Assuming these imports are correctly aliased in your project
 import Sidebar from "@/components/ui/user-sidebar";
 import Header from "@/components/ui/user-header";
@@ -39,10 +39,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// Complete transaction history
-// Complete transaction history (empty for now)
-const transactionHistory: any[] = [];
-
+const statusMap = (s: string) => {
+  const x = (s || "").toLowerCase();
+  if (x === "approved" || x === "paid" || x === "active" || x === "completed") return "completed";
+  if (x === "rejected" || x === "failed" || x === "declined") return "declined";
+  return "pending";
+};
 
 // Transaction type configurations
 const transactionTypes = {
@@ -127,6 +129,67 @@ export default function HistoryPage() {
   const [filterType, setFilterType] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [dateFilter, setDateFilter] = useState("all"); // Changed to use state from Select
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const load = async () => {
+      setError(null);
+      setLoading(true);
+      try {
+        const res = await fetch("/api/user/activity", { cache: "no-store" });
+        if (!res.ok) throw new Error("Failed to load activity");
+        const data = await res.json();
+        setItems(Array.isArray(data) ? data : []);
+      } catch (e: any) {
+        setError(e?.message || "Unable to load activity");
+        setItems([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
+
+  const transactionHistory = useMemo(() => {
+    return items.map((a: any) => {
+      const kind = String(a.kind || "");
+      const rawStatus = String(a.status || "");
+      const status = statusMap(rawStatus);
+      const amount = Number(a.amount || 0);
+      const when = a.date || new Date().toISOString();
+      const time = new Date(when).toLocaleTimeString();
+      let type = "deposit" as "deposit" | "investment" | "withdrawal" | "referral" | "roi";
+      let description = "";
+      if (kind === "payment") {
+        type = "deposit";
+        description = `Payment ${rawStatus}${a.planName ? ` • ${a.planName}` : ""}`;
+      } else if (kind === "investment") {
+        type = "investment";
+        description = `Investment ${rawStatus}${a.planName ? ` • ${a.planName}` : ""}`;
+      } else if (kind === "withdrawal") {
+        type = "withdrawal";
+        description = `Withdrawal ${rawStatus}`;
+      } else if (kind === "referral") {
+        type = "referral";
+        description = "Referral commission";
+      } else if (kind === "roi") {
+        type = "roi";
+        description = `Daily earnings (ROI)${a.planName ? ` • ${a.planName}` : ""}`;
+      }
+      return {
+        id: a.id,
+        type,
+        status,
+        amount,
+        description,
+        date: when,
+        time,
+        reference: a.id,
+      };
+    });
+  }, [items]);
 
   // Format date
   const formatDate = (dateString: string) => {

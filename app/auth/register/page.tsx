@@ -9,8 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff } from "lucide-react";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { signIn } from "next-auth/react";
 
@@ -34,9 +34,18 @@ export default function RegisterPage() {
     email: "",
     password: "",
     confirmPassword: "",
+    referralCode: "",
   });
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const q = searchParams?.get("ref");
+    if (q && !form.referralCode) {
+      setForm((f) => ({ ...f, referralCode: q }));
+    }
+  }, [searchParams]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.id]: e.target.value });
@@ -47,10 +56,11 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
+      const ref = (form.referralCode || "").trim() || searchParams?.get("ref") || null;
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, ref }),
       });
 
       const data = await res.json();
@@ -163,6 +173,22 @@ export default function RegisterPage() {
                     </div>
                   </div>
                 ))}
+
+                <div>
+                  <Label htmlFor="referralCode" className={`text-sm font-medium ${accentColor}`}>
+                    Referral Code (optional)
+                  </Label>
+                  <div className="mt-1">
+                    <Input
+                      id="referralCode"
+                      type="text"
+                      placeholder="Enter referral code if you have one"
+                      className={`h-11 ${inputBackground} ${inputBorderColor} border w-full px-3 rounded-md ${accentColor} placeholder:text-gray-400`}
+                      value={form.referralCode}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
 
                 {/* Terms Checkbox */}
                 <div className="space-y-3">

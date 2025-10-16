@@ -30,25 +30,21 @@ import UserNav from "@/components/ui/user-nav";
 const paymentWallets = [
   {
     crypto: "Bitcoin (BTC)",
-    address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
     network: "Bitcoin Network",
     key: "btc",
   },
   {
     crypto: "Ethereum (ETH)",
-    address: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
     network: "ERC-20",
     key: "eth",
   },
   {
     crypto: "Tether (USDT)",
-    address: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
     network: "TRC-20 / ERC-20",
     key: "usdt",
   },
   {
     crypto: "BNB",
-    address: "bnb1xy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
     network: "BEP-20",
     key: "bnb",
   },
@@ -126,7 +122,7 @@ export default function ConnectWalletPage() {
                     Connect Your Wallet
                   </CardTitle>
                   <p className={`${textMedium} text-sm mt-2`}>
-                    Select your wallet address or enter one manually.
+                    Select your crypto type and enter your own wallet address. We never auto-fill addresses.
                   </p>
                 </CardHeader>
 
@@ -151,7 +147,7 @@ export default function ConnectWalletPage() {
                             onSelect={() => {
                               setSelectedAddress(wallet);
                               const fromDb = (savedWallets as any)[wallet.key] as string | undefined;
-                              setWalletAddress(fromDb || wallet.address);
+                              setWalletAddress(fromDb || "");
                             }}
                             className={`cursor-pointer ${
                               selectedAddress.key === wallet.key
@@ -268,7 +264,7 @@ export default function ConnectWalletPage() {
                 <CardContent className={`text-sm ${textMedium} space-y-2`}>
                   <ol className="list-decimal ml-5 space-y-1">
                     <li>Select your crypto type (e.g. BTC, ETH, BNB).</li>
-                    <li>The address will show you sample address automatically then update by entering your own address.</li>
+                    <li>Select your crypto, then type your own address into the input field.</li>
                     <li>Click <strong>Connect Address</strong> to confirm.</li>
                   </ol>
                 </CardContent>

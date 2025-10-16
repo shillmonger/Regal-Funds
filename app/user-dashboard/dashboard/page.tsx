@@ -40,6 +40,8 @@ export default function AdminDashboard() {
     activeInvestmentsCount: 0,
     totalEarnings: 0,
     earningsToday: 0,
+    referralEarnings: 0,
+    referralCount: 0,
   });
   const [loadingStats, setLoadingStats] = useState(false);
   const [statsError, setStatsError] = useState<string | null>(null);
@@ -61,6 +63,8 @@ export default function AdminDashboard() {
           activeInvestmentsCount: Number(data.activeInvestmentsCount) || 0,
           totalEarnings: Number(data.totalEarnings) || 0,
           earningsToday: Number(data.earningsToday) || 0,
+          referralEarnings: Number(data.referralEarnings) || 0,
+          referralCount: Number(data.referralCount) || 0,
         });
       } catch (e: any) {
         setStatsError(e?.message || "Unable to load stats");
@@ -121,31 +125,9 @@ export default function AdminDashboard() {
             </p>
           </div>
 
-          {/* Summary Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
-            {/* Total Invested */}
-            <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
-              <CardHeader className="pb-2">
-                <CardDescription className="text-gray-600 dark:text-gray-400">
-                  Total Invested
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
-                      {loadingStats
-                        ? "Loading..."
-                        : `$${stats.totalInvested.toLocaleString()}`}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
-                    <DollarSign className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
 
+    {/* Summary Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
             {/* Active Investments */}
             <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
               <CardHeader className="pb-2">
@@ -173,6 +155,30 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
 
+           
+            {/* Total Invested */}
+            <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
+              <CardHeader className="pb-2">
+                <CardDescription className="text-gray-600 dark:text-gray-400">
+                  Total Invested
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
+                      {loadingStats
+                        ? "Loading..."
+                        : `$${stats.totalInvested.toLocaleString()}`}
+                    </p>
+                  </div>
+                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                    <DollarSign className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Total Earnings */}
             <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
               <CardHeader className="pb-2">
@@ -187,9 +193,6 @@ export default function AdminDashboard() {
                       {loadingStats
                         ? "Loading..."
                         : `$${stats.totalEarnings.toLocaleString()}`}
-                    </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      Earnings today: {loadingStats ? "-" : `$${stats.earningsToday.toLocaleString()}`}
                     </p>
                   </div>
                   <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
@@ -210,10 +213,10 @@ export default function AdminDashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
-                      $0
+                      {loadingStats ? "Loading..." : `$${Number(stats.referralEarnings || 0).toLocaleString()}`}
                     </p>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      0 active referrals
+                      {loadingStats ? "-" : `${stats.referralCount} active ${stats.referralCount === 1 ? "referral" : "referrals"}`}
                     </p>
                   </div>
                   <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">

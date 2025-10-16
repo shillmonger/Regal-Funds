@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { DollarSign, Filter, Check, X, LineChart } from "lucide-react";
 import AdminHeader from "@/components/ui/admin-header";
 import AdminSidebar from "@/components/ui/admin-sidebar";
@@ -10,6 +10,7 @@ import AdminNav from "@/components/ui/admin-nav";
 const getStatusClasses = (status: string) => {
   switch (status) {
     case "Paid":
+    case "Approved":
       return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400";
     case "Rejected":
       return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400";
@@ -21,6 +22,7 @@ const getStatusClasses = (status: string) => {
 const getStatusIcon = (status: string) => {
   switch (status) {
     case "Paid":
+    case "Approved":
       return <Check className="w-4 h-4 mr-1" />;
     case "Rejected":
       return <X className="w-4 h-4 mr-1" />;
@@ -31,34 +33,57 @@ const getStatusIcon = (status: string) => {
 
 export default function AdminInvestmentPayoutsPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [payouts, setPayouts] = useState<any[]>([]); // 🟢 Empty at first
+  const [payouts, setPayouts] = useState<any[]>([]); // 🟢 Loaded from API
   const [statusFilter, setStatusFilter] = useState("All");
   const [planFilter, setPlanFilter] = useState("All");
+  const [loading, setLoading] = useState(false);
 
   const filteredPayouts = useMemo(() => {
     return payouts.filter((p) => {
       const statusMatch = statusFilter === "All" || p.status === statusFilter;
-      const planMatch = planFilter === "All" || p.plan === planFilter;
+      const planMatch = planFilter === "All" || !p.plan || p.plan === planFilter;
       return statusMatch && planMatch;
     });
   }, [statusFilter, planFilter, payouts]);
 
-  const handleAction = (id: number, newStatus: string) => {
-    setPayouts((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, status: newStatus } : p))
-    );
+  const reload = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/withdrawals", { cache: "no-store" });
+      if (!res.ok) return;
+      const list = await res.json();
+      setPayouts(Array.isArray(list) ? list : []);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    reload();
+  }, []);
+
+  const handleAction = async (id: string, newStatus: string) => {
+    try {
+      const res = await fetch(`/api/withdrawals/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!res.ok) return;
+      await reload();
+    } catch {}
   };
 
   const summary = useMemo(() => {
     const total = payouts.length;
-    const paid = payouts.filter((p) => p.status === "Paid").length;
+    const paid = payouts.filter((p) => p.status === "Approved").length;
     const pending = payouts.filter((p) => p.status === "Pending").length;
     const rejected = payouts.filter((p) => p.status === "Rejected").length;
     return { total, paid, pending, rejected };
   }, [payouts]);
 
-  const plans = ["All", ...Array.from(new Set(payouts.map((p) => p.plan)))];
-  const statuses = ["All", "Pending", "Paid", "Rejected"];
+  const plans = ["All", ...Array.from(new Set(payouts.map((p) => p.plan).filter(Boolean)))];
+  const statuses = ["All", "Pending", "Approved", "Rejected"];
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950 font-inter">
@@ -130,17 +155,19 @@ export default function AdminInvestmentPayoutsPage() {
             </div>
 
             {/* Table Rows */}
-            {filteredPayouts.map((p) => (
+            {loading ? (
+              <div className="text-center py-6 text-gray-500 dark:text-gray-400">Loading...</div>
+            ) : filteredPayouts.map((p) => (
               <div
                 key={p.id}
                 className="grid grid-cols-1 gap-3 lg:grid-cols-7 lg:gap-4 lg:items-center border-b border-gray-100 dark:border-gray-800 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
               >
-                <div className="font-medium text-gray-900 dark:text-gray-100">{p.name}</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">{p.plan}</div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">{p.userName || p.userEmail}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">{p.plan || "-"}</div>
                 <div className="font-semibold text-gray-900 dark:text-gray-100">
                   ${p.amount.toLocaleString()}
                 </div>
-                <div className="font-semibold text-[#72a210]">${p.profit.toLocaleString()}</div>
+                <div className="font-semibold text-[#72a210]">{p.crypto || "Wallet"}</div>
                 <div>
                   <div
                     className={`flex items-center px-3 py-1 text-xs font-medium rounded-full ${getStatusClasses(
@@ -151,11 +178,11 @@ export default function AdminInvestmentPayoutsPage() {
                     {p.status}
                   </div>
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">{p.date}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">{p.requestedAt ? new Date(p.requestedAt).toLocaleString() : ""}</div>
                 <div className="flex justify-end space-x-2">
                   <button
-                    onClick={() => handleAction(p.id, "Paid")}
-                    disabled={p.status === "Paid"}
+                    onClick={() => handleAction(p.id, "Approved")}
+                    disabled={p.status === "Approved"}
                     className="px-3 py-1.5 bg-[#72a210] text-white rounded-md text-sm font-medium hover:bg-[#507800] transition disabled:opacity-50"
                   >
                     <Check className="w-4 h-4 inline mr-1" /> Mark Paid
@@ -172,7 +199,7 @@ export default function AdminInvestmentPayoutsPage() {
             ))}
 
             {/* Empty State */}
-            {filteredPayouts.length === 0 && (
+            {!loading && filteredPayouts.length === 0 && (
               <div className="text-center py-6 text-gray-500 dark:text-gray-400">
                 No payout records found.
               </div>

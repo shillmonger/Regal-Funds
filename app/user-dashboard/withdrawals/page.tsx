@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "@/components/ui/user-sidebar";
 import Header from "@/components/ui/user-header";
 import UserNav from "@/components/ui/user-nav";
@@ -22,23 +22,22 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
-type WithdrawalStatus = "pending" | "paid" | "declined";
+type WithdrawalStatus = "Pending" | "Approved" | "Rejected";
 
 interface Withdrawal {
-  id: number;
+  id: string;
   amount: number;
   walletAddress: string;
   crypto: string;
-  requestDate: string;
+  requestedAt: string;
   status: WithdrawalStatus;
-  processedDate?: string;
-  paidDate?: string;
-  txHash?: string;
+  approvedAt?: string | null;
+  txHash?: string | null;
   adminNote?: string | null;
 }
 
-// Empty history
 const withdrawalHistory: Withdrawal[] = [];
 
 // Status configurations
@@ -83,9 +82,79 @@ export default function WithdrawalsPage() {
   const [selectedCrypto, setSelectedCrypto] = useState(0);
   const [filterStatus, setFilterStatus] = useState("all");
   const [copiedAddress, setCopiedAddress] = useState<string | number | null>(null);
+  const [history, setHistory] = useState<Withdrawal[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [eligible, setEligible] = useState(false);
+  const [availableBalance, setAvailableBalance] = useState(0);
+  const [minimumWithdrawal, setMinimumWithdrawal] = useState(50);
+  const [userWallets, setUserWallets] = useState<Record<string, string>>({});
 
-  const availableBalance = 0;
-  const minimumWithdrawal = 50;
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      try {
+        const [eligRes, listRes] = await Promise.all([
+          fetch("/api/withdrawals/eligibility", { cache: "no-store" }),
+          fetch("/api/withdrawals", { cache: "no-store" }),
+          fetch("/api/users/me", { cache: "no-store" }),
+        ]);
+        if (eligRes.ok) {
+          const e = await eligRes.json();
+          setEligible(Boolean(e.eligible));
+          setAvailableBalance(Number(e.balance) || 0);
+          if (e.minimumWithdrawal) setMinimumWithdrawal(Number(e.minimumWithdrawal));
+        }
+        if (listRes.ok) {
+          const list = await listRes.json();
+          const mapped: Withdrawal[] = (list || []).map((w: any) => ({
+            id: w.id,
+            amount: Number(w.amount) || 0,
+            walletAddress: String(w.walletAddress || ""),
+            crypto: String(w.crypto || ""),
+            requestedAt: w.requestedAt || w.requestDate || new Date().toISOString(),
+            status: (w.status as WithdrawalStatus) || "Pending",
+            approvedAt: w.approvedAt ?? null,
+            txHash: w.txHash ?? null,
+            adminNote: w.adminNote ?? null,
+          }));
+          setHistory(mapped);
+        }
+        const meRes = arguments[0][2] || null; // placeholder
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
+
+  // Separate effect to load user wallets (avoids the placeholder workaround above)
+  useEffect(() => {
+    const loadMe = async () => {
+      try {
+        const res = await fetch("/api/users/me", { cache: "no-store" });
+        if (!res.ok) return;
+        const me = await res.json();
+        const wallets = (me?.wallets as Record<string, string>) || {};
+        setUserWallets(wallets);
+        // Attempt initial auto-fill for default selection
+        const key = selectedCrypto === 0 ? "btc" : selectedCrypto === 1 ? "eth" : selectedCrypto === 2 ? "usdt" : "bnb";
+        if (wallets[key]) setWalletAddress(wallets[key]);
+      } catch {}
+    };
+    loadMe();
+  }, []);
+
+  // Auto-fill wallet address when crypto selection changes
+  useEffect(() => {
+    const key = selectedCrypto === 0 ? "btc" : selectedCrypto === 1 ? "eth" : selectedCrypto === 2 ? "usdt" : "bnb";
+    const addr = userWallets[key];
+    if (addr) {
+      setWalletAddress(addr);
+    } else {
+      // Clear input if no connected wallet for that type
+      setWalletAddress("");
+    }
+  }, [selectedCrypto, userWallets]);
 
   const copyToClipboard = (text: string, id: string | number): void => {
     navigator.clipboard.writeText(text);
@@ -93,30 +162,78 @@ export default function WithdrawalsPage() {
     setTimeout(() => setCopiedAddress(null), 2000);
   };
 
-  const handleWithdrawal = () => {
-    if (!withdrawAmount || parseFloat(withdrawAmount) < minimumWithdrawal) {
-      alert(`Minimum withdrawal amount is $${minimumWithdrawal}`);
+  const handleWithdrawal = async () => {
+    if (!eligible) {
+      toast.info("Available when expired");
       return;
     }
+    const amt = parseFloat(withdrawAmount);
+    if (!amt || amt < minimumWithdrawal) {
+      toast.error(`Minimum withdrawal amount is $${minimumWithdrawal}`);
+      return;
+    }
+    // Ensure user has connected a wallet for the selected crypto
+    const requiredKey = selectedCrypto === 0 ? "btc" : selectedCrypto === 1 ? "eth" : selectedCrypto === 2 ? "usdt" : "bnb";
+    const connectedAddr = userWallets[requiredKey];
+    if (!connectedAddr) {
+      toast.error("Please submit a wallet address first");
+      return;
+    }
+    // If input is empty, auto-fill from connected wallet
     if (!walletAddress) {
-      alert("Please enter your wallet address");
+      setWalletAddress(connectedAddr);
+    }
+    if (amt > availableBalance) {
+      toast.error("Amount exceeds available balance");
       return;
     }
-    alert("Withdrawal request submitted successfully!");
-    setWithdrawAmount("");
-    setWalletAddress("");
+    try {
+      const res = await fetch("/api/withdrawals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: amt, walletAddress, crypto: cryptoOptions[selectedCrypto].name }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error || "Failed to submit withdrawal");
+      }
+      toast.success("Withdrawal request submitted successfully");
+      setWithdrawAmount("");
+      setWalletAddress("");
+      const listRes = await fetch("/api/withdrawals", { cache: "no-store" });
+      if (listRes.ok) {
+        const list = await listRes.json();
+        const mapped: Withdrawal[] = (list || []).map((w: any) => ({
+          id: w.id,
+          amount: Number(w.amount) || 0,
+          walletAddress: String(w.walletAddress || ""),
+          crypto: String(w.crypto || ""),
+          requestedAt: w.requestedAt || new Date().toISOString(),
+          status: (w.status as WithdrawalStatus) || "Pending",
+          approvedAt: w.approvedAt ?? null,
+          txHash: w.txHash ?? null,
+          adminNote: w.adminNote ?? null,
+        }));
+        setHistory(mapped);
+      }
+    } catch (e: any) {
+      toast.error(e?.message || "Unable to submit withdrawal");
+    }
   };
 
   const filteredWithdrawals =
     filterStatus === "all"
-      ? withdrawalHistory
-      : withdrawalHistory.filter((w) => w.status === filterStatus);
+      ? history
+      : history.filter((w) => w.status.toLowerCase() === filterStatus.toLowerCase());
 
   const stats = {
-    pending: 0,
-    paid: 0,
-    total: 0,
+    pending: history.filter((w) => w.status === "Pending").length,
+    paid: history.filter((w) => w.status === "Approved").length,
+    total: history.length,
   };
+  const totalWithdrawnAmount = history
+    .filter((w) => w.status === "Approved")
+    .reduce((sum, w) => sum + (Number(w.amount) || 0), 0);
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
@@ -140,15 +257,15 @@ export default function WithdrawalsPage() {
               <CardContent className="p-6">
                 <Wallet className="w-8 h-8 opacity-80 mb-2" />
                 <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">Available Balance</p>
-                <p className="text-3xl font-bold">${availableBalance}</p>
+                <p className="text-3xl font-bold">{`$${availableBalance.toLocaleString()}`}</p>
               </CardContent>
             </Card>
 
             <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
               <CardContent className="p-6">
                 <TrendingUp className="w-8 h-8 opacity-80 mb-2 text-green-600" />
-                <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">Total Withdrawn</p>
-                <p className="text-3xl font-bold">${stats.paid}</p>
+                <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">Total Withdrawal so far</p>
+                <p className="text-3xl font-bold">{`$${totalWithdrawnAmount.toLocaleString()}`}</p>
               </CardContent>
             </Card>
           </div>
@@ -221,7 +338,7 @@ export default function WithdrawalsPage() {
                       />
                     </div>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      Minimum: ${minimumWithdrawal}
+                      Minimum after Expirration: ${minimumWithdrawal}
                     </p>
                   </div>
 
@@ -281,7 +398,6 @@ export default function WithdrawalsPage() {
               </Card>
             </div>
 
-            {/* Empty History */}
             <div className="lg:col-span-2">
               <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
                 <CardHeader>
@@ -293,15 +409,44 @@ export default function WithdrawalsPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-center py-16">
-                    <Wallet className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                      No Withdrawals Found
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-400">
-                      You haven’t made any withdrawal requests yet.
-                    </p>
-                  </div>
+                  {loading ? (
+                    <div className="text-center py-16 text-gray-600 dark:text-gray-400">Loading...</div>
+                  ) : filteredWithdrawals.length === 0 ? (
+                    <div className="text-center py-16">
+                      <Wallet className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                        No Withdrawals Found
+                      </h3>
+                      <p className="text-gray-600 dark:text-gray-400">
+                        You haven’t made any withdrawal requests yet.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {filteredWithdrawals.map((w) => {
+                        const conf = statusConfig[
+                          w.status === "Pending" ? "pending" : w.status === "Approved" ? "paid" : "declined"
+                        ];
+                        const Icon = conf.icon;
+                        return (
+                          <div key={w.id} className={`p-4 rounded-lg border ${conf.border} ${conf.bg}`}>
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="font-semibold text-gray-900 dark:text-gray-100">${'{'}w.amount.toLocaleString(){'}'}</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">{w.crypto} • {new Date(w.requestedAt).toLocaleString()}</p>
+                              </div>
+                              <div className={`px-2 py-1 rounded-full text-xs ${conf.badge} flex items-center gap-1`}>
+                                <Icon className="w-4 h-4" /> {conf.label}
+                              </div>
+                            </div>
+                            <div className="mt-2 text-xs text-gray-600 dark:text-gray-400 break-all">
+                              Wallet: {w.walletAddress}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>

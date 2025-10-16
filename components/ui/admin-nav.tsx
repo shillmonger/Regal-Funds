@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, Wallet,   Layers, User } from "lucide-react";
+import { LayoutGrid, Wallet, Settings, User } from "lucide-react";
 
 export default function UserNav() {
   const pathname = usePathname();
@@ -10,8 +10,8 @@ export default function UserNav() {
   const navItems = [
     { name: "Payments", href: "/admin-dashboard/payments", icon: LayoutGrid },
     { name: "INVESTMENTS", href: "/admin-dashboard/investment-payouts", icon: Wallet },
-    { name: "REFERRALS", href: "/admin-dashboard/referral-payouts", icon: Layers, },
     { name: "ALL USER", href: "/admin-dashboard/user-management", icon: User },
+    { name: "SETTINGS", href: "/admin-dashboard/settings", icon: Settings, },
   ];
 
   const isActive = (href: string) =>

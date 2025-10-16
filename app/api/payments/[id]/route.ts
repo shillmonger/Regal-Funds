@@ -75,6 +75,40 @@ export async function PATCH(
         { _id: new ObjectId(payment.userId) },
         { $inc: { balance: payment.amount + firstDayEarnings, totalInvested: payment.amount, totalEarnings: firstDayEarnings } }
       );
+
+      // Log first-day ROI earnings so it appears in overall history
+      await db.collection("earnings_logs").insertOne({
+        userId: payment.userId,
+        investmentId: null,
+        amount: firstDayEarnings,
+        days: 1,
+        dailyPercent,
+        createdAt: now.toISOString(),
+        type: "roi",
+        planName: payment.planName,
+      });
+
+      // Referral bonus: award $10 to referrer on first approved investment
+      const referredUser = await db.collection("users").findOne({ _id: new ObjectId(payment.userId) });
+      const referrerId = (referredUser as any)?.referredBy as string | undefined;
+      if (referrerId) {
+        // ensure not already rewarded for this referred user
+        const existing = await db.collection("referral_payouts").findOne({ referredUserId: payment.userId });
+        if (!existing && Number(payment.amount) >= 100) {
+          const bonus = 10;
+          await db.collection("referral_payouts").insertOne({
+            referrerId,
+            referredUserId: payment.userId,
+            amount: bonus,
+            createdAt: now.toISOString(),
+            type: "referral_bonus",
+          });
+          await db.collection("users").updateOne(
+            { _id: new ObjectId(referrerId) },
+            { $inc: { balance: bonus, totalEarnings: bonus } }
+          );
+        }
+      }
     }
 
     return NextResponse.json({ success: true });
