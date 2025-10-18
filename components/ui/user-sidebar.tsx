@@ -47,11 +47,11 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
   const sidebarItems = [
     { name: "Dashboard", icon: Home, href: `${basePath}/dashboard` },
     { name: "Investment Plans", icon: Layers, href: `${basePath}/plan-details` },
-    { name: "Withdrawals", icon: ArrowDownCircle, href: `${basePath}/withdrawals` },
-    { name: "Referral Program", icon: Users, href: `${basePath}/referrals` },
     { name: "Connect Wallet", icon: Wallet, href: `${basePath}/connect-wallet` },
+    { name: "Referral Program", icon: Users, href: `${basePath}/referrals` },
     { name: "Overall Histery", icon: Clock, href: `${basePath}/histery` },
     { name: "Account Settings", icon: Settings, href: `${basePath}/settings` },
+    { name: "Withdrawals", icon: ArrowDownCircle, href: `${basePath}/withdrawals` },
     // { name: "Submit Payment Proof", icon: FileCheck, href: `${basePath}/submit-payment` },
     // admin link is conditionally added below
   ];
@@ -80,9 +80,9 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
         <div className="flex items-center justify-between h-15 px-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2">
             <img
-              src="https://www.regalfm.com/irmcustomizationfile/574/regal_logo_inverte"
+              src="/images/dark-logo.png"
               alt="Logo"
-              className="h-10 w-auto block dark:hidden"
+              className="h-17 w-auto block dark:hidden"
             />
             <img
               src="https://www.regalfm.com/irmcustomizationfile/574/regal_logo_inverte"

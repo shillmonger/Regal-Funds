@@ -9,8 +9,8 @@ export default function UserNav() {
 
   const navItems = [
     { name: "Dashboard", href: "/user-dashboard/dashboard", icon: LayoutGrid },
+    { name: "INVESTMENTS", href: "/user-dashboard/plan-details", icon: Layers, },
     { name: "My Wallet", href: "/user-dashboard/connect-wallet", icon: Wallet },
-    { name: "My Plans", href: "/user-dashboard/plan-details", icon: Layers, },
     { name: "PROFILE", href: "/user-dashboard/profile", icon: User },
   ];
 

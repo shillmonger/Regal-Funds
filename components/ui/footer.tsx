@@ -4,28 +4,43 @@ import Link from "next/link";
 import { useEffect } from "react";
 
 export default function Footer() {
-  // Inject GTranslate script once on mount
+  // Inject GTranslate and Tawk.to scripts once on mount
   useEffect(() => {
-    const existingScript = document.querySelector(
+    // ===== GTranslate =====
+    const existingGTranslate = document.querySelector(
       'script[src="https://cdn.gtranslate.net/widgets/latest/float.js"]'
     );
-    if (existingScript) return;
+    if (!existingGTranslate) {
+      (window as any).gtranslateSettings = {
+        default_language: "en",
+        native_language_names: true,
+        detect_browser_language: true,
+        languages: [
+          "en", "fr", "es", "de", "zh-CN", "ja", "ar", "ru", "pt", "it"
+        ],
+        wrapper_selector: ".gtranslate_wrapper",
+        alt_flags: { en: "usa" },
+      };
 
-    (window as any).gtranslateSettings = {
-      default_language: "en",
-      native_language_names: true,
-      detect_browser_language: true,
-      languages: [
-        "en", "fr", "es", "de", "zh-CN", "ja", "ar", "ru", "pt", "it"
-      ],
-      wrapper_selector: ".gtranslate_wrapper",
-      alt_flags: { en: "usa" },
-    };
+      const gScript = document.createElement("script");
+      gScript.src = "https://cdn.gtranslate.net/widgets/latest/float.js";
+      gScript.defer = true;
+      document.body.appendChild(gScript);
+    }
 
-    const script = document.createElement("script");
-    script.src = "https://cdn.gtranslate.net/widgets/latest/float.js";
-    script.defer = true;
-    document.body.appendChild(script);
+    // ===== Tawk.to =====
+    const existingTawk = document.querySelector(
+      'script[src^="https://embed.tawk.to/68f41472bc86f3194d62e65f"]'
+    );
+    if (!existingTawk) {
+      const s1 = document.createElement("script");
+      const s0 = document.getElementsByTagName("script")[0];
+      s1.async = true;
+      s1.src = "https://embed.tawk.to/68f41472bc86f3194d62e65f/1j7smvodk";
+      s1.charset = "UTF-8";
+      s1.setAttribute("crossorigin", "*");
+      s0.parentNode?.insertBefore(s1, s0);
+    }
   }, []);
 
   return (
@@ -70,3 +85,6 @@ export default function Footer() {
     </footer>
   );
 }
+
+
+

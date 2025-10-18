@@ -94,9 +94,9 @@ export default function AdminSidebar({
         <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2">
             <img
-              src="https://www.regalfm.com/irmcustomizationfile/574/regal_logo_inverte"
+              src="/images/dark-logo.png"
               alt="Logo"
-              className="h-10 w-auto block dark:hidden"
+              className="h-17 w-auto block dark:hidden"
             />
             <img
               src="https://www.regalfm.com/irmcustomizationfile/574/regal_logo_inverte"
