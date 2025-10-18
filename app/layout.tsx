@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 
 // ✅ Metadata
 export const metadata: Metadata = {
-  title: "crypto investment",
+  title: "Regal investment",
   description: "the power of Crypto",
   icons: {
     icon: "https://www.regalfm.com/content/images/regal_shield.png",
