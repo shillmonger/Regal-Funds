@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://regalinvestmentz.com
+
+# Sitemaps
+Sitemap: https://regalinvestmentz.com/sitemap.xml

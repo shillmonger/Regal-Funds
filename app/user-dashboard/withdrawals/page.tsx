@@ -264,7 +264,7 @@ export default function WithdrawalsPage() {
             <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
               <CardContent className="p-6">
                 <TrendingUp className="w-8 h-8 opacity-80 mb-2 text-green-600" />
-                <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">Total Withdrawal so far</p>
+                <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">Total Withdrawals</p>
                 <p className="text-3xl font-bold">{`$${totalWithdrawnAmount.toLocaleString()}`}</p>
               </CardContent>
             </Card>

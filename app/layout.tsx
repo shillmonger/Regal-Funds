@@ -16,12 +16,25 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// ✅ Metadata
+// ✅ Enhanced Metadata (SEO + OG + Twitter)
 export const metadata: Metadata = {
-  title: "Regal investment",
-  description: "the power of Crypto",
+  title: "Regal Investmentz | Earn Daily Returns with Smart Investments",
+  description:
+    "Invest from $100 and earn 10% daily returns for 30 days. Start building your wealth with Regal Investmentz today.",
   icons: {
     icon: "https://www.regalfm.com/content/images/regal_shield.png",
+  },
+  openGraph: {
+    title: "Regal Investmentz",
+    description: "Smart investment platform with daily returns.",
+    url: "https://regalinvestmentz.com",
+    siteName: "Regal Investmentz",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Regal Investmentz",
+    description: "Smart investment platform with daily returns.",
   },
 };
 

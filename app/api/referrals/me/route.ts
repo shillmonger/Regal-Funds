@@ -50,8 +50,19 @@ export async function GET(req: NextRequest) {
       ])
       .toArray();
     const totalReferralEarnings = payoutsAgg[0]?.total || 0;
+ 
+    const xfProto = req.headers.get("x-forwarded-proto");
+    const xfHost = req.headers.get("x-forwarded-host");
+    const host = req.headers.get("host");
+    const fromHeaders = (xfProto && (xfHost || host)) ? `${xfProto}://${xfHost || host}` : (host ? `https://${host}` : "");
+    const detectedOrigin = fromHeaders || (req as any).nextUrl?.origin || req.headers.get("origin") || "";
+    const configuredOrigin = process.env.NEXT_PUBLIC_APP_URL || "";
 
-    const origin = process.env.NEXT_PUBLIC_APP_URL || (req as any).nextUrl?.origin || req.headers.get("origin") || "http://localhost:3000";
+    const isLocal = (o: string) => /localhost|127\.0\.0\.1|::1/.test(o);
+    const candidate = !isLocal(detectedOrigin) && detectedOrigin
+      ? detectedOrigin
+      : (!isLocal(configuredOrigin) && configuredOrigin ? configuredOrigin : "https://regalinvestmentz.com");
+    const origin = candidate.replace(/\/$/, "");
     const referralURL = `${origin}/auth/register?ref=${referralCode}`;
 
     return NextResponse.json({
