@@ -193,12 +193,14 @@ export default function Home() {
               five years with limited correlation to equity markets.
             </p>
 
+<Link href="/auth/login">
             <Button
               size="lg"
               className="bg-[#448D96] hover:bg-[#3a7d85] text-white px-3 py-7 text-[15px] transition-all hover:scale-105 cursor-pointer rounded-none"
             >
-              LATEST MONTHLY UPDATE
+              START INVESTING TODAY
             </Button>
+</Link>
           </div>
         </section>
       </div>
