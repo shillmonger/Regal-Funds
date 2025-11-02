@@ -164,7 +164,7 @@ export default function WithdrawalsPage() {
 
   const handleWithdrawal = async () => {
     if (!eligible) {
-      toast.info("Available when expired");
+      toast.info("Available on first ROI (10%)");
       return;
     }
     const amt = parseFloat(withdrawAmount);

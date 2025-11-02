@@ -49,8 +49,7 @@ export async function PATCH(
     // On approval from non-approved state, create an investment record and update user totals
     if (status === "Approved" && payment.status !== "Approved") {
       const now = new Date();
-      const dailyPercent = 0.10; // 10%
-      const firstDayEarnings = Number(payment.amount) * dailyPercent;
+      const dailyPercent = 0.10; // 10% daily
       const investmentDoc = {
         userId: payment.userId,
         userEmail: payment.userEmail,
@@ -63,30 +62,20 @@ export async function PATCH(
         approvedAt: now.toISOString(),
         status: "Active" as const,
         // accrual tracking
-        earnings: firstDayEarnings,
+        earnings: 0, // Start with 0 earnings, will be added daily
         durationDays: 30,
         dailyPercent,
-        daysAccrued: 1, // first day credited immediately
+        daysAccrued: 0, // Start with 0 days accrued
         lastAccruedAt: now.toISOString(),
+        canWithdraw: false, // Can't withdraw until first 10% is added
+        firstPayoutDate: null as string | null // Track when first 10% is added
       };
       await db.collection("investments").insertOne(investmentDoc);
-      // increment user's balance and total invested, and credit first-day ROI immediately
+      // Only add the initial investment amount to user's balance
       await db.collection("users").updateOne(
         { _id: new ObjectId(payment.userId) },
-        { $inc: { balance: payment.amount + firstDayEarnings, totalInvested: payment.amount, totalEarnings: firstDayEarnings } }
+        { $inc: { balance: payment.amount, totalInvested: payment.amount } }
       );
-
-      // Log first-day ROI earnings so it appears in overall history
-      await db.collection("earnings_logs").insertOne({
-        userId: payment.userId,
-        investmentId: null,
-        amount: firstDayEarnings,
-        days: 1,
-        dailyPercent,
-        createdAt: now.toISOString(),
-        type: "roi",
-        planName: payment.planName,
-      });
 
       // Referral bonus: award $10 to referrer on first approved investment
       const referredUser = await db.collection("users").findOne({ _id: new ObjectId(payment.userId) });

@@ -14,10 +14,11 @@ export async function GET() {
     const client = await clientPromise;
     const db = client.db("crypto-investment");
 
+    // Check for investments where first 10% has been added (canWithdraw is true)
     const maturedCount = await db.collection("investments").countDocuments({
       userId: session.user.id,
       status: "Active",
-      $expr: { $gte: ["$daysAccrued", "$durationDays"] },
+      canWithdraw: true
     });
 
     const userDoc = await db
