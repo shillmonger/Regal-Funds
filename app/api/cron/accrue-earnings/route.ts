@@ -29,14 +29,19 @@ export async function GET() {
         const durationDays = Number(inv.durationDays) || 30;
         const lastAccruedAt = inv.lastAccruedAt ? new Date(inv.lastAccruedAt) : new Date(inv.approvedAt);
         
-        // Calculate days since last accrual
-        const msPerDay = 24 * 60 * 60 * 1000;
-        const daysSinceLastAccrual = Math.floor((now.getTime() - lastAccruedAt.getTime()) / msPerDay);
+        // Calculate hours since last accrual
+        const msPerHour = 60 * 60 * 1000;
+        const hoursSinceLastAccrual = (now.getTime() - lastAccruedAt.getTime()) / msPerHour;
         
-        if (daysSinceLastAccrual < 1) continue; // Skip if less than a day has passed
+        // For the first ROI, ensure 24 hours have passed since approval
+        const approvedAt = new Date(inv.approvedAt);
+        const hoursSinceApproval = (now.getTime() - approvedAt.getTime()) / msPerHour;
         
-        // Calculate earnings for the elapsed days (max 1 day at a time to prevent abuse)
-        const daysToAccrue = Math.min(1, daysSinceLastAccrual);
+        // Skip if less than 24 hours since approval or less than 24 hours since last accrual
+        if (hoursSinceApproval < 24 || hoursSinceLastAccrual < 24) continue;
+        
+        // Calculate earnings for the elapsed days (1 day at a time)
+        const daysToAccrue = 1;
         const earnings = amount * dailyPercent * daysToAccrue;
         const newDaysAccrued = daysAccrued + daysToAccrue;
         
@@ -46,10 +51,22 @@ export async function GET() {
           $set: { lastAccruedAt: now.toISOString() },
         };
         
-        // If this is the first 10% being added, mark investment as eligible for withdrawal
-        if (!inv.canWithdraw && newDaysAccrued >= 1) {
+        // If this is the first 10% being added (after 24 hours), mark investment as eligible for withdrawal
+        if (!inv.canWithdraw && newDaysAccrued >= 1 && hoursSinceApproval >= 24) {
           update.$set.canWithdraw = true;
           update.$set.firstPayoutDate = now.toISOString();
+          
+          // Add a log entry for the first ROI
+          await db.collection('earnings_logs').insertOne({
+            userId: inv.userId,
+            investmentId: inv._id,
+            amount: earnings,
+            days: 1,
+            dailyPercent,
+            createdAt: now.toISOString(),
+            type: 'first_roi',
+            planName: inv.planName,
+          });
         }
         
         await db.collection("investments").updateOne(

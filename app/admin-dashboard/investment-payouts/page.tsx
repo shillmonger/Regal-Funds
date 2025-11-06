@@ -144,13 +144,14 @@ export default function AdminInvestmentPayoutsPage() {
             </div>
 
             {/* Table Header */}
-            <div className="hidden lg:grid grid-cols-7 gap-4 border-b border-gray-200 dark:border-gray-700 pb-2 mb-2 text-sm font-semibold text-gray-500 dark:text-gray-400">
+            <div className="hidden lg:grid grid-cols-8 gap-4 border-b border-gray-200 dark:border-gray-700 pb-2 mb-2 text-sm font-semibold text-gray-500 dark:text-gray-400">
               <div>Investor</div>
-              <div>Plan</div>
+              {/* <div>Plan</div> */}
               <div>Investment</div>
-              <div>Profit</div>
+              <div>Wallet</div>
               <div>Status</div>
               <div>Date</div>
+              <div>Type</div>
               <div className="text-right">Actions</div>
             </div>
 
@@ -160,14 +161,22 @@ export default function AdminInvestmentPayoutsPage() {
             ) : filteredPayouts.map((p) => (
               <div
                 key={p.id}
-                className="grid grid-cols-1 gap-3 lg:grid-cols-7 lg:gap-4 lg:items-center border-b border-gray-100 dark:border-gray-800 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                className="grid grid-cols-1 gap-3 lg:grid-cols-8 lg:gap-4 lg:items-center border-b border-gray-100 dark:border-gray-800 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
               >
-                <div className="font-medium text-gray-900 dark:text-gray-100">{p.userName || p.userEmail}</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">{p.plan || "-"}</div>
-                <div className="font-semibold text-gray-900 dark:text-gray-100">
-                  ${p.amount.toLocaleString()}
+                <div className="font-medium text-gray-900 dark:text-gray-100">
+                  <div>{p.userName || p.userEmail}</div>
+                  <div className="text-xs text-gray-500">{p.userEmail}</div>
                 </div>
-                <div className="font-semibold text-[#72a210]">{p.crypto || "Wallet"}</div>
+                {/* <div className="text-sm text-gray-600 dark:text-gray-400">
+                  {p.planName || p.plan || "N/A"}
+                </div> */}
+                <div className="font-semibold text-gray-900 dark:text-gray-100">
+                  ${p.amount?.toLocaleString() || '0'}
+                </div>
+                <div className="text-sm break-all">
+                  <div className="font-medium">{p.walletAddress || 'N/A'}</div>
+                  <div className="text-xs text-gray-500">{p.crypto || ''}</div>
+                </div>
                 <div>
                   <div
                     className={`flex items-center px-3 py-1 text-xs font-medium rounded-full ${getStatusClasses(
@@ -178,7 +187,12 @@ export default function AdminInvestmentPayoutsPage() {
                     {p.status}
                   </div>
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">{p.requestedAt ? new Date(p.requestedAt).toLocaleString() : ""}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  {p.requestedAt ? new Date(p.requestedAt).toLocaleDateString() : ""}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  {p.type === 'first_roi' ? 'First ROI' : 'Regular'}
+                </div>
                 <div className="flex justify-end space-x-2">
                   <button
                     onClick={() => handleAction(p.id, "Approved")}
