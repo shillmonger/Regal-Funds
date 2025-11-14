@@ -155,30 +155,6 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
 
-           
-            {/* Total Invested */}
-            <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
-              <CardHeader className="pb-2">
-                <CardDescription className="text-gray-600 dark:text-gray-400">
-                  Total Invested
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
-                      {loadingStats
-                        ? "Loading..."
-                        : `$${stats.totalInvested.toLocaleString()}`}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
-                    <DollarSign className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
             {/* Total Earnings */}
             <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
               <CardHeader className="pb-2">
@@ -201,6 +177,31 @@ export default function AdminDashboard() {
                 </div>
               </CardContent>
             </Card>
+
+            
+            {/* Total Invested */}
+            <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
+              <CardHeader className="pb-2">
+                <CardDescription className="text-gray-600 dark:text-gray-400">
+                  Total Invested
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
+                      {loadingStats
+                        ? "Loading..."
+                        : `$${stats.totalInvested.toLocaleString()}`}
+                    </p>
+                  </div>
+                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                    <DollarSign className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
 
             {/* Referral Commissions */}
             <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
