@@ -163,10 +163,6 @@ export default function WithdrawalsPage() {
   };
 
   const handleWithdrawal = async () => {
-    if (!eligible) {
-      toast.info("Available on first ROI (10%)");
-      return;
-    }
     const amt = parseFloat(withdrawAmount);
     if (!amt || amt < minimumWithdrawal) {
       toast.error(`Minimum withdrawal amount is $${minimumWithdrawal}`);
