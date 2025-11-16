@@ -37,10 +37,12 @@ export async function GET() {
         // -------------- FIX #1: Correct first-day accrual --------------
         // First payout happens at 24 hours after approval ONLY ONCE
         const isFirstPayoutDue = (
-          inv.daysAccrued === 0 &&
-          hoursSinceApproval >= 24 &&
-          !inv.canWithdraw
-        );
+  !inv.canWithdraw && (
+    (inv.daysAccrued === 0 && hoursSinceApproval >= 24) ||
+    (inv.daysAccrued >= 1) // already paid first ROI but not unlocked
+  )
+);
+
 
         // -------------- FIX #2: Daily accrual after first payout --------------
         const isNormalDailyPayoutDue = (
