@@ -33,40 +33,41 @@ export async function GET() {
         const hoursSinceLastAccrual =
           (now.getTime() - lastAccruedAt.getTime()) / 36e5;
 
+        // ---------- FIXED FIRST PAYOUT UNLOCK ----------
+        const shouldUnlockWithdraw =
+          !inv.canWithdraw && (
+            (inv.daysAccrued === 0 && hoursSinceApproval >= 24) ||
+            (inv.daysAccrued >= 1) // Already has ROI but still locked
+          );
 
-        // -------------- FIX #1: Correct first-day accrual --------------
-        // First payout happens at 24 hours after approval ONLY ONCE
-        const isFirstPayoutDue = (
-  !inv.canWithdraw && (
-    (inv.daysAccrued === 0 && hoursSinceApproval >= 24) ||
-    (inv.daysAccrued >= 1) // already paid first ROI but not unlocked
-  )
-);
-
-
-        // -------------- FIX #2: Daily accrual after first payout --------------
-        const isNormalDailyPayoutDue = (
+        // ---------- Normal daily ROI ----------
+        const shouldAddDailyROI =
           inv.daysAccrued > 0 &&
-          hoursSinceLastAccrual >= 24
-        );
+          hoursSinceLastAccrual >= 24;
 
-        if (!isFirstPayoutDue && !isNormalDailyPayoutDue) continue;
+        // ---------- First real payout ----------
+        const shouldAddFirstROI =
+          inv.daysAccrued === 0 &&
+          hoursSinceApproval >= 24;
 
-        // ALWAYS accrue exactly one day at a time
-        const earnings = amount * dailyPercent;
+        // If nothing is due, continue
+        if (!shouldUnlockWithdraw && !shouldAddDailyROI && !shouldAddFirstROI)
+          continue;
 
-        // --- Prepare DB update fields
-        const update: any = {
-          $inc: { earnings: earnings, daysAccrued: 1 },
-          $set: { lastAccruedAt: now.toISOString() }
-        };
+        const update: any = {};
+        let earnings = 0;
 
-        // -------------- FIX #3: Unlock withdrawals at FIRST payout --------------
-        if (isFirstPayoutDue) {
-          update.$set.canWithdraw = true;
-          update.$set.firstPayoutDate = now.toISOString();
+        // ------- Handle first ROI payout -------
+        if (shouldAddFirstROI) {
+          earnings = amount * dailyPercent;
 
-          // Log the first payout
+          update.$inc = { earnings: earnings, daysAccrued: 1 };
+          update.$set = {
+            lastAccruedAt: now.toISOString(),
+            canWithdraw: true,
+            firstPayoutDate: now.toISOString()
+          };
+
           await db.collection("earnings_logs").insertOne({
             userId: inv.userId,
             investmentId: inv._id,
@@ -78,35 +79,50 @@ export async function GET() {
           });
         }
 
+        // ------- Handle normal daily ROI -------
+        else if (shouldAddDailyROI) {
+          earnings = amount * dailyPercent;
+
+          update.$inc = { earnings: earnings, daysAccrued: 1 };
+          update.$set = { lastAccruedAt: now.toISOString() };
+
+          await db.collection("earnings_logs").insertOne({
+            userId: inv.userId,
+            investmentId: inv._id,
+            amount: earnings,
+            dailyPercent,
+            createdAt: now.toISOString(),
+            type: "roi",
+            planName: inv.planName
+          });
+        }
+
+        // ------- Handle unlock only (no payout) -------
+        else if (shouldUnlockWithdraw) {
+          update.$set = {
+            canWithdraw: true,
+            firstPayoutDate: now.toISOString()
+          };
+        }
+
         // Apply investment update
         await db.collection("investments").updateOne(
           { _id: inv._id },
           update
         );
 
-        // Add earnings to user account
-        // Add earnings to user account
-        await db.collection("users").updateOne(
-          { _id: ObjectId.createFromHexString(inv.userId) },
-          {
-            $inc: {
-              balance: earnings,
-              totalEarnings: earnings
+        // Add earnings to user (only if earnings > 0)
+        if (earnings > 0) {
+          await db.collection("users").updateOne(
+            { _id: ObjectId.createFromHexString(inv.userId) },
+            {
+              $inc: {
+                balance: earnings,
+                totalEarnings: earnings
+              }
             }
-          }
-        );
-
-
-        // Log normal daily ROI
-        await db.collection("earnings_logs").insertOne({
-          userId: inv.userId,
-          investmentId: inv._id,
-          amount: earnings,
-          dailyPercent,
-          createdAt: now.toISOString(),
-          type: "roi",
-          planName: inv.planName
-        });
+          );
+        }
 
         processedCount++;
 
