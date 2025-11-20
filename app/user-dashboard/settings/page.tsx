@@ -361,15 +361,37 @@ export default function AccountSettings() {
       <div className="pt-4 border-t">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold">Two-Factor Authentication</h3>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              checked={show2FAEnabled}
-              onChange={toggleTwoFA}
-              className="sr-only peer"
-            />
-            <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-blue-600"></div>
-          </label>
+         <label className="relative inline-flex items-center cursor-pointer">
+  <input
+    type="checkbox"
+    checked={show2FAEnabled}
+    onChange={toggleTwoFA}
+    className="sr-only peer"
+  />
+  <div
+    className="
+      w-11 h-6 
+      rounded-full 
+      transition-colors 
+      bg-gray-300 dark:bg-gray-700 
+      peer-checked:bg-emerald-500
+    "
+  ></div>
+
+  {/* Circle */}
+  <span
+    className="
+      absolute left-0.5 top-0.5 
+      w-5 h-5 
+      bg-white 
+      rounded-full 
+      transition-all 
+      peer-checked:translate-x-5 
+      shadow-md
+    "
+  ></span>
+</label>
+
         </div>
         {show2FAEnabled && (
           <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">

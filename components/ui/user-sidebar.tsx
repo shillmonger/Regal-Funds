@@ -46,7 +46,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
 
   const sidebarItems = [
     { name: "Dashboard", icon: Home, href: `${basePath}/dashboard` },
-    { name: "Investment Plans", icon: Layers, href: `${basePath}/plan-details` },
+    { name: "Choose Plan", icon: Layers, href: `${basePath}/plan-details` },
     { name: "Connect Wallet", icon: Wallet, href: `${basePath}/connect-wallet` },
     { name: "Referral Program", icon: Users, href: `${basePath}/referrals` },
     { name: "Overall Histery", icon: Clock, href: `${basePath}/histery` },

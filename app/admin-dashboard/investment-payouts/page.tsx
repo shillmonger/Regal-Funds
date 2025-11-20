@@ -64,14 +64,31 @@ export default function AdminInvestmentPayoutsPage() {
 
   const handleAction = async (id: string, newStatus: string) => {
     try {
+      // Disable buttons immediately on click
+      setPayouts(prev => prev.map(p => 
+        p.id === id ? { ...p, status: newStatus } : p
+      ));
+      
       const res = await fetch(`/api/withdrawals/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
       });
-      if (!res.ok) return;
+      
+      if (!res.ok) {
+        // If API call fails, reload to get the correct status
+        await reload();
+        return;
+      }
+      
+      // Update the local state with the new status
+      setPayouts(prev => prev.map(p => 
+        p.id === id ? { ...p, status: newStatus } : p
+      ));
+    } catch (error) {
+      // On error, reload to ensure we have the latest status
       await reload();
-    } catch {}
+    }
   };
 
   const summary = useMemo(() => {
@@ -196,15 +213,15 @@ export default function AdminInvestmentPayoutsPage() {
                 <div className="flex justify-end space-x-2">
                   <button
                     onClick={() => handleAction(p.id, "Approved")}
-                    disabled={p.status === "Approved"}
-                    className="px-3 py-1.5 bg-[#72a210] text-white rounded-md text-sm font-medium hover:bg-[#507800] transition disabled:opacity-50"
+                    disabled={p.status === "Approved" || p.status === "Rejected"}
+                    className="px-3 py-1.5 bg-[#72a210] text-white rounded-md text-sm font-medium hover:bg-[#507800] transition disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Check className="w-4 h-4 inline mr-1" /> Mark Paid
                   </button>
                   <button
                     onClick={() => handleAction(p.id, "Rejected")}
-                    disabled={p.status === "Rejected"}
-                    className="px-3 py-1.5 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700 transition disabled:opacity-50"
+                    disabled={p.status === "Rejected" || p.status === "Approved"}
+                    className="px-3 py-1.5 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <X className="w-4 h-4 inline mr-1" /> Reject
                   </button>

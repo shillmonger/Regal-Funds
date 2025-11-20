@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
+import { sendPaymentApprovalEmail } from "@/lib/email";
 
 export async function PATCH(
   req: NextRequest,
@@ -49,6 +50,42 @@ export async function PATCH(
     // On approval from non-approved state, create an investment record and update user totals
     if (status === "Approved" && payment.status !== "Approved") {
       const now = new Date();
+      // First update the payment status
+      await db
+        .collection("payments")
+        .updateOne(
+          { _id: new ObjectId(id) },
+          { $set: { status: "Approved", paidAt: now.toISOString() } }
+        );
+
+      // Send approval email in the background
+      if (payment.userEmail) {
+        console.log('Sending approval email to:', payment.userEmail);
+        console.log('RESEND_API_KEY:', process.env.RESEND_API_KEY ? '***' + process.env.RESEND_API_KEY.slice(-4) : 'Not set');
+        console.log('SENDING FROM:', process.env.RESEND_FROM_EMAIL || 'Not set');
+        
+        try {
+          const emailResult = await sendPaymentApprovalEmail({
+            to: payment.userEmail,
+            userName: payment.userName || 'Valued Customer',
+            amount: payment.amount,
+            planName: payment.planName || 'Investment Plan'
+          });
+          
+          if (!emailResult.success) {
+            console.error('Email sending failed:', emailResult.error);
+          } else {
+            console.log('Payment approval email sent successfully to:', payment.userEmail);
+          }
+        } catch (emailError) {
+          console.error('Error in email sending process:', emailError);
+          // Continue with the rest of the process even if email fails
+        }
+      } else {
+        console.warn('No email address found for payment approval notification');
+      }
+
+      // Create investment record
       const dailyPercent = 0.10; // 10% daily
       const investmentDoc = {
         userId: payment.userId,

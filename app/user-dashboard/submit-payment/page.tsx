@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import { toast } from "sonner";
 
 import { useSearchParams } from "next/navigation";
 import Sidebar from "@/components/ui/user-sidebar";
@@ -26,6 +27,7 @@ import {
   ChevronDown, 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Toaster } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -187,7 +189,7 @@ export default function SubmitPaymentPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!uploadedFile && !transactionId) {
-      // Validation: require at least one proof (either file or tx id)
+      toast.error("Please provide either a transaction ID or upload a payment proof");
       return;
     }
 
@@ -212,13 +214,17 @@ export default function SubmitPaymentPage() {
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         console.error("Payment submit failed", err);
+        toast.error("Failed to submit payment proof. Please try again.");
         setSubmitStatus(null);
         return;
       }
 
+      // Show success toast
+      toast.success("Payment proof submitted successfully! Your submission is pending review.");
       // Keep status as pending; admin will approve/reject from dashboard
     } catch (error) {
       console.error("Payment submit error", error);
+      toast.error("An error occurred while submitting your payment proof");
       setSubmitStatus(null);
     }
   };
@@ -231,10 +237,13 @@ export default function SubmitPaymentPage() {
       {/* Content area */}
       <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
         {/* Header */}
-        <Header setSidebarOpen={setSidebarOpen} />
+<div>
+  <Header setSidebarOpen={setSidebarOpen} />
+</div>
+
 
         <main className="flex-1 mb-[100px] md:mb-0">
-          <div className="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
+          <div className="px-4 sm:px-6 lg:px-8 py-5 w-full max-w-9xl mx-auto">
             {/* Page header */}
             <div className="mb-6">
               <h1 className={`text-2xl md:text-3xl ${TEXT_PRIMARY} font-bold`}>
@@ -242,7 +251,7 @@ export default function SubmitPaymentPage() {
               </h1>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Left Column */}
               <div className="lg:col-span-1 space-y-8">
                 {/* Plan Info */}
@@ -367,7 +376,7 @@ export default function SubmitPaymentPage() {
               </div>
 
               {/* Right Column */}
-              <div className="lg:col-span-2 space-y-8">
+              <div className="lg:col-span-1 space-y-8">
                 {/* Status Notification */}
                 {submitStatus && currentStatus && (
                   <Card
@@ -503,7 +512,7 @@ export default function SubmitPaymentPage() {
                         {/* Submit */}
                         <Button
                           type="submit"
-                          className={`w-full py-2 text-white font-semibold ${ACCENT_MAIN}`}
+                          className={`w-full py-2 text-white font-semibold cursor-pointer ${ACCENT_MAIN}`}
                           disabled={submitStatus === "pending"}
                         >
                           {submitStatus === "pending"
@@ -522,6 +531,7 @@ export default function SubmitPaymentPage() {
         {/* Mobile Bottom Navigation */}
         <UserNav />
       </div>
+      {/* <Toaster position="top-center" richColors closeButton /> */}
     </div>
   );
 }

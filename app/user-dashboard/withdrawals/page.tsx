@@ -266,7 +266,7 @@ export default function WithdrawalsPage() {
             </Card>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Withdrawal Form */}
             <div className="lg:col-span-1 space-y-6">
               <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
@@ -338,23 +338,26 @@ export default function WithdrawalsPage() {
                     </p>
                   </div>
 
-                  {/* Wallet */}
-                  <div>
-                    <label
-                      htmlFor="wallet"
-                      className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2"
-                    >
-                      Wallet Address
-                    </label>
-                    <input
-                      type="text"
-                      id="wallet"
-                      value={walletAddress}
-                      onChange={(e) => setWalletAddress(e.target.value)}
-                      placeholder="Enter your wallet address"
-                      className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    />
-                  </div>
+{/* Wallet */}
+<div>
+  <label
+    htmlFor="wallet"
+    className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2"
+  >
+    Wallet Address
+  </label>
+
+  <input
+    type="text"
+    id="wallet"
+    value={walletAddress}
+    disabled
+    placeholder="Select Cryptocurrency"
+    className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-500 dark:text-gray-400 cursor-not-allowed"
+  />
+</div>
+
+
 
                   {/* Info Banner */}
                   <div className="p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
@@ -394,7 +397,11 @@ export default function WithdrawalsPage() {
               </Card>
             </div>
 
-            <div className="lg:col-span-2">
+
+
+                    {/* Withdrawal History */}
+
+            <div className="lg:col-span-1">
               <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
                 <CardHeader>
                   <CardTitle className="text-gray-900 dark:text-gray-100">
