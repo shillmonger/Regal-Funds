@@ -46,6 +46,15 @@ export async function GET() {
         joined: u.createdAt ? new Date(u.createdAt).toLocaleString() : "",
         status: mapStatus(u.status),
         investment: Number(u.totalInvested || 0),
+        balance: Number(u.balance || 0),
+        totalEarnings: Number(u.totalEarnings || 0),
+        totalInvested: Number(u.totalInvested || 0),
+        referralCode: u.referralCode || null,
+        createdAt: u.createdAt || null,
+        wallets: u.wallets || {},
+        twoFactorEnabled: Boolean(u.twoFactorEnabled),
+        welcomeBonusGranted: Boolean(u.welcomeBonusGranted),
+        referredBy: u.referredBy || null,
       }))
     );
   } catch (e) {
