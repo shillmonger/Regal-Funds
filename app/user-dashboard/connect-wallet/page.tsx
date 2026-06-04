@@ -2,31 +2,24 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import {
   Wallet,
   CheckCircle,
   AlertCircle,
-  ChevronDown,
   Info,
   HelpCircle,
   Rocket,
+  ShieldCheck,
 } from "lucide-react";
 
 import Sidebar from "@/components/ui/user-sidebar";
 import Header from "@/components/ui/user-header";
 import UserNav from "@/components/ui/user-nav";
 
-// 💰 Wallet Options (Addresses)
 const paymentWallets = [
   {
     crypto: "Bitcoin (BTC)",
@@ -50,14 +43,6 @@ const paymentWallets = [
   },
 ];
 
-// 🎨 Theme Constants
-const cardBg = "bg-white dark:bg-gray-900";
-const textDark = "text-gray-900 dark:text-gray-100";
-const textMedium = "text-gray-600 dark:text-gray-300";
-const inputBg = "bg-gray-50 dark:bg-gray-800";
-const inputBorder = "border-gray-200 dark:border-gray-700";
-const focusBorder = "focus:border-emerald-500 dark:focus:border-emerald-400";
-
 export default function ConnectWalletPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState(paymentWallets[0]);
@@ -65,7 +50,7 @@ export default function ConnectWalletPage() {
   const [loading, setLoading] = useState(false);
   const [savedWallets, setSavedWallets] = useState<Record<string, string>>({});
 
-  // Load saved wallets
+  // Load saved wallets securely
   useEffect(() => {
     (async () => {
       try {
@@ -73,6 +58,9 @@ export default function ConnectWalletPage() {
         const data = await res.json();
         if (res.ok) {
           setSavedWallets(data.wallets || {});
+          // Preload the current selected wallet input if it exists
+          const initialWallet = data.wallets?.[paymentWallets[0].key];
+          if (initialWallet) setWalletAddress(initialWallet);
         }
       } catch {}
     })();
@@ -93,7 +81,14 @@ export default function ConnectWalletPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to save wallet");
+      
       toast.success(`${selectedAddress.crypto} address saved`);
+      
+      // Real-time local state synchronize
+      setSavedWallets(prev => ({
+        ...prev,
+        [selectedAddress.key]: walletAddress.trim()
+      }));
       setWalletAddress("");
     } catch (e: any) {
       toast.error(e.message || "Could not save wallet");
@@ -103,131 +98,147 @@ export default function ConnectWalletPage() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
+    <div className="flex h-screen overflow-hidden bg-gray-50/50 dark:bg-[#080d17] transition-colors duration-200">
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header setSidebarOpen={setSidebarOpen} />
 
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 pb-20 md:pb-8 mb-[50px] md:mb-0">
-          <div className="max-w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 pb-24 md:pb-8 mb-[50px] md:mb-0">
+          <div className="mb-8">
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-1.5">
+              Wallet Settings
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-slate-400">
+              Securely bind crypto payout destinations to your personal account profile
+            </p>
+          </div>
 
-            {/* 🔹 Right Section — Wallet Connect Form */}
-            <div>
-              <Card className={`w-full border-2 border-emerald-200 dark:border-emerald-800 ${cardBg} rounded-2xl shadow-xl`}>
-                <CardHeader className="text-center">
-                  <div className="mx-auto w-16 h-16 bg-emerald-100 dark:bg-emerald-900/40 rounded-full flex items-center justify-center mb-3">
-                    <Wallet className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+          <div className="max-w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            {/* 🔹 Left/Main Column — Wallet Setup Form */}
+            <div className="lg:col-span-7 space-y-6">
+              <Card className="bg-white dark:bg-[#0f1623] border border-gray-200/80 dark:border-white/[0.06] shadow-sm">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-emerald-500/10 flex items-center justify-center rounded-xl text-emerald-600 dark:text-emerald-400">
+                      <Wallet className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg text-gray-900 dark:text-white font-bold">
+                        Link Address Gateway
+                      </CardTitle>
+                      <CardDescription className="text-xs text-gray-500 dark:text-slate-400">
+                        Specify structural public keys to tie together automated network withdrawals
+                      </CardDescription>
+                    </div>
                   </div>
-                  <CardTitle className={`text-2xl font-bold ${textDark}`}>
-                    Connect Your Wallet
-                  </CardTitle>
-                  <p className={`${textMedium} text-sm mt-2`}>
-                    Select your crypto type and enter your own wallet address. We never auto-fill addresses.
-                  </p>
                 </CardHeader>
 
-                <CardContent className="space-y-6">
-                  {/* 🔸 Address Dropdown */}
+                <CardContent className="space-y-5">
+                  {/* Modernized Interactive Grid Selector (Replaces Dropdown) */}
                   <div>
-                    <Label className={`${textDark} mb-2 block`}>Select Address</Label>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className={`w-full flex justify-between items-center ${inputBg} ${inputBorder} ${focusBorder}`}
-                        >
-                          <span>{selectedAddress.crypto}</span>
-                          <ChevronDown className="w-4 h-4 opacity-70" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-full">
-                        {paymentWallets.map((wallet) => (
-                          <DropdownMenuItem
+                    <Label className="block text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 mb-2.5">
+                      Select Cryptographic Currency
+                    </Label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {paymentWallets.map((wallet) => {
+                        const isSelected = selectedAddress.key === wallet.key;
+                        return (
+                          <button
+                            type="button"
                             key={wallet.key}
-                            onSelect={() => {
+                            onClick={() => {
                               setSelectedAddress(wallet);
-                              const fromDb = (savedWallets as any)[wallet.key] as string | undefined;
+                              const fromDb = savedWallets[wallet.key];
                               setWalletAddress(fromDb || "");
                             }}
-                            className={`cursor-pointer ${
-                              selectedAddress.key === wallet.key
-                                ? "bg-emerald-100 dark:bg-emerald-900/20"
-                                : ""
+                            className={`p-3 rounded-xl border transition-all text-left flex items-center justify-between cursor-pointer ${
+                              isSelected
+                                ? "border-emerald-500 bg-emerald-500/[0.03] shadow-sm shadow-emerald-500/5"
+                                : "border-gray-200 dark:border-white/[0.06] bg-gray-50/50 dark:bg-white/[0.01] hover:bg-gray-100/50 dark:hover:bg-white/[0.03]"
                             }`}
                           >
                             <div>
-                              <div className="font-semibold">{wallet.crypto}</div>
-                              <div className="text-xs text-gray-500">{wallet.network}</div>
+                              <span className="font-semibold text-gray-900 dark:text-white text-sm block">
+                                {wallet.crypto}
+                              </span>
+                              <span className="text-xs text-gray-400 dark:text-slate-500 mt-0.5">{wallet.network}</span>
                             </div>
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                            {isSelected && (
+                              <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0 ml-2" />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
 
-                  {/* 🔸 Wallet Address Input */}
+                  {/* Wallet Input Block */}
                   <div>
-                    <Label className={`${textDark} mb-2 block`}>Wallet Address</Label>
-                    <Input
-                      placeholder="Enter your wallet address"
-                      value={walletAddress}
-                      onChange={(e) => setWalletAddress(e.target.value)}
-                      className={`${inputBg} ${inputBorder} ${focusBorder}`}
-                    />
+                    <Label htmlFor="wallet-address" className="block text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 mb-2.5">
+                      {selectedAddress.crypto} Public Target Key
+                    </Label>
+                    <div className="relative">
+                      <div className="absolute left-3.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-gray-100 dark:bg-white/[0.05] flex items-center justify-center">
+                        <ShieldCheck className="w-4 h-4 text-gray-400 dark:text-slate-500" />
+                      </div>
+                      <Input
+                        id="wallet-address"
+                        type="text"
+                        placeholder={`Paste your verified ${selectedAddress.network} address here`}
+                        value={walletAddress}
+                        onChange={(e) => setWalletAddress(e.target.value)}
+                        className="w-full pl-14 pr-4 py-6 bg-gray-50 dark:bg-white/[0.02] border border-gray-200 dark:border-white/[0.08] rounded-xl text-gray-900 dark:text-white font-mono text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500/80 transition-all"
+                      />
+                    </div>
                   </div>
 
-                  {/* 🔸 Submit Button */}
+                  {/* Submit Transaction Action */}
                   <Button
                     onClick={handleSubmit}
                     disabled={loading}
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-[10px] font-semibold flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-6 rounded-xl text-sm font-bold tracking-wide transition-all shadow-md shadow-emerald-600/10 cursor-pointer flex items-center justify-center gap-2"
                   >
                     {loading ? (
                       <>
-                        <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-[10px] animate-spin cursor-pointer" />
-                        Connecting...
+                        <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Updating Smart Node Security Address...</span>
                       </>
                     ) : (
                       <>
-                        <CheckCircle className="w-5 h-5" />
-                        Connect Address
+                        <CheckCircle className="w-4 h-4" />
+                        <span>Securely Bind Wallet Address</span>
                       </>
                     )}
                   </Button>
 
-                  {/* 🔸 Security Notice */}
-                  <div className="flex items-start gap-3 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800">
-                    <AlertCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400 mt-0.5" />
-                    <p className="text-xs text-gray-700 dark:text-gray-300">
-                      Your connection is secure. We never store your private keys or seed phrases.
+                  {/* Security Clearance Alert Banner */}
+                  <div className="p-3 bg-emerald-500/[0.04] border border-emerald-500/10 rounded-xl flex items-start gap-2.5">
+                    <AlertCircle className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                    <p className="text-xs text-gray-600 dark:text-slate-400 leading-normal">
+                      Security Protocol: Encrypted mapping profiles execute strictly matching validation schemas. Private signature keys/seed components are never collected or processed.
                     </p>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* 🟢 New Card: Connected Wallets (Now Outside) */}
+              {/* Connected Active Wallet Registries Block */}
               {Object.keys(savedWallets).length > 0 && (
-                <Card className={`mt-6 border-2 border-emerald-200 dark:border-emerald-800 ${cardBg} rounded-2xl shadow-md`}>
-                  <CardHeader>
-                    <CardTitle className={`text-lg font-semibold ${textDark}`}>
-                      Connected Wallets
+                <Card className="bg-white dark:bg-[#0f1623] border border-gray-200/80 dark:border-white/[0.06] shadow-sm">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm text-gray-900 dark:text-white font-bold uppercase tracking-wider text-slate-400">
+                      Active Bound Registries
                     </CardTitle>
-                    <p className={`${textMedium} text-sm`}>
-                      These are the wallet addresses linked to your account.
-                    </p>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-2 text-xs">
+                    <div className="divide-y divide-gray-100 dark:divide-white/[0.04]">
                       {(["btc", "eth", "usdt", "bnb"] as const).map((k) =>
                         savedWallets[k] ? (
-                          <div
-                            key={k}
-                            className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-1"
-                          >
-                            <span className="uppercase font-semibold text-emerald-700 dark:text-emerald-300">
-                              {k}
+                          <div key={k} className="py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 first:pt-0 last:pb-0">
+                            <span className="uppercase font-bold text-xs bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-md border border-emerald-500/10 shrink-0">
+                              {k} Gateway
                             </span>
-                            <span className="font-mono text-gray-800 dark:text-gray-200 truncate">
+                            <span className="font-mono text-xs text-gray-600 dark:text-slate-300 break-all select-all sm:text-right w-full sm:max-w-md truncate">
                               {savedWallets[k]}
                             </span>
                           </div>
@@ -239,50 +250,55 @@ export default function ConnectWalletPage() {
               )}
             </div>
 
-            {/* 🔹 Left Section — Explanatory Cards */}
-            <div className="space-y-6">
-              <Card className={`${cardBg} border-2 border-emerald-200 dark:border-emerald-900 rounded-2xl shadow-md`}>
-                <CardHeader className="flex items-center gap-2">
-                  <Info className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                  <CardTitle className={`text-xl font-semibold ${textDark}`}>
-                    What This Page Is About
+            {/* 🔹 Right Column — Dynamic Explanatory Grid Cards */}
+            <div className="lg:col-span-5 space-y-4">
+              <Card className="bg-white dark:bg-[#0f1623] border border-gray-200/80 dark:border-white/[0.06] shadow-sm">
+                <CardHeader className="pb-2 flex flex-row items-center gap-2.5 space-y-0">
+                  <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
+                    <Info className="w-4 h-4" />
+                  </div>
+                  <CardTitle className="text-sm font-bold text-gray-900 dark:text-white">
+                    What This Configuration Handles
                   </CardTitle>
                 </CardHeader>
-                <CardContent className={`text-sm ${textMedium} leading-relaxed`}>
-                  This page allows you to securely link your preferred crypto wallet address
-                  to your account for deposits, withdrawals, and transactions.
+                <CardContent className="text-xs text-gray-500 dark:text-slate-400 leading-relaxed">
+                  This administrative panel establishes fixed ledger linkage targets for automated asset clearance. Linking an internal key provides verified transaction nodes across continuous system runs.
                 </CardContent>
               </Card>
 
-              <Card className={`${cardBg} border-2 border-emerald-200 dark:border-emerald-900 rounded-2xl shadow-md`}>
-                <CardHeader className="flex items-center gap-2">
-                  <HelpCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                  <CardTitle className={`text-xl font-semibold ${textDark}`}>
-                    How to Connect Your Address
+              <Card className="bg-white dark:bg-[#0f1623] border border-gray-200/80 dark:border-white/[0.06] shadow-sm">
+                <CardHeader className="pb-2 flex flex-row items-center gap-2.5 space-y-0">
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
+                    <HelpCircle className="w-4 h-4" />
+                  </div>
+                  <CardTitle className="text-sm font-bold text-gray-900 dark:text-white">
+                    Linkage Process Steps
                   </CardTitle>
                 </CardHeader>
-                <CardContent className={`text-sm ${textMedium} space-y-2`}>
-                  <ol className="list-decimal ml-5 space-y-1">
-                    <li>Select your crypto type (e.g. BTC, ETH, BNB).</li>
-                    <li>Select your crypto, then type your own address into the input field.</li>
-                    <li>Click <strong>Connect Address</strong> to confirm.</li>
+                <CardContent className="text-xs text-gray-500 dark:text-slate-400">
+                  <ol className="list-decimal pl-4 space-y-2">
+                    <li>Toggle your preferred targeted block index network (e.g., ERC-20 vs. native chains).</li>
+                    <li>Verify character maps out of primary custody layers, and paste inside the target field.</li>
+                    <li>Trigger validation sequence via the <strong className="text-gray-700 dark:text-slate-300">Bind Address</strong> switch action.</li>
                   </ol>
                 </CardContent>
               </Card>
 
-              <Card className={`${cardBg} border-2 border-emerald-200 dark:border-emerald-900 rounded-2xl shadow-md`}>
-                <CardHeader className="flex items-center gap-2">
-                  <Rocket className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                  <CardTitle className={`text-xl font-semibold ${textDark}`}>
-                    After Connecting What’s Next?
+              <Card className="bg-white dark:bg-[#0f1623] border border-gray-200/80 dark:border-white/[0.06] shadow-sm">
+                <CardHeader className="pb-2 flex flex-row items-center gap-2.5 space-y-0">
+                  <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
+                    <Rocket className="w-4 h-4" />
+                  </div>
+                  <CardTitle className="text-sm font-bold text-gray-900 dark:text-white">
+                    Post-Connection Pipeline
                   </CardTitle>
                 </CardHeader>
-                <CardContent className={`text-sm ${textMedium} leading-relaxed`}>
-                  Once your wallet is linked, you can proceed with transactions.
-                  Ensure the wallet has sufficient funds for your next operation.
+                <CardContent className="text-xs text-gray-500 dark:text-slate-400 leading-relaxed">
+                  Upon baseline confirmation across live state loops, these addresses will reflect instantly as auto-verified endpoints inside the main withdrawal dashboards, clearing settlement execution delays.
                 </CardContent>
               </Card>
             </div>
+
           </div>
         </main>
 

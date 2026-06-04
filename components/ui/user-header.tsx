@@ -97,7 +97,7 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
                          transition-all duration-150 cursor-pointer"
             >
               {darkMode
-                ? <Sun className="h-4 w-4 text-amber-500" />
+                ? <Sun className="h-4 w-4 text-white-500" />
                 : <Moon className="h-4 w-4 text-gray-600" />
               }
             </button>

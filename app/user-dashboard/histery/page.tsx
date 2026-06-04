@@ -256,10 +256,10 @@ export default function HistoryPage() {
         <Header setSidebarOpen={setSidebarOpen} />
 
         {/* History Content */}
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 pb-20 md:pb-8 mb-[50px] md:mb-0">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-2 md:p-6 lg:p-8 pb-20 md:pb-8 mb-[50px] md:mb-0">
           {/* Header Section */}
           <div className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+            <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
               Transaction History
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
@@ -303,7 +303,7 @@ export default function HistoryPage() {
                         {/* Left Section (Icon + Details) */}
                         <div className="flex items-start gap-4 flex-1 mb-2 sm:mb-0">
                           {/* Icon */}
-                          <div className={`w-10 h-10 rounded-full ${typeConfig.bg} flex items-center justify-center flex-shrink-0`}>
+                          <div className={`w-10 h-10 rounded-full ${typeConfig.bg} hidden sm:flex items-center justify-center flex-shrink-0`}>
                             <TypeIcon className={`w-5 h-5 ${typeConfig.color}`} />
                           </div>
 
