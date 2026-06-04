@@ -78,24 +78,6 @@ export default function ForgotPasswordPage() {
       {/* Applied dark mode background */}
       <div className={`flex min-h-screen items-center justify-center ${bgLight} px-4 py-8`}>
         <div className="w-full max-w-md">
-{/* Logo */}
-        <Link href="/">
-          <div className="flex items-center gap-2">
-            {/* Light mode logo */}
-            <img
-              src="https://pub-8297b2aff6f242709e9a4e96eeb6a803.r2.dev/dark%20logo.png"
-              alt="Logo"
-              className="h-10 sm:h-10 md:h-12 w-auto block dark:hidden"
-            />
-            {/* Dark mode logo */}
-            <img
-              src="https://pub-8297b2aff6f242709e9a4e96eeb6a803.r2.dev/light%20logo.png"
-              alt="Logo"
-              className="h-10 sm:h-10 md:h-12 w-auto hidden dark:block"
-            />
-          </div>
-        </Link>
-
 
           {/* Applied dark mode card background and border */}
           <Card className={`${cardBg} shadow-lg border-gray-100 dark:border-gray-800`}>

@@ -1,39 +1,150 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import Sidebar from "@/components/ui/user-sidebar";
 import Header from "@/components/ui/user-header";
 import UserNav from "@/components/ui/user-nav";
 import { useSession } from "next-auth/react";
-
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import {
   DollarSign,
   TrendingUp,
   Wallet,
   Users,
-  ArrowUpRight,
-  ArrowDownRight,
   Activity,
+  ChevronRight,
+  Sparkles,
+  ArrowUpRight,
 } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-// Recent activity data state is declared inside the component below
+// ─── Stat Card ────────────────────────────────────────────────────────────────
+interface StatCardProps {
+  label: string;
+  value: string;
+  sub: string;
+  icon: React.ElementType;
+  accent: string;        // Tailwind bg class for icon well
+  iconColor: string;     // Tailwind text class
+  delay: string;
+}
 
-// Notifications data is removed as it's no longer used
+function StatCard({ label, value, sub, icon: Icon, accent, iconColor, delay }: StatCardProps) {
+  return (
+    <div
+      className="stat-card group relative overflow-hidden rounded-2xl p-5 md:p-6
+                 border border-gray-200/80 dark:border-white/[0.06] bg-white dark:bg-[#0f1623]
+                 hover:border-gray-300 dark:hover:border-white/[0.12] hover:bg-gray-50/50 dark:hover:bg-[#131b2b]
+                 transition-all duration-300 cursor-default shadow-[0_2px_8px_rgba(0,0,0,0.02)] dark:shadow-none"
+      style={{ animationDelay: delay }}
+    >
+      {/* Top row */}
+      <div className="flex items-start justify-between mb-5">
+        <p className="text-[10px] md:text-[11px] font-semibold tracking-[0.12em] uppercase text-gray-400 dark:text-slate-400/80">
+          {label}
+        </p>
+        <div
+          className={`w-9 h-9 rounded-xl flex items-center justify-center ${accent}
+                      group-hover:scale-110 transition-transform duration-200`}
+        >
+          <Icon className={`w-4 h-4 ${iconColor}`} />
+        </div>
+      </div>
 
+      {/* Value */}
+      <p className="text-2xl md:text-[1.65rem] font-bold tracking-tight text-gray-900 dark:text-white leading-none mb-2">
+        {value}
+      </p>
+
+      {/* Sub */}
+      <p className="text-[11px] md:text-xs text-gray-500 dark:text-slate-500 font-medium">{sub}</p>
+
+      {/* Subtle accent line */}
+      <div
+        className={`absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full
+                    transition-all duration-500 rounded-b-2xl ${iconColor.replace("text-", "bg-")}`}
+      />
+    </div>
+  );
+}
+
+// ─── Activity Row ─────────────────────────────────────────────────────────────
+function ActivityRow({ activity, index }: { activity: any; index: number }) {
+  const isPayment = activity.kind === "payment";
+  const when = activity.date
+    ? new Date(activity.date).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })
+    : "—";
+  const amount = Number(activity.amount || 0);
+  const status = (activity.status || "pending").toLowerCase();
+
+  const statusMap: Record<string, { label: string; className: string }> = {
+    completed: { label: "Completed", className: "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-400/10 border-emerald-200 dark:border-emerald-400/20" },
+    approved:  { label: "Approved",  className: "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-400/10 border-emerald-200 dark:border-emerald-400/20" },
+    active:    { label: "Active",    className: "text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-400/10 border-sky-200 dark:border-sky-400/20" },
+    pending:   { label: "Pending",   className: "text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-400/10 border-amber-200 dark:border-amber-400/20" },
+  };
+  const { label: statusLabel, className: statusClass } =
+    statusMap[status] ?? { label: status, className: "text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-400/10 border-rose-200 dark:border-rose-400/20" };
+
+  return (
+    <tr
+      className="activity-row border-b border-gray-100 dark:border-white/[0.04] last:border-0
+                 hover:bg-gray-50/40 dark:hover:bg-white/[0.025] transition-colors duration-150"
+      style={{ animationDelay: `${index * 60}ms` }}
+    >
+      {/* Icon */}
+      <td className="py-4 pl-6 pr-3 w-12">
+        <div
+          className={`w-9 h-9 rounded-xl flex items-center justify-center
+                      ${isPayment ? "bg-violet-50 dark:bg-violet-500/10" : "bg-sky-50 dark:bg-sky-500/10"}`}
+        >
+          {isPayment
+            ? <DollarSign className="w-4 h-4 text-violet-600 dark:text-violet-400" />
+            : <Activity   className="w-4 h-4 text-sky-600 dark:text-sky-400"    />
+          }
+        </div>
+      </td>
+
+      {/* Plan / type */}
+      <td className="py-4 px-3">
+        <p className="font-semibold text-sm text-gray-900 dark:text-white leading-snug">
+          {activity.planName || "—"}
+        </p>
+        <p className="text-[11px] text-gray-400 dark:text-slate-500 mt-0.5">
+          {isPayment ? "Payment" : "Investment"}
+        </p>
+      </td>
+
+      {/* Date */}
+      <td className="py-4 px-3 text-xs text-gray-500 dark:text-slate-400 whitespace-nowrap sm:table-cell">
+        {when}
+      </td>
+
+      {/* Status */}
+      <td className="py-4 px-3 whitespace-nowrap">
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg
+                          text-[11px] font-semibold border capitalize ${statusClass}`}>
+          <span className="w-1.5 h-1.5 rounded-full bg-current opacity-80" />
+          {statusLabel}
+        </span>
+      </td>
+
+      {/* Amount */}
+      <td className="py-4 pl-3 pr-6 text-right font-bold text-sm text-gray-900 dark:text-white whitespace-nowrap">
+        <span className="text-emerald-600 dark:text-emerald-400">+ ${amount.toLocaleString()}</span>
+      </td>
+    </tr>
+  );
+}
+
+// ─── Dashboard ────────────────────────────────────────────────────────────────
 export default function AdminDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { data: session, status } = useSession();
   const searchParams = useSearchParams();
   const router = useRouter();
+
   const [stats, setStats] = useState({
     balance: 0,
     totalInvested: 0,
@@ -44,19 +155,15 @@ export default function AdminDashboard() {
     referralCount: 0,
   });
   const [loadingStats, setLoadingStats] = useState(false);
-  const [statsError, setStatsError] = useState<string | null>(null);
   const [recentActivities, setRecentActivities] = useState<any[]>([]);
   const [loadingActivity, setLoadingActivity] = useState(false);
 
   useEffect(() => {
-    const fetchStats = async () => {
-      if (status !== "authenticated") return;
-      setLoadingStats(true);
-      setStatsError(null);
-      try {
-        const res = await fetch("/api/user/stats");
-        if (!res.ok) throw new Error("Failed to load stats");
-        const data = await res.json();
+    if (status !== "authenticated") return;
+    setLoadingStats(true);
+    fetch("/api/user/stats")
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((data) =>
         setStats({
           balance: Number(data.balance) || 0,
           totalInvested: Number(data.totalInvested) || 0,
@@ -65,22 +172,15 @@ export default function AdminDashboard() {
           earningsToday: Number(data.earningsToday) || 0,
           referralEarnings: Number(data.referralEarnings) || 0,
           referralCount: Number(data.referralCount) || 0,
-        });
-      } catch (e: any) {
-        setStatsError(e?.message || "Unable to load stats");
-      } finally {
-        setLoadingStats(false);
-      }
-    };
-    fetchStats();
+        })
+      )
+      .finally(() => setLoadingStats(false));
   }, [status]);
 
-  // Show welcome bonus toast when redirected after registration
   useEffect(() => {
     const flag = searchParams?.get("welcome");
     if (flag === "1") {
       toast.success("You just earned $5 welcome bonus 🎉");
-      // remove the query param to avoid repeated toasts
       const url = new URL(window.location.href);
       url.searchParams.delete("welcome");
       router.replace(url.pathname + (url.search ? `?${url.searchParams.toString()}` : ""));
@@ -88,229 +188,205 @@ export default function AdminDashboard() {
   }, [searchParams, router]);
 
   useEffect(() => {
-    const fetchActivity = async () => {
-      if (status !== "authenticated") return;
-      setLoadingActivity(true);
-      try {
-        const res = await fetch("/api/user/activity", { cache: "no-store" });
-        if (!res.ok) return;
-        const data = await res.json();
-        setRecentActivities(Array.isArray(data) ? data : []);
-      } finally {
-        setLoadingActivity(false);
-      }
-    };
-    fetchActivity();
+    if (status !== "authenticated") return;
+    setLoadingActivity(true);
+    fetch("/api/user/activity", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data) => setRecentActivities(Array.isArray(data) ? data : []))
+      .finally(() => setLoadingActivity(false));
   }, [status]);
 
+  const fmt = (n: number) => (loadingStats ? "—" : `$${n.toLocaleString()}`);
+
+  const statCards: StatCardProps[] = [
+    {
+      label: "Active Investments",
+      value: fmt(stats.balance),
+      sub: loadingStats
+        ? "Loading…"
+        : `Across ${stats.activeInvestmentsCount} ${stats.activeInvestmentsCount === 1 ? "plan" : "plans"}`,
+      icon: Activity,
+      accent: "bg-emerald-50 dark:bg-emerald-500/10",
+      iconColor: "text-emerald-600 dark:text-emerald-400",
+      delay: "0ms",
+    },
+    {
+      label: "Total Earnings",
+      value: fmt(stats.totalEarnings),
+      sub: loadingStats ? "Loading…" : `+$${stats.earningsToday.toLocaleString()} today`,
+      icon: TrendingUp,
+      accent: "bg-violet-50 dark:bg-violet-500/10",
+      iconColor: "text-violet-600 dark:text-violet-400",
+      delay: "60ms",
+    },
+    {
+      label: "Total Invested",
+      value: fmt(stats.totalInvested),
+      sub: "Capital deployed",
+      icon: DollarSign,
+      accent: "bg-sky-50 dark:bg-sky-500/10",
+      iconColor: "text-sky-600 dark:text-sky-400",
+      delay: "120ms",
+    },
+    {
+      label: "Referral Earnings",
+      value: fmt(stats.referralEarnings),
+      sub: loadingStats
+        ? "Loading…"
+        : `${stats.referralCount} ${stats.referralCount === 1 ? "referral" : "referrals"}`,
+      icon: Users,
+      accent: "bg-amber-50 dark:bg-amber-500/10",
+      iconColor: "text-amber-600 dark:text-amber-400",
+      delay: "180ms",
+    },
+  ];
+
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
-      {/* Sidebar */}
-      <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+    <>
+      {/* Global animation styles */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header setSidebarOpen={setSidebarOpen} />
+        .dashboard-root { font-family: 'Sora', sans-serif; }
 
-        {/* Dashboard Content */}
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 pb-20 md:pb-8 mb-[50px] md:mb-0">
-          {/* Welcome Section */}
-          <div className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-              Welcome back, {session?.user?.name || "Investor"}! 👋
-            </h1>
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(16px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .stat-card {
+          opacity: 0;
+          animation: fadeUp 0.5s ease forwards;
+        }
+        .welcome-block {
+          opacity: 0;
+          animation: fadeUp 0.45s ease forwards;
+        }
+        .activity-row {
+          opacity: 0;
+          animation: fadeUp 0.4s ease forwards;
+        }
 
-            <p className="text-gray-600 dark:text-gray-400">
-              Here's what's happening with your investments today
-            </p>
-          </div>
+        /* Scrollbar */
+        .thin-scroll::-webkit-scrollbar { height: 4px; }
+        .thin-scroll::-webkit-scrollbar-track { background: transparent; }
+        .thin-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 99px; }
+        .dark .thin-scroll::-webkit-scrollbar-thumb { background: #ffffff18; }
+      `}</style>
 
+      <div className="dashboard-root flex h-screen overflow-hidden bg-gray-50/50 dark:bg-[#080d17]">
+        <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-    {/* Summary Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
-            {/* Active Investments */}
-            <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
-              <CardHeader className="pb-2">
-                <CardDescription className="text-gray-600 dark:text-gray-400">
-                  Active Investments
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
-                      {loadingStats
-                        ? "Loading..."
-                        : `$${stats.balance.toLocaleString()}`}
-                    </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      Across {loadingStats ? "-" : stats.activeInvestmentsCount}{" "}
-                      {stats.activeInvestmentsCount === 1 ? "plan" : "plans"}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center">
-                    <Activity className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
-                  </div>
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Header setSidebarOpen={setSidebarOpen} />
+
+          <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 pb-24 md:pb-8 mb-[50px] md:mb-0">
+
+            {/* ── Welcome ── */}
+            <div className="welcome-block mb-8 flex items-start justify-between flex-wrap gap-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <Sparkles className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+                  <span className="text-[11px] font-semibold tracking-[0.15em] uppercase text-gray-400 dark:text-slate-500">
+                    Investor Portal
+                  </span>
                 </div>
-              </CardContent>
-            </Card>
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white leading-tight">
+                  Welcome back,{" "}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 to-violet-600 dark:from-sky-400 dark:to-violet-400">
+                    {session?.user?.name || "Investor"}
+                  </span>
+                </h1>
+                <p className="text-gray-500 dark:text-slate-500 text-sm mt-1.5">
+                  Here's a snapshot of your portfolio performance today.
+                </p>
+              </div>
 
-            {/* Total Earnings */}
-            <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
-              <CardHeader className="pb-2">
-                <CardDescription className="text-gray-600 dark:text-gray-400">
-                  Total Earnings
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
-                      {loadingStats
-                        ? "Loading..."
-                        : `$${stats.totalEarnings.toLocaleString()}`}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
-                    <Wallet className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-                  </div>
+              {/* Quick CTA */}
+              <Link href="/user-dashboard/plan-details"> 
+              <button
+                className="hidden cursor-pointer md:flex items-center gap-2 px-4 py-2.5 rounded-xl
+                           bg-white dark:bg-white/[0.05] border border-gray-200 dark:border-white/[0.08] text-gray-700 dark:text-white text-sm font-medium shadow-sm dark:shadow-none
+                           hover:bg-gray-50 dark:hover:bg-white/[0.09] hover:border-gray-300 dark:hover:border-white/[0.14] transition-all duration-200"
+              >
+                <ArrowUpRight className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                New Investment
+              </button>
+              </Link>
+            </div>
+
+            {/* ── Stat Cards ── */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-8">
+              {statCards.map((card) => (
+                <StatCard key={card.label} {...card} />
+              ))}
+            </div>
+
+
+
+            {/* ── Recent Activity ── */}
+            <div
+              className="rounded-2xl border border-gray-200/80 dark:border-white/[0.06] bg-white dark:bg-[#0f1623] overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.02)] dark:shadow-none"
+              style={{ animation: "fadeUp 0.5s ease 240ms both" }}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 dark:border-white/[0.05]">
+                <div>
+                  <h2 className="text-base font-bold text-gray-900 dark:text-white">Recent Activity</h2>
+                  <p className="text-xs text-gray-500 dark:text-slate-500 mt-0.5">Your latest transactions and updates</p>
                 </div>
-              </CardContent>
-            </Card>
+                <button
+                  className="flex items-center gap-1 text-xs font-semibold text-gray-500 dark:text-slate-400
+                             hover:text-gray-900 dark:hover:text-white transition-colors duration-150"
+                >
+                  View all <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
 
-            
-            {/* Total Invested */}
-            <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
-              <CardHeader className="pb-2">
-                <CardDescription className="text-gray-600 dark:text-gray-400">
-                  Total Invested
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
-                      {loadingStats
-                        ? "Loading..."
-                        : `$${stats.totalInvested.toLocaleString()}`}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
-                    <DollarSign className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                  </div>
+              {/* Body */}
+              {loadingActivity ? (
+                <div className="flex flex-col items-center justify-center py-16 gap-3">
+                  <div className="w-10 h-10 rounded-full border-2 border-sky-500/20 border-t-sky-600 dark:border-sky-500/30 dark:border-t-sky-400 animate-spin" />
+                  <p className="text-sm text-gray-500 dark:text-slate-500 font-medium">Fetching transactions…</p>
                 </div>
-              </CardContent>
-            </Card>
-            
-
-            {/* Referral Commissions */}
-            <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
-              <CardHeader className="pb-2">
-                <CardDescription className="text-gray-600 dark:text-gray-400">
-                  Referral Commissions
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
-                      {loadingStats ? "Loading..." : `$${Number(stats.referralEarnings || 0).toLocaleString()}`}
-                    </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      {loadingStats ? "-" : `${stats.referralCount} active ${stats.referralCount === 1 ? "referral" : "referrals"}`}
-                    </p>
+              ) : recentActivities.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-gray-50 dark:bg-white/[0.04] flex items-center justify-center">
+                    <Activity className="w-5 h-5 text-gray-400 dark:text-slate-600" />
                   </div>
-                  <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
-                    <Users className="w-6 h-6 text-orange-600 dark:text-orange-400" />
-                  </div>
+                  <p className="text-sm font-semibold text-gray-600 dark:text-slate-400">No activity yet</p>
+                  <p className="text-xs text-gray-400 dark:text-slate-600">Your transactions will appear here once you invest.</p>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              ) : (
+                <div className="thin-scroll w-full overflow-x-auto">
+                  <table className="w-full text-left border-collapse min-w-[560px]">
+                    <thead>
+                      <tr className="border-b border-gray-100 dark:border-white/[0.04]">
+                        {["", "Plan", "Date", "Status", "Amount"].map((h, i) => (
+                          <th
+                            key={i}
+                            className={`py-3 text-[10px] font-bold tracking-[0.12em] uppercase text-gray-400 dark:text-slate-600
+                                        ${i === 0 ? "pl-6 pr-3 w-12" : i === 4 ? "pl-3 pr-6 text-right" : "px-3"}`}
+                          >
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {recentActivities.map((a, i) => (
+                        <ActivityRow key={a.id} activity={a} index={i} />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
 
-          {/* Recent Activity Section - Now spans full width on large screens */}
-          {/* The grid layout is updated to span all columns */}
-          <div className="grid grid-cols-1 gap-5">
-            {/* Recent Activity (Now spans full width on all screens) */}
-            <Card className="lg:col-span-1 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
-              <CardHeader>
-                <CardTitle className="text-gray-900 dark:text-gray-100">
-                  Recent Activity
-                </CardTitle>
-                <CardDescription className="text-gray-600 dark:text-gray-400">
-                  Your latest transactions and activities
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {loadingActivity ? (
-                  <div className="text-center py-10">
-                    <Activity className="w-12 h-12 text-gray-400 mx-auto mb-3 animate-spin" />
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                      Loading Activity
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-400">
-                      Fetching your latest transactions
-                    </p>
-                  </div>
-                ) : recentActivities.length === 0 ? (
-                  <div className="text-center py-10">
-                    <Activity className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                      No Recent Activity
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-400">
-                      Your latest transactions will appear here
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {recentActivities.map((activity) => {
-                      const isPayment = activity.kind === "payment";
-                      const TitleIcon = isPayment ? DollarSign : Activity;
-                      const when = activity.date
-                        ? new Date(activity.date).toLocaleString()
-                        : "";
-                      const title = `${isPayment ? "Payment" : "Investment"} ${
-                        activity.status
-                      }`;
-                      const subtitle = `${when} • ${activity.planName || ""}`;
-                      const amount = Number(activity.amount || 0);
-                      return (
-                        <div
-                          key={activity.id}
-                          className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition"
-                        >
-                          <div className="flex items-center gap-4">
-<div className="hidden sm:flex w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 items-center justify-center">
-                              <TitleIcon className="w-5 h-5" />
-                            </div>
-                            <div>
-                              <p className="font-medium text-gray-900 dark:text-gray-100">
-                                {title}
-                              </p>
-                              <p className="text-sm text-gray-600 dark:text-gray-400">
-                                {subtitle}
-                              </p>
-                            </div>
-                          </div>
-                          <p className="font-semibold text-gray-900 dark:text-gray-100">
-                            ${amount.toLocaleString()}
-                          </p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+          </main>
 
-            {/* The Notifications Card was here, but has been removed. */}
-          </div>
-        </main>
-
-        {/* Mobile Bottom Navigation */}
-        <UserNav />
+          <UserNav />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
