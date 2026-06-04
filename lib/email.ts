@@ -7,6 +7,8 @@ interface SendPaymentApprovalEmailParams {
   userName: string;
   amount: number;
   planName: string;
+  status: 'Approved' | 'Rejected';
+  adminNote?: string | null;
 }
 
 async function sendPaymentApprovalEmail({
@@ -14,7 +16,111 @@ async function sendPaymentApprovalEmail({
   userName,
   amount,
   planName,
+  status,
+  adminNote,
 }: SendPaymentApprovalEmailParams) {
+  try {
+    const from = process.env.RESEND_FROM_EMAIL || 'Regal Investment <onboarding@resend.dev>';
+    const amountFormatted = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(amount);
+
+    const isApproved = status === 'Approved';
+    const statusColor = isApproved ? '#72a210' : '#EF4444';
+    const statusIcon = isApproved ? '🎉' : '❌';
+    const statusText = isApproved ? 'Approved' : 'Rejected';
+
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <img src="https://i.postimg.cc/bNychjPg/dark-logo.png" alt="Regal Investment" style="max-width: 200px; height: auto;" />
+        </div>
+        
+        <div style="background-color: #f8f9fa; border-radius: 8px; padding: 25px; margin-bottom: 20px;">
+          <h2 style="color: ${statusColor}; margin-top: 0;">Payment ${statusText} ${statusIcon}</h2>
+          
+          <p>Hello ${userName},</p>
+          
+          ${isApproved 
+            ? `<p>We're excited to inform you that your payment of <strong>${amountFormatted}</strong> for the <strong>${planName}</strong> plan has been successfully approved!</p>
+          
+              <div style="background-color: #e8f5e9; border-left: 4px solid #72a210; padding: 12px 15px; margin: 20px 0; border-radius: 4px;">
+                <p style="margin: 0;">
+                  <strong>Investment Details:</strong><br>
+                  Amount: ${amountFormatted}<br>
+                  Plan: ${planName}<br>
+                  Status: <span style="color: #2e7d32; font-weight: 500;">Approved</span>
+                </p>
+              </div>
+              
+              <p>Your investment is now active and will start earning returns according to your selected plan's terms.</p>
+              
+              <p>You can now log in to your dashboard to track your investment progress and manage your portfolio.</p>`
+            : `<p>We regret to inform you that your payment of <strong>${amountFormatted}</strong> for the <strong>${planName}</strong> plan has been rejected.</p>
+          
+              <div style="background-color: #fee2e2; border-left: 4px solid #EF4444; padding: 12px 15px; margin: 20px 0; border-radius: 4px;">
+                <p style="margin: 0;">
+                  <strong>Payment Details:</strong><br>
+                  Amount: ${amountFormatted}<br>
+                  Plan: ${planName}<br>
+                  Status: <span style="color: #DC2626; font-weight: 500;">Rejected</span>
+                  ${adminNote ? `<br><br><strong>Reason:</strong> ${adminNote}` : ''}
+                </p>
+              </div>
+              
+              <p>If you believe this is an error or have any questions, please contact our support team for assistance.</p>`
+          }
+          
+          <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
+          
+          <p>Best regards,<br>The Regal Investment Team</p>
+        </div>
+        
+        <div style="text-align: center; color: #6c757d; font-size: 12px; margin-top: 30px;">
+          <p>© ${new Date().getFullYear()} Regal Investment. All rights reserved.</p>
+          <p>This is an automated message, please do not reply to this email.</p>
+        </div>
+      </div>
+    `;
+
+    const data = await resend.emails.send({
+      from,
+      to,
+      subject: `Payment ${statusText} - ${amountFormatted} - ${planName}`,
+      html: emailHtml,
+    });
+
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error sending payment status email:', error);
+    return { success: false, error };
+  }
+}
+
+interface SendPaymentSubmittedToAdminParams {
+  to: string[];
+  userName: string;
+  userEmail: string;
+  amount: number;
+  planName: string;
+  crypto: string;
+  walletAddress: string;
+  transactionId?: string | null;
+  notes?: string | null;
+}
+
+async function sendPaymentSubmittedToAdmin({
+  to,
+  userName,
+  userEmail,
+  amount,
+  planName,
+  crypto,
+  walletAddress,
+  transactionId,
+  notes,
+}: SendPaymentSubmittedToAdminParams) {
   try {
     const from = process.env.RESEND_FROM_EMAIL || 'Regal Investment <onboarding@resend.dev>';
     const amountFormatted = new Intl.NumberFormat('en-US', {
@@ -29,26 +135,87 @@ async function sendPaymentApprovalEmail({
         </div>
         
         <div style="background-color: #f8f9fa; border-radius: 8px; padding: 25px; margin-bottom: 20px;">
-          <h2 style="color: #72a210; margin-top: 0;">Payment Approved! 🎉</h2>
+          <h2 style="color: #72a210; margin-top: 0;">New Payment Proof Submitted 📋</h2>
           
-          <p>Hello ${userName},</p>
+          <p>Hello Admin,</p>
           
-          <p>We're excited to inform you that your payment of <strong>${amountFormatted}</strong> for the <strong>${planName}</strong> plan has been successfully approved!</p>
+          <p>A new payment proof has been submitted by <strong>${userName}</strong> and requires your review.</p>
           
           <div style="background-color: #e8f5e9; border-left: 4px solid #72a210; padding: 12px 15px; margin: 20px 0; border-radius: 4px;">
             <p style="margin: 0;">
-              <strong>Investment Details:</strong><br>
+              <strong>Payment Details:</strong><br>
+              User: ${userName} (${userEmail})<br>
               Amount: ${amountFormatted}<br>
               Plan: ${planName}<br>
-              Status: <span style="color: #2e7d32; font-weight: 500;">Approved</span>
+              Crypto: ${crypto}<br>
+              Wallet Address: <span style="font-family: monospace;">${walletAddress}</span><br>
+              ${transactionId ? `Transaction ID: <span style="font-family: monospace;">${transactionId}</span><br>` : ''}
+              ${notes ? `Notes: ${notes}<br>` : ''}
+              Submitted: ${new Date().toLocaleString()}
             </p>
           </div>
           
-          <p>Your investment is now active and will start earning returns according to your selected plan's terms.</p>
+          <p>Please log in to your admin dashboard to review and approve or reject this payment.</p>
           
-          <p>You can now log in to your dashboard to track your investment progress and manage your portfolio.</p>
+          <p>Best regards,<br>The Regal Investment Team</p>
+        </div>
+        
+        <div style="text-align: center; color: #6c757d; font-size: 12px; margin-top: 30px;">
+          <p>© ${new Date().getFullYear()} Regal Investment. All rights reserved.</p>
+          <p>This is an automated message, please do not reply to this email.</p>
+        </div>
+      </div>
+    `;
+
+    const data = await resend.emails.send({
+      from,
+      to,
+      subject: `New Payment Proof - ${amountFormatted} - ${planName}`,
+      html: emailHtml,
+    });
+
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error sending payment submitted to admin email:', error);
+    return { success: false, error };
+  }
+}
+
+interface SendWelcomeEmailParams {
+  to: string;
+  userName: string;
+}
+
+async function sendWelcomeEmail({
+  to,
+  userName,
+}: SendWelcomeEmailParams) {
+  try {
+    const from = process.env.RESEND_FROM_EMAIL || 'Regal Investment <onboarding@resend.dev>';
+
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <img src="https://i.postimg.cc/bNychjPg/dark-logo.png" alt="Regal Investment" style="max-width: 200px; height: auto;" />
+        </div>
+        
+        <div style="background-color: #f8f9fa; border-radius: 8px; padding: 25px; margin-bottom: 20px;">
+          <h2 style="color: #72a210; margin-top: 0;">Welcome to Regal Investment! 🎉</h2>
           
-          <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
+          <p>Hello ${userName},</p>
+          
+          <p>Welcome aboard! We're thrilled to have you join the Regal Investment family.</p>
+          
+          <p>Your account has been successfully created and you're now ready to start your investment journey with us.</p>
+          
+          <p>Here's what you can do next:</p>
+          <ul style="line-height: 1.8;">
+            <li>Log in to your dashboard to explore investment plans</li>
+            <li>Make your first deposit to start earning returns</li>
+            <li>Track your portfolio performance in real-time</li>
+          </ul>
+          
+          <p>If you have any questions or need assistance getting started, our support team is here to help.</p>
           
           <p>Happy Investing!<br>The Regal Investment Team</p>
         </div>
@@ -63,13 +230,86 @@ async function sendPaymentApprovalEmail({
     const data = await resend.emails.send({
       from,
       to,
-      subject: `Payment Approved - ${amountFormatted} Investment`,
+      subject: 'Welcome to Regal Investment!',
       html: emailHtml,
     });
 
     return { success: true, data };
   } catch (error) {
-    console.error('Error sending payment approval email:', error);
+    console.error('Error sending welcome email:', error);
+    return { success: false, error };
+  }
+}
+
+interface SendWithdrawalSubmittedToAdminParams {
+  to: string[];
+  userName: string;
+  userEmail: string;
+  amount: number;
+  crypto: string;
+  walletAddress: string;
+}
+
+async function sendWithdrawalSubmittedToAdmin({
+  to,
+  userName,
+  userEmail,
+  amount,
+  crypto,
+  walletAddress,
+}: SendWithdrawalSubmittedToAdminParams) {
+  try {
+    const from = process.env.RESEND_FROM_EMAIL || 'Regal Investment <onboarding@resend.dev>';
+    const amountFormatted = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(amount);
+
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <img src="https://i.postimg.cc/bNychjPg/dark-logo.png" alt="Regal Investment" style="max-width: 200px; height: auto;" />
+        </div>
+        
+        <div style="background-color: #f8f9fa; border-radius: 8px; padding: 25px; margin-bottom: 20px;">
+          <h2 style="color: #72a210; margin-top: 0;">New Withdrawal Request Submitted 📋</h2>
+          
+          <p>Hello Admin,</p>
+          
+          <p>A new withdrawal request has been submitted by <strong>${userName}</strong> and requires your attention.</p>
+          
+          <div style="background-color: #e8f5e9; border-left: 4px solid #72a210; padding: 12px 15px; margin: 20px 0; border-radius: 4px;">
+            <p style="margin: 0;">
+              <strong>Withdrawal Details:</strong><br>
+              User: ${userName} (${userEmail})<br>
+              Amount: ${amountFormatted} ${crypto}<br>
+              Wallet Address: <span style="font-family: monospace;">${walletAddress}</span><br>
+              Submitted: ${new Date().toLocaleString()}
+            </p>
+          </div>
+          
+          <p>Please log in to your admin dashboard to review and approve or reject this withdrawal request.</p>
+          
+          <p>Best regards,<br>The Regal Investment Team</p>
+        </div>
+        
+        <div style="text-align: center; color: #6c757d; font-size: 12px; margin-top: 30px;">
+          <p>© ${new Date().getFullYear()} Regal Investment. All rights reserved.</p>
+          <p>This is an automated message, please do not reply to this email.</p>
+        </div>
+      </div>
+    `;
+
+    const data = await resend.emails.send({
+      from,
+      to,
+      subject: `New Withdrawal Request - ${amountFormatted} ${crypto}`,
+      html: emailHtml,
+    });
+
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error sending withdrawal submitted to admin email:', error);
     return { success: false, error };
   }
 }
@@ -158,5 +398,5 @@ async function sendWithdrawalStatusUpdate({
 }
 
 // Export all functions and types
-export type { SendPaymentApprovalEmailParams, SendWithdrawalStatusUpdateParams };
-export { sendPaymentApprovalEmail, sendWithdrawalStatusUpdate };
+export type { SendPaymentApprovalEmailParams, SendPaymentSubmittedToAdminParams, SendWelcomeEmailParams, SendWithdrawalSubmittedToAdminParams, SendWithdrawalStatusUpdateParams };
+export { sendPaymentApprovalEmail, sendPaymentSubmittedToAdmin, sendWelcomeEmail, sendWithdrawalSubmittedToAdmin, sendWithdrawalStatusUpdate };

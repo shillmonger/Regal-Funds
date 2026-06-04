@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import clientPromise from "@/lib/mongodb";
+import { sendPaymentSubmittedToAdmin } from "@/lib/email";
 
 export async function GET() {
   try {
@@ -104,6 +105,29 @@ export async function POST(req: Request) {
     };
 
     const inserted = await db.collection("payments").insertOne(doc);
+
+    // Send email notification to all admins
+    try {
+      const admins = await db.collection("users").find({ role: "admin" }).toArray();
+      const adminEmails = admins.map((admin: any) => admin.email).filter((email: string) => email);
+
+      if (adminEmails.length > 0) {
+        await sendPaymentSubmittedToAdmin({
+          to: adminEmails,
+          userName: session.user.name || 'User',
+          userEmail: session.user.email || '',
+          amount,
+          planName,
+          crypto,
+          walletAddress,
+          transactionId: transactionId || null,
+          notes: notes || null,
+        });
+      }
+    } catch (emailError) {
+      console.error('Error sending admin notification email:', emailError);
+      // Don't fail the request if email sending fails
+    }
 
     return NextResponse.json({ id: inserted.insertedId.toString(), ...doc }, { status: 201 });
   } catch (e) {

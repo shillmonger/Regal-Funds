@@ -25,7 +25,7 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { status } = body as { status: "Approved" | "Rejected" | "Pending" };
+    const { status, adminNote } = body as { status: "Approved" | "Rejected" | "Pending"; adminNote?: string | null };
     if (!status || !["Approved", "Rejected", "Pending"].includes(status)) {
       return NextResponse.json({ error: "Invalid status" }, { status: 400 });
     }
@@ -44,8 +44,37 @@ export async function PATCH(
       .collection("payments")
       .updateOne(
         { _id: new ObjectId(id) },
-        { $set: { status, paidAt: status === "Approved" ? new Date().toISOString() : null } }
+        { $set: { status, paidAt: status === "Approved" ? new Date().toISOString() : null, adminNote: adminNote || null } }
       );
+
+    // Send email notification on status change (both Approved and Rejected)
+    if ((status === "Approved" || status === "Rejected") && payment.status !== status) {
+      if (payment.userEmail) {
+        console.log(`Sending ${status.toLowerCase()} email to:`, payment.userEmail);
+        
+        try {
+          const emailResult = await sendPaymentApprovalEmail({
+            to: payment.userEmail,
+            userName: payment.userName || 'Valued Customer',
+            amount: payment.amount,
+            planName: payment.planName || 'Investment Plan',
+            status,
+            adminNote: adminNote || null
+          });
+          
+          if (!emailResult.success) {
+            console.error('Email sending failed:', emailResult.error);
+          } else {
+            console.log(`Payment ${status} email sent successfully to:`, payment.userEmail);
+          }
+        } catch (emailError) {
+          console.error('Error in email sending process:', emailError);
+          // Continue with the rest of the process even if email fails
+        }
+      } else {
+        console.warn('No email address found for payment status notification');
+      }
+    }
 
     // On approval from non-approved state, create an investment record and update user totals
     if (status === "Approved" && payment.status !== "Approved") {
@@ -57,33 +86,6 @@ export async function PATCH(
           { _id: new ObjectId(id) },
           { $set: { status: "Approved", paidAt: now.toISOString() } }
         );
-
-      // Send approval email in the background
-      if (payment.userEmail) {
-        console.log('Sending approval email to:', payment.userEmail);
-        console.log('RESEND_API_KEY:', process.env.RESEND_API_KEY ? '***' + process.env.RESEND_API_KEY.slice(-4) : 'Not set');
-        console.log('SENDING FROM:', process.env.RESEND_FROM_EMAIL || 'Not set');
-        
-        try {
-          const emailResult = await sendPaymentApprovalEmail({
-            to: payment.userEmail,
-            userName: payment.userName || 'Valued Customer',
-            amount: payment.amount,
-            planName: payment.planName || 'Investment Plan'
-          });
-          
-          if (!emailResult.success) {
-            console.error('Email sending failed:', emailResult.error);
-          } else {
-            console.log('Payment approval email sent successfully to:', payment.userEmail);
-          }
-        } catch (emailError) {
-          console.error('Error in email sending process:', emailError);
-          // Continue with the rest of the process even if email fails
-        }
-      } else {
-        console.warn('No email address found for payment approval notification');
-      }
 
       // Create investment record
       const dailyPercent = 0.10; // 10% daily

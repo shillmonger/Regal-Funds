@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 import { hash } from "bcrypt";
+import { sendWelcomeEmail } from "@/lib/email";
 
 export async function POST(req: Request) {
   try {
@@ -59,6 +60,12 @@ export async function POST(req: Request) {
     if (!result.insertedId) {
       throw new Error("User creation failed");
     }
+
+    // Send welcome email
+    await sendWelcomeEmail({
+      to: email,
+      userName: username,
+    });
 
     return NextResponse.json({ message: "User registered successfully" }, { status: 201 });
   } catch (error) {

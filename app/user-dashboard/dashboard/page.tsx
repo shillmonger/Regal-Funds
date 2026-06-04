@@ -71,12 +71,12 @@ function StatCard({ label, value, sub, icon: Icon, accent, iconColor, delay }: S
 
 // ─── Activity Row ─────────────────────────────────────────────────────────────
 function ActivityRow({ activity, index }: { activity: any; index: number }) {
-  const isPayment = activity.kind === "payment";
   const when = activity.date
     ? new Date(activity.date).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })
     : "—";
   const amount = Number(activity.amount || 0);
   const status = (activity.status || "pending").toLowerCase();
+  const kind = activity.kind || "investment";
 
   const statusMap: Record<string, { label: string; className: string }> = {
     completed: { label: "Completed", className: "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-400/10 border-emerald-200 dark:border-emerald-400/20" },
@@ -87,6 +87,16 @@ function ActivityRow({ activity, index }: { activity: any; index: number }) {
   const { label: statusLabel, className: statusClass } =
     statusMap[status] ?? { label: status, className: "text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-400/10 border-rose-200 dark:border-rose-400/20" };
 
+  const kindMap: Record<string, { label: string; icon: React.ElementType; bgClass: string; iconColor: string; amountColor: string; amountPrefix: string }> = {
+    payment:     { label: "Payment",     icon: DollarSign, bgClass: "bg-violet-50 dark:bg-violet-500/10", iconColor: "text-violet-600 dark:text-violet-400", amountColor: "text-emerald-600 dark:text-emerald-400", amountPrefix: "+" },
+    investment:  { label: "Investment",  icon: Activity,   bgClass: "bg-sky-50 dark:bg-sky-500/10",     iconColor: "text-sky-600 dark:text-sky-400",     amountColor: "text-emerald-600 dark:text-emerald-400", amountPrefix: "+" },
+    withdrawal:  { label: "Withdrawal",  icon: ArrowUpRight, bgClass: "bg-rose-50 dark:bg-rose-500/10",   iconColor: "text-rose-600 dark:text-rose-400",   amountColor: "text-rose-600 dark:text-rose-400",   amountPrefix: "-" },
+    referral:    { label: "Referral",    icon: Users,       bgClass: "bg-amber-50 dark:bg-amber-500/10", iconColor: "text-amber-600 dark:text-amber-400", amountColor: "text-emerald-600 dark:text-emerald-400", amountPrefix: "+" },
+    roi:         { label: "ROI Earnings", icon: TrendingUp, bgClass: "bg-emerald-50 dark:bg-emerald-500/10", iconColor: "text-emerald-600 dark:text-emerald-400", amountColor: "text-emerald-600 dark:text-emerald-400", amountPrefix: "+" },
+  };
+  const { label: kindLabel, icon: KindIcon, bgClass, iconColor, amountColor, amountPrefix } =
+    kindMap[kind] ?? kindMap.investment;
+
   return (
     <tr
       className="activity-row border-b border-gray-100 dark:border-white/[0.04] last:border-0
@@ -95,14 +105,8 @@ function ActivityRow({ activity, index }: { activity: any; index: number }) {
     >
       {/* Icon */}
       <td className="py-4 pl-6 pr-3 w-12">
-        <div
-          className={`w-9 h-9 rounded-xl flex items-center justify-center
-                      ${isPayment ? "bg-violet-50 dark:bg-violet-500/10" : "bg-sky-50 dark:bg-sky-500/10"}`}
-        >
-          {isPayment
-            ? <DollarSign className="w-4 h-4 text-violet-600 dark:text-violet-400" />
-            : <Activity   className="w-4 h-4 text-sky-600 dark:text-sky-400"    />
-          }
+        <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${bgClass}`}>
+          <KindIcon className={`w-4 h-4 ${iconColor}`} />
         </div>
       </td>
 
@@ -112,7 +116,7 @@ function ActivityRow({ activity, index }: { activity: any; index: number }) {
           {activity.planName || "—"}
         </p>
         <p className="text-[11px] text-gray-400 dark:text-slate-500 mt-0.5">
-          {isPayment ? "Payment" : "Investment"}
+          {kindLabel}
         </p>
       </td>
 
@@ -132,7 +136,7 @@ function ActivityRow({ activity, index }: { activity: any; index: number }) {
 
       {/* Amount */}
       <td className="py-4 pl-3 pr-6 text-right font-bold text-sm text-gray-900 dark:text-white whitespace-nowrap">
-        <span className="text-emerald-600 dark:text-emerald-400">+ ${amount.toLocaleString()}</span>
+        <span className={amountColor}>{amountPrefix} ${amount.toLocaleString()}</span>
       </td>
     </tr>
   );
@@ -290,7 +294,7 @@ export default function AdminDashboard() {
                     Investor Portal
                   </span>
                 </div>
-                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white leading-tight">
+                <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white leading-tight">
                   Welcome back,{" "}
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 to-violet-600 dark:from-sky-400 dark:to-violet-400">
                     {session?.user?.name || "Investor"}
