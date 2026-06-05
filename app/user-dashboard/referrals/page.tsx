@@ -17,13 +17,13 @@ import {
   Copy,
   CheckCircle,
   Share2,
-  TrendingUp,
   Gift,
   Link2,
   Facebook,
   Twitter,
   Mail,
   MessageCircle,
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -68,9 +68,11 @@ export default function ReferralsPage() {
     navigator.clipboard.writeText(text);
     if (type === "link") {
       setCopiedLink(true);
+      toast.success("Referral URL link copied to clipboard");
       setTimeout(() => setCopiedLink(false), 2000);
     } else {
       setCopiedCode(true);
+      toast.success("Referral code copied to clipboard");
       setTimeout(() => setCopiedCode(false), 2000);
     }
   };
@@ -100,169 +102,219 @@ export default function ReferralsPage() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
+    <div className="flex h-screen overflow-hidden bg-gray-50/50 dark:bg-[#080d17] transition-colors duration-200">
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header setSidebarOpen={setSidebarOpen} />
 
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 pb-20 md:pb-8 mb-[50px] md:mb-0">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 pb-24 md:pb-8 mb-[50px] md:mb-0">
           <div className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-              Referral Program 🎁
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-1.5">
+              Affiliate Program
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              Share your unique referral link and earn $10 when your referral buys a plan.
+            <p className="text-sm text-gray-500 dark:text-slate-400">
+              Invite your network circles and secure direct rewards on verified system plans
             </p>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-6 mb-8">
-            <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <Users className="w-8 h-8 opacity-80" />
-                  <span className="text-xs bg-emerald-400/30 px-2 py-1 rounded-full">Referrals</span>
+          {/* Stats Section - Grid 2 on mobile */}
+          <div className="grid grid-cols-2 gap-4 md:gap-6 mb-8">
+            <Card className="bg-white dark:bg-[#0f1623] border border-gray-200/80 dark:border-white/[0.06] shadow-sm">
+              <CardContent className="p-4 md:p-6 flex flex-col sm:flex-row items-center sm:items-start md:items-center gap-3 md:gap-4 text-center sm:text-left">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                  <Users className="w-5 h-5 md:w-6 md:h-6" />
                 </div>
-                <p className="text-sm mb-1 text-gray-600 dark:text-gray-400">Total Referrals</p>
-                <p className="text-3xl font-bold">{ref?.totalReferrals ?? 0}</p>
+                <div className="min-w-0 w-full">
+                  <p className="text-lg md:text-2xl font-bold text-gray-900 dark:text-white truncate">
+                    {loading ? "..." : (ref?.totalReferrals ?? 0)}
+                  </p>
+                  <p className="text-gray-400 dark:text-slate-500 text-[10px] md:text-xs font-bold uppercase tracking-wider mb-0.5 truncate">Total Referrals</p>
+                </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-2"><DollarSign className="w-8 h-8 opacity-80" /></div>
-                <p className="text-sm mb-1 text-gray-600 dark:text-gray-400">Total Earnings</p>
-                <p className="text-3xl font-bold">{`$${(ref?.totalReferralEarnings ?? 0).toLocaleString()}`}</p>
+            <Card className="bg-white dark:bg-[#0f1623] border border-gray-200/80 dark:border-white/[0.06] shadow-sm">
+              <CardContent className="p-4 md:p-6 flex flex-col sm:flex-row items-center sm:items-start md:items-center gap-3 md:gap-4 text-center sm:text-left">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
+                  <DollarSign className="w-5 h-5 md:w-6 md:h-6" />
+                </div>
+                <div className="min-w-0 w-full">
+                  <p className="text-lg md:text-2xl font-bold text-gray-900 dark:text-white truncate">
+                    {loading ? "..." : `$${(ref?.totalReferralEarnings ?? 0).toLocaleString()}`}
+                  </p>
+                  <p className="text-gray-400 dark:text-slate-500 text-[10px] md:text-xs font-bold uppercase tracking-wider mb-0.5 truncate">Total Earnings</p>
+                </div>
               </CardContent>
             </Card>
           </div>
 
           {/* Two-column layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Left: Referral Link + Share Via */}
-            <div className="space-y-6">
-              {/* Referral Link */}
-              <Card className="bg-gradient-to-br from-emerald-500 to-emerald-600 border-0 text-white">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <Link2 className="w-5 h-5" />
-                    Your Referral Link
-                  </CardTitle>
-                  <CardDescription className="text-emerald-100">
-                    Share this link to earn commissions
-                  </CardDescription>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            {/* Left Column: Link Hub & Direct Sharing Options */}
+            <div className="lg:col-span-7 space-y-6">
+              
+              {/* Primary Invitation Module */}
+              <Card className="bg-white dark:bg-[#0f1623] border border-gray-200/80 dark:border-white/[0.06] shadow-sm overflow-hidden relative">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
+                <CardHeader className="pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-emerald-500/10 flex items-center justify-center rounded-xl text-emerald-600 dark:text-emerald-400">
+                      <Link2 className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg text-gray-900 dark:text-white font-bold">
+                        Invitation Credentials
+                      </CardTitle>
+                      <CardDescription className="text-xs text-gray-500 dark:text-slate-400">
+                        Distribute these tokens to downline registrants to bind accounts
+                      </CardDescription>
+                    </div>
+                  </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                
+                <CardContent className="space-y-5">
+                  {/* Code Snippet Box */}
                   <div>
-                    <p className="text-emerald-100 text-sm mb-2">Referral Code</p>
-                    <div className="flex items-center gap-2 bg-white/20 p-3 rounded-lg">
-                      <code className="flex-1 font-mono text-lg font-bold">{ref?.referralCode || (loading ? "Loading..." : "-")}</code>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 mb-2.5">
+                      Unique Code Token
+                    </label>
+                    <div className="flex items-center justify-between gap-3 p-3.5 bg-gray-50 dark:bg-white/[0.01] border border-gray-200 dark:border-white/[0.06] rounded-xl">
+                      <code className="font-mono text-base font-bold tracking-wider text-gray-800 dark:text-slate-200 pl-1">
+                        {loading ? "Retrieving token..." : (ref?.referralCode || "-")}
+                      </code>
                       <button
+                        type="button"
+                        disabled={loading || !ref?.referralCode}
                         onClick={() => ref?.referralCode && copyToClipboard(ref.referralCode, "code")}
-                        className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition"
+                        className="w-9 h-9 flex items-center justify-center rounded-xl bg-white dark:bg-white/[0.04] hover:bg-gray-100 dark:hover:bg-white/[0.08] border border-gray-200 dark:border-white/[0.08] text-gray-600 dark:text-slate-400 transition-colors cursor-pointer shrink-0 disabled:opacity-40"
                       >
-                        {copiedCode ? <CheckCircle className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                        {copiedCode ? <CheckCircle className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
                       </button>
                     </div>
                   </div>
 
+                  {/* URL Snippet Box */}
                   <div>
-                    <p className="text-emerald-100 text-sm mb-2">Referral URL</p>
-                    <div className="flex items-center gap-2 bg-white/20 p-3 rounded-lg">
-                      <p className="flex-1 font-mono text-sm truncate">{ref?.referralURL || (loading ? "Loading..." : "-")}</p>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 mb-2.5">
+                      Target Hyperlink Link
+                    </label>
+                    <div className="flex items-center justify-between gap-3 p-3.5 bg-gray-50 dark:bg-white/[0.01] border border-gray-200 dark:border-white/[0.06] rounded-xl">
+                      <p className="font-mono text-xs text-gray-500 dark:text-slate-400 truncate pl-1 select-all">
+                        {loading ? "Constructing secure url..." : (ref?.referralURL || "-")}
+                      </p>
                       <button
+                        type="button"
+                        disabled={loading || !ref?.referralURL}
                         onClick={() => ref?.referralURL && copyToClipboard(ref.referralURL, "link")}
-                        className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition"
+                        className="w-9 h-9 flex items-center justify-center rounded-xl bg-white dark:bg-white/[0.04] hover:bg-gray-100 dark:hover:bg-white/[0.08] border border-gray-200 dark:border-white/[0.08] text-gray-600 dark:text-slate-400 transition-colors cursor-pointer shrink-0 disabled:opacity-40"
                       >
-                        {copiedLink ? <CheckCircle className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                        {copiedLink ? <CheckCircle className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
                       </button>
                     </div>
                   </div>
 
                   <Button
+                    disabled={loading || !ref?.referralURL}
                     onClick={() => ref?.referralURL && copyToClipboard(ref.referralURL, "link")}
-                    className="w-full bg-white text-emerald-600 hover:bg-emerald-50 font-semibold py-6"
+                    className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-6 rounded-xl text-sm font-bold tracking-wide transition-all shadow-md shadow-emerald-600/10 cursor-pointer"
                   >
-                    {copiedLink ? "Link Copied!" : "Copy Referral Link"}
+                    {copiedLink ? "Link Copied Successfully!" : "Copy Full Referral Link"}
                   </Button>
                 </CardContent>
               </Card>
 
-              {/* Share Via */}
-              <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
-                <CardHeader>
-                  <CardTitle className="text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                    <Share2 className="w-5 h-5 text-emerald-500" />
-                    Share Via
-                  </CardTitle>
-                  <CardDescription className="text-gray-600 dark:text-gray-400">
-                    Spread the word on social media
-                  </CardDescription>
+              {/* Social Channels Sheet */}
+              <Card className="bg-white dark:bg-[#0f1623] border border-gray-200/80 dark:border-white/[0.06] shadow-sm">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-500/10 flex items-center justify-center rounded-xl text-blue-600 dark:text-blue-400">
+                      <Share2 className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-sm font-bold text-gray-900 dark:text-white">
+                        Instant Network Sharing
+                      </CardTitle>
+                      <CardDescription className="text-xs text-gray-500 dark:text-slate-400">
+                        Broadcast links cleanly via major external communication loops
+                      </CardDescription>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent className="grid grid-cols-2 gap-3">
-                  <button onClick={() => shareVia("facebook")} className="flex items-center justify-center gap-2 p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition font-medium">
-                    <Facebook className="w-5 h-5" /> Facebook
+                  <button onClick={() => shareVia("facebook")} className="flex items-center justify-center gap-2 p-3 bg-blue-600/90 hover:bg-blue-600 text-white text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer">
+                    <Facebook className="w-4 h-4" /> Facebook
                   </button>
-                  <button onClick={() => shareVia("twitter")} className="flex items-center justify-center gap-2 p-3 bg-sky-500 hover:bg-sky-600 text-white rounded-lg transition font-medium">
-                    <Twitter className="w-5 h-5" /> Twitter
+                  <button onClick={() => shareVia("twitter")} className="flex items-center justify-center gap-2 p-3 bg-sky-500/90 hover:bg-sky-500 text-white text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer">
+                    <Twitter className="w-4 h-4" /> Twitter
                   </button>
-                  <button onClick={() => shareVia("whatsapp")} className="flex items-center justify-center gap-2 p-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition font-medium">
-                    <MessageCircle className="w-5 h-5" /> WhatsApp
+                  <button onClick={() => shareVia("whatsapp")} className="flex items-center justify-center gap-2 p-3 bg-emerald-600/90 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer">
+                    <MessageCircle className="w-4 h-4" /> WhatsApp
                   </button>
-                  <button onClick={() => shareVia("email")} className="flex items-center justify-center gap-2 p-3 bg-gray-700 hover:bg-gray-800 text-white rounded-lg transition font-medium">
-                    <Mail className="w-5 h-5" /> Email
+                  <button onClick={() => shareVia("email")} className="flex items-center justify-center gap-2 p-3 bg-slate-700/90 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer">
+                    <Mail className="w-4 h-4" /> Email
                   </button>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Right: How It Works + Program Rules */}
-            <div className="space-y-6">
-              {/* How It Works */}
-              <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
-                <CardHeader>
-                  <CardTitle className="text-gray-900 dark:text-gray-100">How It Works</CardTitle>
+            {/* Right Column: Walkthrough Guide & Policy Protocol */}
+            <div className="lg:col-span-5 space-y-4">
+              
+              {/* Pipeline Flow Guide */}
+              <Card className="bg-white dark:bg-[#0f1623] border border-gray-200/80 dark:border-white/[0.06] shadow-sm">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-bold text-gray-900 dark:text-white">
+                    Program Workflow Layout
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ol className="space-y-4">
-                    <li className="flex gap-3">
-                      <span className="flex-shrink-0 w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center text-sm font-bold">1</span>
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-gray-100">Share Your Link</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Send your referral link to friends and family.</p>
+                  <div className="relative space-y-5 pl-2">
+                    {/* Vertical connector line */}
+                    <div className="absolute left-[15px] top-2 bottom-2 w-[1px] bg-gray-100 dark:bg-white/[0.06]" />
+
+                    <div className="relative flex items-start gap-4">
+                      <div className="w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center justify-center shrink-0 border border-emerald-500/10 relative z-10 bg-white dark:bg-[#0f1623]">1</div>
+                      <div className="min-w-0 pt-0.5">
+                        <h4 className="text-xs font-bold text-gray-900 dark:text-white mb-0.5">Share Credentials</h4>
+                        <p className="text-[11px] text-gray-400 dark:text-slate-500 leading-normal">Publish your unique tracking code metadata out to prospective peers.</p>
                       </div>
-                    </li>
-                    <li className="flex gap-3">
-                      <span className="flex-shrink-0 w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center text-sm font-bold">2</span>
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-gray-100">They Sign Up</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">New users register using your referral link.</p>
+                    </div>
+
+                    <div className="relative flex items-start gap-4">
+                      <div className="w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center justify-center shrink-0 border border-emerald-500/10 relative z-10 bg-white dark:bg-[#0f1623]">2</div>
+                      <div className="min-w-0 pt-0.5">
+                        <h4 className="text-xs font-bold text-gray-900 dark:text-white mb-0.5">Downline Registration</h4>
+                        <p className="text-[11px] text-gray-400 dark:text-slate-500 leading-normal">Invited prospects execute full account creation profiles linked to your node key.</p>
                       </div>
-                    </li>
-                    <li className="flex gap-3">
-                      <span className="flex-shrink-0 w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center text-sm font-bold">3</span>
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-gray-100">You Earn $10</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">When their first plan is approved.</p>
+                    </div>
+
+                    <div className="relative flex items-start gap-4">
+                      <div className="w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center justify-center shrink-0 border border-emerald-500/10 relative z-10 bg-white dark:bg-[#0f1623]">3</div>
+                      <div className="min-w-0 pt-0.5">
+                        <h4 className="text-xs font-bold text-gray-900 dark:text-white mb-0.5">Unlock Bonus Credits</h4>
+                        <p className="text-[11px] text-gray-400 dark:text-slate-500 leading-normal">Gain an immediate flat **$10 cash injection** as soon as their initial plan allocation clears.</p>
                       </div>
-                    </li>
-                  </ol>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
-              {/* Program Rules */}
-              <Card className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
-                <CardHeader>
-                  <CardTitle className="text-blue-900 dark:text-blue-100 text-base">Program Rules</CardTitle>
+              {/* Policy Terms Card */}
+              <Card className="bg-blue-500/[0.02] border border-blue-500/10 shadow-none rounded-xl">
+                <CardHeader className="py-4">
+                  <CardTitle className="text-blue-600 dark:text-blue-400 text-xs font-bold flex items-center gap-2 uppercase tracking-wider">
+                    <AlertCircle className="w-4 h-4" />
+                    Affiliate Code of Conduct
+                  </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2 text-sm text-blue-800 dark:text-blue-300">
-                    <li>• Earn $10 on your referral's first approved investment</li>
-                    <li>• Minimum referral investment: $100</li>
-                    <li>• Bonuses are credited after admin approval</li>
-                    <li>• No limit on number of referrals</li>
-                    <li>• Fraud results in account suspension</li>
+                <CardContent className="pb-4">
+                  <ul className="space-y-2 text-xs text-gray-500 dark:text-slate-400 leading-normal">
+                    <li className="flex items-start gap-1.5">• Earn $10 on your referral's first approved investment</li>
+                    <li className="flex items-start gap-1.5">• Minimum qualification threshold: downline purchase must equal or exceed $100</li>
+                    <li className="flex items-start gap-1.5">• Settlement clearance: allocated bonuses activate immediately upon admin panel confirmation loops</li>
+                    <li className="flex items-start gap-1.5">• Multi-accounting clusters or artificial syndicating results in permanent wallet lockup</li>
                   </ul>
                 </CardContent>
               </Card>
@@ -271,9 +323,7 @@ export default function ReferralsPage() {
           </div>
         </main>
 
-
-        {/* Mobile Bottom Navigation */}
-                <UserNav />
+        <UserNav />
       </div>
     </div>
   );

@@ -32,7 +32,7 @@ const navItems = [
   { name: "Overall History",  icon: Clock,          href: "/user-dashboard/histery"         },
   { name: "Withdraw Funds",      icon: ArrowDownCircle,href: "/user-dashboard/withdrawals"     },
   { name: "Account Settings", icon: Settings,       href: "/user-dashboard/settings"        },
-  { name: "Logout My Account", icon: LogOut,       href: "/auth/login"},
+  { name: "Logout My Account", icon: LogOut,       href: "/"},
 ];
 
 // Dual-theme context-aware safe values

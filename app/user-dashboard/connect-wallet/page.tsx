@@ -105,7 +105,7 @@ export default function ConnectWalletPage() {
 
         <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 pb-24 md:pb-8 mb-[50px] md:mb-0">
           <div className="mb-8">
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-1.5">
+            <h1 className="text-xl md:text-2xl font-bold tracking-tight text-gray-900 dark:text-white mb-1.5">
               Wallet Settings
             </h1>
             <p className="text-sm text-gray-500 dark:text-slate-400">

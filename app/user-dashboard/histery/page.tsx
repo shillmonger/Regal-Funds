@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-// Assuming these imports are correctly aliased in your project
 import Sidebar from "@/components/ui/user-sidebar";
 import Header from "@/components/ui/user-header";
 import UserNav from "@/components/ui/user-nav";
@@ -21,16 +20,15 @@ import {
   Calendar,
   Search,
   Download,
-  Filter,
   CheckCircle,
   Clock,
   XCircle,
   DollarSign,
   FileText,
-  Activity,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-// SHADCN UI DROPDOWN IMPORTS for Select (Already present)
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -51,43 +49,43 @@ const transactionTypes = {
   investment: {
     icon: TrendingUp,
     color: "text-blue-600 dark:text-blue-400",
-    bg: "bg-blue-50 dark:bg-blue-950/30",
-    badge: "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300",
+    bg: "bg-blue-50/50 dark:bg-blue-950/20",
+    badge: "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300",
     label: "Investment",
   },
   withdrawal: {
     icon: ArrowUpRight,
     color: "text-orange-600 dark:text-orange-400",
-    bg: "bg-orange-50 dark:bg-orange-950/30",
-    badge: "bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300",
+    bg: "bg-orange-50/50 dark:bg-orange-950/20",
+    badge: "bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300",
     label: "Withdrawal",
   },
   deposit: {
     icon: ArrowDownRight,
     color: "text-green-600 dark:text-green-400",
-    bg: "bg-green-50 dark:bg-green-950/30",
-    badge: "bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300",
+    bg: "bg-green-50/50 dark:bg-green-950/20",
+    badge: "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300",
     label: "Deposit",
   },
   referral: {
     icon: Users,
     color: "text-purple-600 dark:text-purple-400",
-    bg: "bg-purple-50 dark:bg-purple-950/30",
-    badge: "bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300",
+    bg: "bg-purple-50/50 dark:bg-purple-950/20",
+    badge: "bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300",
     label: "Referral",
   },
   roi: {
     icon: DollarSign,
     color: "text-emerald-600 dark:text-emerald-400",
-    bg: "bg-emerald-50 dark:bg-emerald-950/30",
-    badge: "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300",
+    bg: "bg-emerald-50/50 dark:bg-emerald-950/20",
+    badge: "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300",
     label: "ROI Payout",
   },
   admin: {
     icon: Settings,
     color: "text-gray-600 dark:text-gray-400",
-    bg: "bg-gray-50 dark:bg-gray-950/30",
-    badge: "bg-gray-100 dark:bg-gray-900/50 text-gray-700 dark:text-gray-300",
+    bg: "bg-gray-50/50 dark:bg-gray-950/20",
+    badge: "bg-gray-50 dark:bg-gray-900/30 text-gray-700 dark:text-gray-300",
     label: "Admin Action",
   },
 };
@@ -96,39 +94,30 @@ const transactionTypes = {
 const statusTypes = {
   completed: {
     icon: CheckCircle,
-    color: "text-green-600 dark:text-green-400",
-    badge: "bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300",
+    color: "text-emerald-600 dark:text-emerald-400",
+    badge: "bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200/40 dark:border-emerald-500/10",
     label: "Completed",
   },
   pending: {
     icon: Clock,
-    color: "text-yellow-600 dark:text-yellow-400",
-    badge: "bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300",
+    color: "text-amber-600 dark:text-amber-400",
+    badge: "bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border border-amber-200/40 dark:border-amber-500/10",
     label: "Pending",
   },
   declined: {
     icon: XCircle,
     color: "text-red-600 dark:text-red-400",
-    badge: "bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300",
+    badge: "bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400 border border-red-200/40 dark:border-red-500/10",
     label: "Declined",
   },
 };
-
-// Date range options for the Select component
-const dateRangeOptions = [
-  { value: "all", label: "All Time" },
-  { value: "today", label: "Today" },
-  { value: "week", label: "Last 7 Days" },
-  { value: "month", label: "Last 30 Days" },
-  { value: "3months", label: "Last 3 Months" },
-];
 
 export default function HistoryPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [dateFilter, setDateFilter] = useState("all"); // Changed to use state from Select
+  const [dateFilter, setDateFilter] = useState("all");
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -159,24 +148,25 @@ export default function HistoryPage() {
       const status = statusMap(rawStatus);
       const amount = Number(a.amount || 0);
       const when = a.date || new Date().toISOString();
-      const time = new Date(when).toLocaleTimeString();
-      let type = "deposit" as "deposit" | "investment" | "withdrawal" | "referral" | "roi";
+      const time = new Date(when).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      let type = "deposit" as keyof typeof transactionTypes;
       let description = "";
+      
       if (kind === "payment") {
         type = "deposit";
-        description = `Payment ${rawStatus}${a.planName ? ` • ${a.planName}` : ""}`;
+        description = `Payment ${a.planName ? `• ${a.planName}` : ""}`;
       } else if (kind === "investment") {
         type = "investment";
-        description = `Investment ${rawStatus}${a.planName ? ` • ${a.planName}` : ""}`;
+        description = `Investment ${a.planName ? `• ${a.planName}` : ""}`;
       } else if (kind === "withdrawal") {
         type = "withdrawal";
-        description = `Withdrawal ${rawStatus}`;
+        description = `Withdrawal Request`;
       } else if (kind === "referral") {
         type = "referral";
-        description = "Referral commission";
+        description = "Referral commission bonus";
       } else if (kind === "roi") {
         type = "roi";
-        description = `Daily earnings (ROI)${a.planName ? ` • ${a.planName}` : ""}`;
+        description = `Daily earnings yields ${a.planName ? `• ${a.planName}` : ""}`;
       }
       return {
         id: a.id,
@@ -186,180 +176,248 @@ export default function HistoryPage() {
         description,
         date: when,
         time,
-        reference: a.id,
+        reference: a.id ? String(a.id).substring(0, 8).toUpperCase() : "N/A",
       };
     });
   }, [items]);
 
-  // Format date
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
-  // Filter transactions
   const filteredTransactions = transactionHistory.filter(transaction => {
-    // Search filter
     const matchesSearch = transaction.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       transaction.reference.toLowerCase().includes(searchQuery.toLowerCase());
-
-    // Type filter
     const matchesType = filterType === "all" || transaction.type === filterType;
-
-    // Status filter
     const matchesStatus = filterStatus === "all" || transaction.status === filterStatus;
 
-    // Date filter
     let matchesDate = true;
     if (dateFilter !== "all") {
       const transactionDate = new Date(transaction.date);
       const today = new Date();
-      // Set time to start of day for accurate comparison
       today.setHours(0, 0, 0, 0);
       transactionDate.setHours(0, 0, 0, 0);
 
-      // Calculate time difference in milliseconds
       const diffTime = today.getTime() - transactionDate.getTime();
-      // Calculate day difference (milliseconds / (milliseconds per day))
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
 
-      if (dateFilter === "today") matchesDate = diffDays === 0; // Exactly today
-      else if (dateFilter === "week") matchesDate = diffDays <= 6; // Today and the last 6 days
-      else if (dateFilter === "month") matchesDate = diffDays <= 29; // Today and the last 29 days
-      else if (dateFilter === "3months") matchesDate = diffDays <= 89; // Today and the last 89 days
+      if (dateFilter === "today") matchesDate = diffDays === 0;
+      else if (dateFilter === "week") matchesDate = diffDays <= 6;
+      else if (dateFilter === "month") matchesDate = diffDays <= 29;
+      else if (dateFilter === "3months") matchesDate = diffDays <= 89;
     }
 
     return matchesSearch && matchesType && matchesStatus && matchesDate;
   });
 
-  // Calculate statistics
-  const stats = {
-    total: transactionHistory.length,
-    deposits: transactionHistory.filter(t => t.type === "deposit" && t.status === "completed").reduce((sum, t) => sum + t.amount, 0),
-    withdrawals: transactionHistory.filter(t => t.type === "withdrawal" && t.status === "completed").reduce((sum, t) => sum + t.amount, 0),
-    earnings: transactionHistory.filter(t => (t.type === "roi" || t.type === "referral") && t.status === "completed").reduce((sum, t) => sum + t.amount, 0),
-  };
-
-  // Export function (placeholder)
-  const handleExport = (format: string) => {
-    alert(`Exporting transaction history as ${format.toUpperCase()}...`);
-    // In real app, generate and download file
-  };
-
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
-      {/* Sidebar (Assuming this component is imported correctly) */}
+    <div className="flex h-screen overflow-hidden bg-gray-50/50 dark:bg-[#080d17] transition-colors duration-200">
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-      {/* Main content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header setSidebarOpen={setSidebarOpen} />
 
-        {/* History Content */}
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-2 md:p-6 lg:p-8 pb-20 md:pb-8 mb-[50px] md:mb-0">
-          {/* Header Section */}
-          <div className="mb-8">
-            <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 pb-24 md:pb-8 mb-[50px] md:mb-0">
+          
+          {/* Header Area */}
+          <div className="max-w-6xl mx-auto mb-8">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
               Transaction History
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              Complete record of all your account activities
+            <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
+              Complete transactional audit log records for ledger balances.
             </p>
           </div>
 
-          {/* Transaction List */}
-          <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
-            <CardHeader>
-              <CardTitle className="text-gray-900 dark:text-gray-100">
-                All Transactions ({filteredTransactions.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {filteredTransactions.length === 0 ? (
-                <div className="text-center py-12">
-                  <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                    No Transactions Found
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Start making transactions to see them listed here.
-                  </p>
+          {/* Filtering Controls Workspace Grid */}
+          <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 opacity-70" />
+              <Input
+                placeholder="Search reference or description..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 h-11 bg-white dark:bg-[#0f1623] border border-gray-200 dark:border-white/[0.06] rounded-xl text-xs font-medium text-gray-900 dark:text-white"
+              />
+            </div>
+
+            <Select value={filterType} onValueChange={setFilterType}>
+              <SelectTrigger className="h-11 bg-white dark:bg-[#0f1623] border border-gray-200 dark:border-white/[0.06] rounded-xl text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                <SelectValue placeholder="All Activity Types" />
+              </SelectTrigger>
+              <SelectContent className="bg-white dark:bg-[#0f1623] border border-gray-100 dark:border-white/[0.06] rounded-xl text-xs font-bold uppercase tracking-wider">
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="deposit">Deposits</SelectItem>
+                <SelectItem value="withdrawal">Withdrawals</SelectItem>
+                <SelectItem value="investment">Investments</SelectItem>
+                <SelectItem value="roi">ROI Dividends</SelectItem>
+                <SelectItem value="referral">Referrals</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="h-11 bg-white dark:bg-[#0f1623] border border-gray-200 dark:border-white/[0.06] rounded-xl text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                <SelectValue placeholder="All Status Matrix" />
+              </SelectTrigger>
+              <SelectContent className="bg-white dark:bg-[#0f1623] border border-gray-100 dark:border-white/[0.06] rounded-xl text-xs font-bold uppercase tracking-wider">
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="declined">Declined</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={dateFilter} onValueChange={setDateFilter}>
+              <SelectTrigger className="h-11 bg-white dark:bg-[#0f1623] border border-gray-200 dark:border-white/[0.06] rounded-xl text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                <SelectValue placeholder="Time Horizon" />
+              </SelectTrigger>
+              <SelectContent className="bg-white dark:bg-[#0f1623] border border-gray-100 dark:border-white/[0.06] rounded-xl text-xs font-bold uppercase tracking-wider">
+                <SelectItem value="all">All Time</SelectItem>
+                <SelectItem value="today">Today</SelectItem>
+                <SelectItem value="week">Last 7 Days</SelectItem>
+                <SelectItem value="month">Last 30 Days</SelectItem>
+                <SelectItem value="3months">Last 3 Months</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Master Table Area Card Container */}
+          <div className="max-w-6xl mx-auto">
+            <Card className="bg-white dark:bg-[#0f1623] border border-gray-200/80 dark:border-white/[0.06] rounded-2xl overflow-hidden shadow-sm relative">
+              <CardHeader className="p-5 border-b border-gray-100 dark:border-white/[0.04]">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-base font-bold text-gray-900 dark:text-white">
+                      Ledger Ledger Entries
+                    </CardTitle>
+                    <CardDescription className="text-xs text-gray-400 dark:text-slate-500 mt-0.5">
+                      Displaying {filteredTransactions.length} processed operations matching parameters
+                    </CardDescription>
+                  </div>
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  {filteredTransactions.map((transaction) => {
-                    const typeConfig = transactionTypes[transaction.type as keyof typeof transactionTypes];
-                    const statusConfig = statusTypes[transaction.status as keyof typeof statusTypes];
-                    const TypeIcon = typeConfig.icon;
-                    const StatusIcon = statusConfig.icon;
-                    const isDebit = transaction.type === "withdrawal";
+              </CardHeader>
 
-                    return (
-                      // Mobile column structure for transactions
-                      <div
-                        key={transaction.id}
-                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border-2 border-gray-200 dark:border-gray-800 rounded-lg hover:border-emerald-500 dark:hover:border-emerald-500 transition"
-                      >
-                        {/* Left Section (Icon + Details) */}
-                        <div className="flex items-start gap-4 flex-1 mb-2 sm:mb-0">
-                          {/* Icon */}
-                          <div className={`w-10 h-10 rounded-full ${typeConfig.bg} hidden sm:flex items-center justify-center flex-shrink-0`}>
-                            <TypeIcon className={`w-5 h-5 ${typeConfig.color}`} />
-                          </div>
+              <CardContent className="p-0">
+                {loading ? (
+                  /* Premium Loading State Overlay Component Spinner */
+                  <div className="flex flex-col items-center justify-center py-24 w-full">
+                    <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-slate-500 mt-4">
+                      Synchronizing Global Ledger...
+                    </span>
+                  </div>
+                ) : error ? (
+                  <div className="text-center py-12 px-4">
+                    <p className="text-xs font-semibold text-red-500">{error}</p>
+                  </div>
+                ) : filteredTransactions.length === 0 ? (
+                  <div className="text-center py-20">
+                    <FileText className="w-12 h-12 text-gray-300 dark:text-slate-700 mx-auto mb-3 opacity-60" />
+                    <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1">
+                      No Records Discovered
+                    </h3>
+                    <p className="text-xs text-gray-500 dark:text-slate-500 max-w-xs mx-auto">
+                      Adjust your global search or dropdown filter arrays to expose hidden node activities.
+                    </p>
+                  </div>
+                ) : (
+                  /* Redesigned Structural Ledger View Data Table */
+                  <div className="w-full overflow-x-auto scrollbar-none">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-gray-50/70 dark:bg-white/[0.01] border-b border-gray-100 dark:border-white/[0.04]">
+                          <th className="p-4 text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">
+                            Reference ID
+                          </th>
+                          <th className="p-4 text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">
+                            Activity Operation
+                          </th>
+                          <th className="p-4 text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">
+                            Timestamp Date
+                          </th>
+                          <th className="p-4 text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">
+                            Status Matrix
+                          </th>
+                          <th className="p-4 text-right text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">
+                            Net Value
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100 dark:divide-white/[0.04]">
+                        {filteredTransactions.map((transaction) => {
+                          const typeConfig = transactionTypes[transaction.type];
+                          const statusConfig = statusTypes[transaction.status as keyof typeof statusTypes];
+                          const TypeIcon = typeConfig.icon;
+                          const isDebit = transaction.type === "withdrawal";
 
-                          {/* Details - Column on Small Screen */}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h4 className="font-bold text-gray-900 dark:text-gray-100 truncate text-base">
-                                {transaction.description}
-                              </h4>
-                              {/* Type Badge */}
-                              <span className={`hidden sm:inline-block px-2 py-0.5 rounded text-xs font-semibold ${typeConfig.badge} flex-shrink-0`}>
-                                {typeConfig.label}
-                              </span>
-                            </div>
-                            {/* Date/Ref on large screens, or under description on small screens */}
-                            <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-500">
-                              <span className="flex items-center gap-1">
-                                <Calendar className="w-3 h-3" />
-                                {formatDate(transaction.date)} at {transaction.time}
-                              </span>
-                              <span className="hidden sm:inline-block">•</span>
-                              <span className="hidden sm:inline-block">Ref: {transaction.reference}</span>
-                            </div>
-                            <p className="sm:hidden text-sm text-gray-600 dark:text-gray-400 mt-1">
-                              Ref: {transaction.reference}
-                            </p>
-                          </div>
-                        </div>
+                          return (
+                            <tr 
+                              key={transaction.id}
+                              className="hover:bg-gray-50/50 dark:hover:bg-white/[0.01] transition-colors"
+                            >
+                              {/* Reference Code cell */}
+                              <td className="p-4 align-middle text-xs font-mono font-bold tracking-tight text-slate-400 dark:text-slate-500">
+                                #{transaction.reference}
+                              </td>
 
-                        {/* Right Section (Amount + Status) - Column/End on Small Screen */}
-                        <div className="flex items-center justify-between sm:justify-end gap-4 flex-shrink-0 w-full sm:w-auto mt-2 sm:mt-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100 dark:border-gray-800/50">
-                          {/* Amount - Visible on Small Screen now */}
-                          <div className="text-right flex-shrink-0">
-                            <p className={`text-lg sm:text-xl font-bold ${
-                              isDebit ? "text-red-600 dark:text-red-400" : "text-green-600 dark:text-green-400"
-                            }`}>
-                              {isDebit ? "-" : "+"}${transaction.amount.toLocaleString()}
-                            </p>
-                          </div>
+                              {/* Main Label and Dynamic Categorization badge column */}
+                              <td className="p-4 align-middle">
+                                <div className="flex items-center gap-3">
+                                  <div className={`w-8 h-8 rounded-lg ${typeConfig.bg} flex items-center justify-center shrink-0`}>
+                                    <TypeIcon className={`w-4 h-4 ${typeConfig.color}`} />
+                                  </div>
+                                  <div>
+                                    <div className="text-xs font-bold text-gray-900 dark:text-white">
+                                      {transaction.description}
+                                    </div>
+                                    <div className="sm:hidden mt-0.5">
+                                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${typeConfig.badge}`}>
+                                        {typeConfig.label}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </td>
 
-                          {/* Status */}
-                          <span className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1 ${statusConfig.badge} flex-shrink-0`}>
-                            <StatusIcon className="w-3 h-3" />
-                            {statusConfig.label}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                              {/* Clock timestamp configuration context column */}
+                              <td className="p-4 align-middle whitespace-nowrap">
+                                <div className="text-xs font-semibold text-gray-700 dark:text-slate-300">
+                                  {formatDate(transaction.date)}
+                                </div>
+                                <div className="text-[10px] font-medium text-gray-400 dark:text-slate-500 mt-0.5">
+                                  {transaction.time}
+                                </div>
+                              </td>
+
+                              {/* Status Verification Badge column */}
+                              <td className="p-4 align-middle whitespace-nowrap">
+                                <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider inline-flex items-center gap-1 ${statusConfig.badge}`}>
+                                  <span className={`w-1 h-1 rounded-full ${statusConfig.color} bg-current`} />
+                                  {statusConfig.label}
+                                </span>
+                              </td>
+
+                              {/* Net calculated Ledger Volume Amount Column */}
+                              <td className="p-4 align-middle text-right whitespace-nowrap">
+                                <span className={`text-sm font-bold font-mono tracking-tight ${
+                                  isDebit ? "text-red-500" : "text-emerald-500"
+                                }`}>
+                                  {isDebit ? "-" : "+"}${transaction.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </main>
 
-        {/* Mobile Bottom Navigation (Assuming this component is imported correctly) */}
         <UserNav />
       </div>
     </div>

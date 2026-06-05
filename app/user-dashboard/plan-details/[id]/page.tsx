@@ -37,34 +37,34 @@ import {
 // 🎨 Color Schemes
 const colorSchemes = {
   blue: {
-    bg: "bg-blue-50 dark:bg-blue-950/30",
-    border: "border-blue-200 dark:border-blue-800",
+    bg: "bg-blue-50/40 dark:bg-blue-950/10",
+    border: "border-blue-200/80 dark:border-blue-900/50",
     text: "text-blue-600 dark:text-blue-400",
-    button: "bg-blue-600 hover:bg-blue-700 text-white",
+    button: "bg-blue-600 hover:bg-blue-500 text-white",
   },
   emerald: {
-    bg: "bg-emerald-50 dark:bg-emerald-950/30",
-    border: "border-emerald-200 dark:border-emerald-800",
+    bg: "bg-emerald-50/40 dark:bg-emerald-950/10",
+    border: "border-emerald-200/80 dark:border-emerald-900/50",
     text: "text-emerald-600 dark:text-emerald-400",
-    button: "bg-emerald-600 hover:bg-emerald-700 text-white",
+    button: "bg-emerald-600 hover:bg-emerald-500 text-white",
   },
   purple: {
-    bg: "bg-purple-50 dark:bg-purple-950/30",
-    border: "border-purple-200 dark:border-purple-800",
+    bg: "bg-purple-50/40 dark:bg-purple-950/10",
+    border: "border-purple-200/80 dark:border-purple-900/50",
     text: "text-purple-600 dark:text-purple-400",
-    button: "bg-purple-600 hover:bg-purple-700 text-white",
+    button: "bg-purple-600 hover:bg-purple-500 text-white",
   },
   orange: {
-    bg: "bg-orange-50 dark:bg-orange-950/30",
-    border: "border-orange-200 dark:border-orange-800",
+    bg: "bg-orange-50/40 dark:bg-orange-950/10",
+    border: "border-orange-200/80 dark:border-orange-900/50",
     text: "text-orange-600 dark:text-orange-400",
-    button: "bg-orange-600 hover:bg-orange-700 text-white",
+    button: "bg-orange-600 hover:bg-orange-500 text-white",
   },
   amber: {
-    bg: "bg-amber-50 dark:bg-amber-950/30",
-    border: "border-amber-200 dark:border-amber-800",
+    bg: "bg-amber-50/40 dark:bg-amber-950/10",
+    border: "border-amber-200/80 dark:border-amber-900/50",
     text: "text-amber-600 dark:text-amber-400",
-    button: "bg-amber-600 hover:bg-amber-700 text-white",
+    button: "bg-amber-600 hover:bg-amber-500 text-white",
   },
 };
 
@@ -215,131 +215,136 @@ export default function PlanDetailsPage() {
       id: String(id),
     }).toString();
 
-    toast.success("Redirecting...");
+    toast.success("Redirecting to verification gate...");
     setTimeout(() => {
       router.push(`/user-dashboard/submit-payment?${query}`);
     }, 1000);
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
+    <div className="flex h-screen overflow-hidden bg-gray-50/50 dark:bg-[#080d17] transition-colors duration-200">
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header setSidebarOpen={setSidebarOpen} />
 
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 pb-20 md:pb-8 mb-[50px] md:mb-0">
-          <div className="max-w-6xl mx-auto grid md:grid-cols-[2fr_1fr] gap-6">
-            {/* 💳 LEFT SIDE: Plan Info */}
-            <Card className={`border-2 ${colors.border} ${colors.bg} rounded-2xl shadow-lg`}>
-              <CardHeader>
-                <CardTitle className={`text-3xl font-bold ${colors.text}`}>
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 pb-24 md:pb-8 mb-[50px] md:mb-0">
+          {/* Master Responsive Container: Side-by-Side Grid on LG (Large Screen), Stacked vertically on Mobile */}
+          <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 items-start">
+            
+            {/* 💳 LEFT SIDE: Plan Info Action Card */}
+            <Card className={`border border-gray-200/80 dark:border-white/[0.06] bg-white dark:bg-[#0f1623] rounded-2xl shadow-sm overflow-hidden`}>
+              <div className={`p-6 border-b border-gray-100 dark:border-white/[0.04] ${colors.bg}`}>
+                <CardTitle className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                   {plan.name}
                 </CardTitle>
-                <CardDescription className="text-gray-600 dark:text-gray-400 mt-2">
+                <CardDescription className="text-sm text-gray-500 dark:text-slate-400 mt-1.5 leading-relaxed">
                   {plan.description}
                 </CardDescription>
-              </CardHeader>
+              </div>
 
-              <CardContent className="space-y-8">
-                {/* Stats */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <div className="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <TrendingUp className={`w-5 h-5 ${colors.text} mb-1`} />
-                    <span className="font-semibold text-lg">{plan.roi}%</span>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">ROI</p>
+              <CardContent className="p-6 space-y-6">
+                {/* Stats Matrix Grid Layout */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+                  <div className="flex flex-col items-center justify-center p-3.5 bg-gray-50 dark:bg-white/[0.01] border border-gray-100 dark:border-white/[0.04] rounded-xl text-center">
+                    <TrendingUp className={`w-4 h-4 ${colors.text} mb-1`} />
+                    <span className="font-bold text-gray-900 dark:text-white text-base">{plan.roi}%</span>
+                    <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400 dark:text-slate-500">ROI Return</p>
                   </div>
-                  <div className="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <Clock className={`w-5 h-5 ${colors.text} mb-1`} />
-                    <span className="font-semibold text-lg">{plan.duration} days</span>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Duration</p>
+                  <div className="flex flex-col items-center justify-center p-3.5 bg-gray-50 dark:bg-white/[0.01] border border-gray-100 dark:border-white/[0.04] rounded-xl text-center">
+                    <Clock className={`w-4 h-4 ${colors.text} mb-1`} />
+                    <span className="font-bold text-gray-900 dark:text-white text-base">{plan.duration} Days</span>
+                    <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400 dark:text-slate-500">Duration</p>
                   </div>
-                  <div className="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <DollarSign className={`w-5 h-5 ${colors.text} mb-1`} />
-                    <span className="font-semibold text-lg">
+                  <div className="flex flex-col items-center justify-center p-3.5 bg-gray-50 dark:bg-white/[0.01] border border-gray-100 dark:border-white/[0.04] rounded-xl text-center">
+                    <DollarSign className={`w-4 h-4 ${colors.text} mb-1`} />
+                    <span className="font-bold text-gray-900 dark:text-white text-base">
                       ${plan.minInvestment.toLocaleString()}
                     </span>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Min</p>
+                    <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400 dark:text-slate-500">Min Limit</p>
                   </div>
                   {plan.maxInvestment && (
-                    <div className="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                      <DollarSign className={`w-5 h-5 ${colors.text} mb-1`} />
-                      <span className="font-semibold text-lg">
+                    <div className="flex flex-col items-center justify-center p-3.5 bg-gray-50 dark:bg-white/[0.01] border border-gray-100 dark:border-white/[0.04] rounded-xl text-center">
+                      <DollarSign className={`w-4 h-4 ${colors.text} mb-1`} />
+                      <span className="font-bold text-gray-900 dark:text-white text-base">
                         ${plan.maxInvestment.toLocaleString()}
                       </span>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Max</p>
+                      <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400 dark:text-slate-500">Max Limit</p>
                     </div>
                   )}
                 </div>
 
-                {/* Amount */}
+                {/* Amount Input Frame */}
                 <div>
-                  <Label className="font-medium text-gray-900 dark:text-gray-100">
+                  <Label className="block text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 mb-2">
                     Enter Amount to Invest (USD)
                   </Label>
-                  <Input
-                    type="number"
-                    min={plan.minInvestment}
-                    max={plan.maxInvestment || undefined}
-                    value={amount}
-                    onChange={(e) => setAmount(Number(e.target.value))}
-                    className="mt-2 bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700"
-                  />
+                  <div className="relative">
+                    <Input
+                      type="number"
+                      min={plan.minInvestment}
+                      max={plan.maxInvestment || undefined}
+                      value={amount}
+                      onChange={(e) => setAmount(Number(e.target.value))}
+                      className="w-full h-11 px-3.5 text-sm bg-gray-50/50 dark:bg-white/[0.01] border border-gray-200 dark:border-white/[0.06] text-gray-900 dark:text-white rounded-xl focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:ring-offset-0 focus-visible:border-gray-300 transition-all"
+                    />
+                  </div>
                 </div>
 
-                {/* Wallet Dropdown */}
-                <div className="space-y-4">
-                  <Label className="font-medium text-gray-900 dark:text-gray-100">
-                    Choose Crypto Wallet
+                {/* Wallet Dropdown Structure */}
+                <div className="space-y-2">
+                  <Label className="block text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 mb-2">
+                    Choose Crypto Settlement Network
                   </Label>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-full flex justify-between bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700"
+                        className="w-full h-11 flex justify-between bg-gray-50/50 dark:bg-white/[0.01] border border-gray-200 dark:border-white/[0.06] rounded-xl text-gray-800 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-white/[0.04] transition-all px-4"
                       >
-                        <span className={`${selectedWallet.color} font-medium`}>
+                        <span className={`${selectedWallet.color} font-bold text-sm`}>
                           {selectedWallet.crypto}
                         </span>
-                        <ChevronDown className="h-4 w-4 opacity-60" />
+                        <ChevronDown className="h-4 w-4 text-gray-400 shrink-0" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-full">
+                    <DropdownMenuContent className="w-full min-w-[var(--radix-dropdown-menu-trigger-width)] bg-white dark:bg-[#0f1623] border border-gray-100 dark:border-white/[0.06] rounded-xl shadow-lg p-1">
                       {paymentWallets.map((wallet, index) => (
                         <DropdownMenuItem
                           key={index}
                           onSelect={() => setSelectedWalletIndex(index)}
-                          className={`cursor-pointer ${
-                            selectedWalletIndex === index ? `${colors.bg} font-semibold` : ""
+                          className={`cursor-pointer px-3 py-2.5 text-sm rounded-lg hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors ${
+                            selectedWalletIndex === index ? "bg-gray-50 dark:bg-white/[0.04] font-bold" : ""
                           }`}
                         >
-                          <span className={wallet.color}>{wallet.crypto}</span>
+                          <span className={`${wallet.color} font-medium`}>{wallet.crypto}</span>
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
 
-                  {/* Wallet Info */}
-                  <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium text-gray-900 dark:text-gray-100">
-                        {selectedWallet.crypto} Address
+                  {/* Wallet Info Display Container */}
+                  <div className="p-4 bg-gray-50/50 dark:bg-white/[0.01] border border-gray-200 dark:border-white/[0.04] rounded-xl space-y-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                        Target Secure Address
                       </span>
                       <span
-                        className={`text-xs px-2 py-1 rounded-full ${selectedWallet.color} bg-gray-100 dark:bg-gray-800`}
+                        className={`text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-md ${selectedWallet.color} bg-white dark:bg-white/[0.04] border border-gray-100 dark:border-white/[0.02] shadow-sm`}
                       >
                         {selectedWallet.network}
                       </span>
                     </div>
 
-                    <div className="flex items-center">
+                    <div className="flex items-center gap-2">
                       <Input
                         readOnly
                         value={selectedWallet.address}
-                        className="flex-1 text-sm mr-2 bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700"
+                        className="flex-1 h-10 text-xs font-mono bg-white dark:bg-[#080d17] border border-gray-200 dark:border-white/[0.06] text-gray-700 dark:text-slate-300 rounded-xl focus-visible:ring-0 focus-visible:ring-offset-0 select-all"
                       />
                       <Button
+                        type="button"
                         onClick={() => copyToClipboard(selectedWallet.address)}
-                        className={`${colors.button} px-3 h-10`}
+                        className={`${colors.button} px-4 h-10 rounded-xl transition-all font-bold shrink-0 shadow-md shadow-black/5 cursor-pointer`}
                       >
                         {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                       </Button>
@@ -347,48 +352,54 @@ export default function PlanDetailsPage() {
                   </div>
                 </div>
 
-                {/* Confirm */}
-                <Button
-                  onClick={handlePaymentSubmit}
-                  className={`w-full ${colors.button} font-semibold py-5 text-md flex items-center justify-center gap-2 rounded-[10px]`}
-                >
-                  <CheckCircle className="w-5 h-5" /> I Have Made This Payment
-                </Button>
+                {/* Final Execution Button: Full width everywhere */}
+                <div className="pt-2">
+                  <Button
+                    type="button"
+                    onClick={handlePaymentSubmit}
+                    className={`w-full ${colors.button} font-bold h-12 text-sm flex items-center justify-center gap-2 rounded-xl transition-all shadow-lg shadow-black/5 cursor-pointer`}
+                  >
+                    <CheckCircle className="w-4 h-4" /> I Have Made This Payment
+                  </Button>
+                </div>
               </CardContent>
             </Card>
 
-            {/* 🧭 RIGHT SIDE INFO */}
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm h-fit">
-              <div className="flex items-center gap-2 mb-4">
-                <Info className="w-5 h-5 text-blue-500" />
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                  How to Complete Your Investment
+            {/* 🧭 RIGHT SIDE INFO: Instructional Sideboard Panel */}
+            <div className="bg-white dark:bg-[#0f1623] border border-gray-200/80 dark:border-white/[0.06] rounded-2xl p-5 shadow-sm space-y-4">
+              <div className="flex items-center gap-2.5 pb-3 border-b border-gray-100 dark:border-white/[0.04]">
+                <Info className="w-4 h-4 text-blue-500 shrink-0" />
+                <h2 className="text-sm font-bold uppercase tracking-wider text-gray-900 dark:text-white">
+                  Payment Framework Protocol
                 </h2>
               </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
-                This page allows you to make payment for your selected investment plan.
-                Carefully follow the steps below to complete your transaction successfully.
+              <p className="text-xs text-gray-500 dark:text-slate-400 leading-relaxed">
+                Follow the standard manual pipeline checkpoints below to authorize and update your ledger asset profiles correctly.
               </p>
-              <ol className="list-decimal list-inside text-sm space-y-3 text-gray-700 dark:text-gray-300">
-                <li>Enter the amount you wish to invest in the amount field.</li>
-                <li>Choose your preferred crypto wallet (e.g., Bitcoin, Ethereum, USDT, or BNB).</li>
-                <li>Copy the wallet address displayed and make your payment to that address.</li>
-                <li>
-                  After sending the payment, click the{" "}
-                  <span className="font-semibold text-blue-500">
-                    “I Have Made This Payment”
-                  </span>{" "}
-                  button to confirm your transaction.
+              <ol className="text-xs space-y-3.5 text-gray-600 dark:text-slate-400 list-none pl-0">
+                <li className="flex gap-2.5 items-start">
+                  <span className="flex items-center justify-center w-5 h-5 rounded-md bg-gray-100 dark:bg-white/[0.04] border border-gray-200 dark:border-white/[0.02] text-[10px] font-bold text-gray-500 dark:text-slate-400 shrink-0 mt-0.5">1</span>
+                  <span>Input the exact desired allocation funds configuration parameters into the target field array.</span>
                 </li>
-                <li>
-                  You’ll then be redirected to the payment submission page to verify and confirm your
-                  payment.
+                <li className="flex gap-2.5 items-start">
+                  <span className="flex items-center justify-center w-5 h-5 rounded-md bg-gray-100 dark:bg-white/[0.04] border border-gray-200 dark:border-white/[0.02] text-[10px] font-bold text-gray-500 dark:text-slate-400 shrink-0 mt-0.5">2</span>
+                  <span>Isolate and choose the currency layer node index mechanism matching your external wallet.</span>
+                </li>
+                <li className="flex gap-2.5 items-start">
+                  <span className="flex items-center justify-center w-5 h-5 rounded-md bg-gray-100 dark:bg-white/[0.04] border border-gray-200 dark:border-white/[0.02] text-[10px] font-bold text-gray-500 dark:text-slate-400 shrink-0 mt-0.5">3</span>
+                  <span>Extract the generated address hash directly and execute your transfer via an external device.</span>
+                </li>
+                <li className="flex gap-2.5 items-start">
+                  <span className="flex items-center justify-center w-5 h-5 rounded-md bg-gray-100 dark:bg-white/[0.04] border border-gray-200 dark:border-white/[0.02] text-[10px] font-bold text-gray-500 dark:text-slate-400 shrink-0 mt-0.5">4</span>
+                  <span> Trigger the submission indicator to cache status metrics and pass verification data upstream.</span>
                 </li>
               </ol>
-              <div className="mt-4 text-xs text-gray-500 dark:text-gray-400 italic">
-                💡 Tip: Always double-check the crypto network and address before making your transfer.
+              
+              <div className="pt-3 border-t border-gray-100 dark:border-white/[0.04] text-[11px] text-gray-400 dark:text-slate-500 italic leading-relaxed">
+                💡 Warning: Verify that blockchain networks match identically before completing actions. Mismatched channels result in unrecoverable network loss.
               </div>
             </div>
+
           </div>
         </main>
 

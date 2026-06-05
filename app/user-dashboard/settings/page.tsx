@@ -13,8 +13,6 @@ import {
 } from "@/components/ui/card";
 import {
   User,
-  Mail,
-  AtSign,
   Wallet,
   Lock,
   Shield,
@@ -88,7 +86,7 @@ export default function AccountSettings() {
         body: JSON.stringify({
           fullName: profile.name,
           username: profile.username,
-          email: profile.email, // ✅ Fix: include email
+          email: profile.email,
         }),
       });
       if (!res.ok) {
@@ -115,7 +113,7 @@ export default function AccountSettings() {
           }
         }
       }
-      toast.success("Settings saved");
+      toast.success("Settings saved successfully");
     } catch (e: any) {
       toast.error(e.message || "Save failed");
     } finally {
@@ -177,235 +175,225 @@ export default function AccountSettings() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
+    <div className="flex h-screen overflow-hidden bg-gray-50/50 dark:bg-[#080d17] transition-colors duration-200">
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header setSidebarOpen={setSidebarOpen} />
 
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 pb-20 md:pb-8 mb-[50px] md:mb-0">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 pb-24 md:pb-8 mb-[50px] md:mb-0">
           {/* Page Header */}
           <div className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+            <h1 className="text-xl md:text-2xl font-bold tracking-tight text-gray-900 dark:text-white mb-1.5">
               Account Settings
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              Manage your profile and security settings
+            <p className="text-sm text-gray-500 dark:text-slate-400">
+              Manage your profile configuration parameters and verification security credentials
             </p>
           </div>
 
-          {/* Profile Information */}
-          <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 mb-6">
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
-                  <User className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+          {/* Master Responsive Container: Side-by-Side on LG/Big Screens, Stacked on Mobile */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+            
+            {/* Left Box: Profile Information */}
+            <Card className="bg-white dark:bg-[#0f1623] border border-gray-200/80 dark:border-white/[0.06] shadow-sm">
+              <CardHeader className="pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-500/10 flex items-center justify-center rounded-xl text-blue-600 dark:text-blue-400">
+                    <User className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-base font-bold text-gray-900 dark:text-white">Profile Information</CardTitle>
+                    <CardDescription className="text-xs text-gray-500 dark:text-slate-400">Update identity metrics and records</CardDescription>
+                  </div>
                 </div>
-                <div>
-                  <CardTitle>Profile Information</CardTitle>
-                  <CardDescription>Update your personal details</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {/* Name */}
-                <div>
-                  <label className="block text-sm font-medium mb-2">Full Name</label>
-                  <input
-                    type="text"
-                    value={profile.name}
-                    onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg bg-gray-50 dark:bg-gray-800"
-                  />
-                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 mb-2">Full Name</label>
+                    <input
+                      type="text"
+                      value={profile.name}
+                      onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                      className="w-full px-3.5 py-2.5 text-sm border border-gray-200 dark:border-white/[0.06] rounded-xl bg-gray-50 dark:bg-white/[0.01] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
+                    />
+                  </div>
 
-                {/* Email */}
-                <div>
-                  <label className="block text-sm font-medium mb-2">Email Address</label>
-                  <input
-                    type="email"
-                    value={profile.email}
-                    onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg bg-gray-50 dark:bg-gray-800"
-                  />
-                </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 mb-2">Email Address</label>
+                    <input
+                      type="email"
+                      value={profile.email}
+                      onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                      className="w-full px-3.5 py-2.5 text-sm border border-gray-200 dark:border-white/[0.06] rounded-xl bg-gray-50 dark:bg-white/[0.01] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
+                    />
+                  </div>
 
-                {/* Username */}
-                <div>
-                  <label className="block text-sm font-medium mb-2">Username</label>
-                  <input
-                    type="text"
-                    value={profile.username}
-                    onChange={(e) => setProfile({ ...profile, username: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-lg bg-gray-50 dark:bg-gray-800"
-                  />
-                </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 mb-2">Username</label>
+                    <input
+                      type="text"
+                      value={profile.username}
+                      onChange={(e) => setProfile({ ...profile, username: e.target.value })}
+                      className="w-full px-3.5 py-2.5 text-sm border border-gray-200 dark:border-white/[0.06] rounded-xl bg-gray-50 dark:bg-white/[0.01] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
+                    />
+                  </div>
 
-                {/* Wallets */}
-                <div className="pt-4 border-t">
-                  <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                    <Wallet className="w-4 h-4" />
-                    Crypto Wallet Addresses
-                  </h3>
-                  {["btc", "eth", "usdt", "bnb"].map((type) => (
-                    <div key={type}>
-                      <label className="block text-xs font-medium mb-1 uppercase">
-                        {type}
-                      </label>
+                  {/* Wallets Nested Row Section */}
+                  <div className="pt-4 border-t border-gray-100 dark:border-white/[0.06] space-y-3">
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-slate-500 flex items-center gap-2 mb-1">
+                      <Wallet className="w-3.5 h-3.5" />
+                      Payout Settlement Wallets
+                    </h3>
+                    {["btc", "eth", "usdt", "bnb"].map((type) => (
+                      <div key={type}>
+                        <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-600 mb-1.5">
+                          {type} Node Address
+                        </label>
+                        <input
+                          type="text"
+                          value={profile[`${type}Wallet` as keyof typeof profile]}
+                          onChange={(e) =>
+                            setProfile({
+                              ...profile,
+                              [`${type}Wallet`]: e.target.value,
+                            })
+                          }
+                          className="w-full px-3.5 py-3.5 text-xs font-mono border border-gray-200 dark:border-white/[0.06] rounded-xl bg-gray-50 dark:bg-white/[0.01] text-gray-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Button: full width on mobile, normal on desktop screens */}
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      onClick={handleSaveProfile}
+                      disabled={loadingSave}
+                      className="w-full lg:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-blue-600/10 cursor-pointer"
+                    >
+                      <Save className="w-4 h-4" />
+                      {loadingSave ? "Saving parameters..." : "Save Config Profile"}
+                    </button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Right Box: Security Settings */}
+            <Card className="bg-white dark:bg-[#0f1623] border border-gray-200/80 dark:border-white/[0.06] shadow-sm">
+              <CardHeader className="pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-emerald-500/10 flex items-center justify-center rounded-xl text-emerald-600 dark:text-emerald-400">
+                    <Shield className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-base font-bold text-gray-900 dark:text-white">Security Loop & Protection</CardTitle>
+                    <CardDescription className="text-xs text-gray-500 dark:text-slate-400">Re-evaluate password arrays and secure tokens</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {/* Current Password */}
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 mb-2">Current Password</label>
+                    <div className="relative">
                       <input
-                        type="text"
-                        value={profile[`${type}Wallet` as keyof typeof profile]}
-                        onChange={(e) =>
-                          setProfile({
-                            ...profile,
-                            [`${type}Wallet`]: e.target.value,
-                          })
-                        }
-                        className="w-full px-3 py-2 border rounded-lg bg-gray-50 dark:bg-gray-800"
+                        type={showPassword ? "text" : "password"}
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        className="w-full px-3.5 py-2.5 text-sm border border-gray-200 dark:border-white/[0.06] rounded-xl bg-gray-50 dark:bg-white/[0.01] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all pr-10"
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-0 px-3.5 flex items-center text-gray-400 dark:text-slate-500 hover:text-gray-600 transition-colors cursor-pointer"
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
                     </div>
-                  ))}
+                  </div>
+
+                  {/* New Password */}
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 mb-2">New Password String</label>
+                    <div className="relative">
+                      <input
+                        type={showNewPassword ? "text" : "password"}
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="w-full px-3.5 py-2.5 text-sm border border-gray-200 dark:border-white/[0.06] rounded-xl bg-gray-50 dark:bg-white/[0.01] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        className="absolute inset-y-0 right-0 px-3.5 flex items-center text-gray-400 dark:text-slate-500 hover:text-gray-600 transition-colors cursor-pointer"
+                      >
+                        {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Confirm Password */}
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 mb-2">Confirm New Password</label>
+                    <input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full px-3.5 py-2.5 text-sm border border-gray-200 dark:border-white/[0.06] rounded-xl bg-gray-50 dark:bg-white/[0.01] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                    />
+                  </div>
+
+                  {/* Button: full width on mobile, normal on desktop screens */}
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      onClick={handleUpdatePassword}
+                      disabled={loadingPassword}
+                      className="w-full lg:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-emerald-600/10 cursor-pointer"
+                    >
+                      <Lock className="w-4 h-4" />
+                      {loadingPassword ? "Overwriting array..." : "Update Vault Password"}
+                    </button>
+                  </div>
+
+                  {/* 2FA Toggle Row block */}
+                  <div className="pt-5 border-t border-gray-100 dark:border-white/[0.06]">
+                    <div className="flex items-center justify-between gap-4 p-3.5 bg-gray-50/50 dark:bg-white/[0.01] border border-gray-200 dark:border-white/[0.04] rounded-2xl">
+                      <div>
+                        <h3 className="text-xs font-bold text-gray-900 dark:text-white mb-0.5">Two-Factor Authenticator Loop</h3>
+                        <p className="text-[11px] text-gray-400 dark:text-slate-500">Require automated security dynamic passes upon entry triggers</p>
+                      </div>
+                      
+                      <label className="relative inline-flex items-center cursor-pointer shrink-0 select-none">
+                        <input
+                          type="checkbox"
+                          checked={show2FAEnabled}
+                          onChange={toggleTwoFA}
+                          className="sr-only peer"
+                        />
+                        <div className="w-10 h-5.5 rounded-full transition-colors bg-gray-200 dark:bg-white/[0.08] peer-checked:bg-emerald-500 relative after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white dark:after:bg-slate-200 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4.5 shadow-inner" />
+                      </label>
+                    </div>
+
+                    {show2FAEnabled && (
+                      <div className="mt-3 p-3.5 bg-blue-500/[0.02] border border-blue-500/10 rounded-xl">
+                        <p className="text-[11px] text-blue-600 dark:text-blue-400 font-medium flex items-start gap-2 leading-relaxed">
+                          <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                          Dual layers initialized. Ensure your personal authenticator device engine app is correctly synced to decrypt tokens next access sequence.
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
+              </CardContent>
+            </Card>
 
-                <button
-                  onClick={handleSaveProfile}
-                  disabled={loadingSave}
-                  className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
-                >
-                  <Save className="w-4 h-4" />
-                  {loadingSave ? "Saving..." : "Save Changes"}
-                </button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Security Settings */}
-          {/* Security Settings */}
-<Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
-  <CardHeader>
-    <div className="flex items-center gap-3">
-      <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center">
-        <Shield className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-      </div>
-      <div>
-        <CardTitle>Security Settings</CardTitle>
-        <CardDescription>Change your password and manage 2FA</CardDescription>
-      </div>
-    </div>
-  </CardHeader>
-  <CardContent>
-    <div className="space-y-4">
-      {/* Current Password */}
-      <div>
-        <label className="block text-sm font-medium mb-1">Current Password</label>
-        <div className="relative">
-          <input
-            type={showPassword ? "text" : "password"}
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-            className="w-full px-3 py-2 border rounded-lg bg-gray-50 dark:bg-gray-800 pr-10"
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500"
-          >
-            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-          </button>
-        </div>
-      </div>
-
-      {/* New Password */}
-      <div>
-        <label className="block text-sm font-medium mb-1">New Password</label>
-        <div className="relative">
-          <input
-            type={showNewPassword ? "text" : "password"}
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            className="w-full px-3 py-2 border rounded-lg bg-gray-50 dark:bg-gray-800 pr-10"
-          />
-          <button
-            type="button"
-            onClick={() => setShowNewPassword(!showNewPassword)}
-            className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500"
-          >
-            {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-          </button>
-        </div>
-      </div>
-
-      {/* Confirm Password */}
-      <div>
-        <label className="block text-sm font-medium mb-1">Confirm Password</label>
-        <input
-          type="password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          className="w-full px-3 py-2 border rounded-lg bg-gray-50 dark:bg-gray-800"
-        />
-      </div>
-
-      {/* Update Password Button */}
-      <button
-        onClick={handleUpdatePassword}
-        disabled={loadingPassword}
-        className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition"
-      >
-        <Lock className="w-4 h-4" />
-        {loadingPassword ? "Updating..." : "Update Password"}
-      </button>
-
-      {/* 2FA Toggle */}
-      <div className="pt-4 border-t">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold">Two-Factor Authentication</h3>
-         <label className="relative inline-flex items-center cursor-pointer">
-  <input
-    type="checkbox"
-    checked={show2FAEnabled}
-    onChange={toggleTwoFA}
-    className="sr-only peer"
-  />
-  <div
-    className="
-      w-11 h-6 
-      rounded-full 
-      transition-colors 
-      bg-gray-300 dark:bg-gray-700 
-      peer-checked:bg-emerald-500
-    "
-  ></div>
-
-  {/* Circle */}
-  <span
-    className="
-      absolute left-0.5 top-0.5 
-      w-5 h-5 
-      bg-white 
-      rounded-full 
-      transition-all 
-      peer-checked:translate-x-5 
-      shadow-md
-    "
-  ></span>
-</label>
-
-        </div>
-        {show2FAEnabled && (
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-800 flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-              2FA is now enabled. Use your authenticator app when logging in.
-            </p>
           </div>
-        )}
-      </div>
-    </div>
-  </CardContent>
-</Card>
-
         </main>
 
         <UserNav />
