@@ -48,27 +48,25 @@ export const authOptions: NextAuthOptions = {
   ],
 
   callbacks: {
-async redirect({ url, baseUrl }) {
-  try {
-    const parsedUrl = new URL(url, baseUrl);
+    async redirect({ url, baseUrl }) {
+      try {
+        const parsedUrl = new URL(url, baseUrl);
 
-    // ✅ Prevent redirect loops by only redirecting if user is NOT already on login
-    if (parsedUrl.pathname === "/auth/login") {
-      return baseUrl; // go to homepage instead of forcing dashboard
-    }
+        // ✅ Prevent redirect loops by only redirecting if user is NOT already on login
+        if (parsedUrl.pathname === "/auth/login") {
+          return baseUrl; // go to homepage instead of forcing dashboard
+        }
 
-    // ✅ Allow only internal redirects
-    if (parsedUrl.origin === baseUrl) {
-      return parsedUrl.toString();
-    }
+        // ✅ Allow only internal redirects
+        if (parsedUrl.origin === baseUrl) {
+          return parsedUrl.toString();
+        }
 
-    return baseUrl;
-  } catch {
-    return baseUrl;
-  }
-},
-
-
+        return baseUrl;
+      } catch {
+        return baseUrl;
+      }
+    },
 
     // 🔹 Persist ID and role in JWT; keep role in sync with DB
     async jwt({ token, user }) {
