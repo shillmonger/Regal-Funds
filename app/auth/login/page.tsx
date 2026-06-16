@@ -77,7 +77,9 @@ function LoginForm() {
     return <div className="text-center mt-20 text-gray-500">Checking session...</div>;
   }
 
-  if (status === "authenticated") return null;
+  if (status === "authenticated") {
+    return <div className="text-center mt-20 text-gray-500">Redirecting to dashboard...</div>;
+  }
 
   return (
     <div>
