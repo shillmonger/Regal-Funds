@@ -170,7 +170,7 @@ export default function PlanDetailsPage() {
         }
       : investmentPlans.find((p) => p.id === Number(id));
 
-  const [amount, setAmount] = useState(plan?.minInvestment || 100);
+  const [amount, setAmount] = useState(Number(customAmount) || plan?.minInvestment || 100);
   const [selectedWalletIndex, setSelectedWalletIndex] = useState(0);
   const [copied, setCopied] = useState(false);
 

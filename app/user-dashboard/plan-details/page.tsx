@@ -13,83 +13,65 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  TrendingUp,
-  Clock,
   DollarSign,
   CheckCircle,
-  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type ColorKey = keyof typeof colorSchemes;
-interface Plan {
-  id: number;
-  name: string;
-  minInvestment: number;
-  maxInvestment: number | null;
+
+interface InvestmentTier {
+  min: number;
+  max: number;
+  planId: number;
+  planName: string;
   roi: number;
   duration: number;
-  description: string;
-  category: "short" | "medium" | "long";
-  perks: string[];
-  recommended: boolean;
   color: ColorKey;
+  perks: string[];
 }
 
-const investmentPlans: Plan[] = [
+const investmentTiers: InvestmentTier[] = [
   {
-    id: 1,
-    name: "Starter Plan",
-    minInvestment: 100,
-    maxInvestment: 999,
+    min: 200,
+    max: 999,
+    planId: 1,
+    planName: "Starter Plan",
     roi: 10,
     duration: 30,
-    description: "Perfect for beginners looking to start their crypto investment journey",
-    category: "short",
+    color: "blue",
     perks: [
       "Daily ROI payouts",
       "24/7 customer support",
       "Basic market insights",
     ],
-    recommended: false,
-    color: "blue",
   },
   {
-    id: 2,
-    name: "Silver Plan",
-    minInvestment: 1000,
-    maxInvestment: 4999,
+    min: 1000,
+    max: 4999,
+    planId: 2,
+    planName: "Silver Plan",
     roi: 10,
     duration: 30,
-    description: "Ideal for growing your portfolio with balanced risk and returns",
-    category: "medium",
+    color: "emerald",
     perks: [
       "Higher daily ROI",
       "Priority customer support",
       "Advanced market analysis",
       "Dedicated account manager",
     ],
-    recommended: false,
-    color: "emerald",
   },
   {
-    id: 3,
-    name: "Gold Plan",
-    minInvestment: 5000,
-    maxInvestment: 9999,
+    min: 5000,
+    max: 9999,
+    planId: 3,
+    planName: "Gold Plan",
     roi: 10,
     duration: 30,
-    description: "Premium plan for serious investors seeking substantial growth",
-    category: "medium",
+    color: "purple",
     perks: [
       "Premium ROI rates",
       "VIP customer support",
@@ -97,18 +79,15 @@ const investmentPlans: Plan[] = [
       "Personal investment advisor",
       "Referral bonus boost",
     ],
-    recommended: true,
-    color: "purple",
   },
   {
-    id: 4,
-    name: "Platinum Plan",
-    minInvestment: 10000,
-    maxInvestment: 24999,
+    min: 10000,
+    max: 24999,
+    planId: 4,
+    planName: "Platinum Plan",
     roi: 10,
     duration: 30,
-    description: "Elite plan with maximum returns for high-value investors",
-    category: "long",
+    color: "orange",
     perks: [
       "Maximum ROI potential",
       "White-glove support",
@@ -117,18 +96,15 @@ const investmentPlans: Plan[] = [
       "Enhanced referral commissions",
       "Quarterly profit sharing",
     ],
-    recommended: false,
-    color: "orange",
   },
   {
-    id: 5,
-    name: "Diamond Plan",
-    minInvestment: 25000,
-    maxInvestment: 50000,
+    min: 25000,
+    max: 50000,
+    planId: 5,
+    planName: "Diamond Plan",
     roi: 10,
     duration: 30,
-    description: "Ultimate investment package for portfolio maximization",
-    category: "long",
+    color: "amber",
     perks: [
       "Highest ROI guarantee",
       "Concierge investment service",
@@ -138,8 +114,6 @@ const investmentPlans: Plan[] = [
       "Profit share in platform growth",
       "Priority withdrawal processing",
     ],
-    recommended: false,
-    color: "amber",
   },
 ];
 
@@ -178,51 +152,33 @@ const colorSchemes = {
 
 export default function InvestmentPlansPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [customAmount, setCustomAmount] = useState<number | string>(100);
+  const [investmentAmount, setInvestmentAmount] = useState<number | string>("");
   const router = useRouter();
 
-  const filteredPlans = investmentPlans.filter(
-    (plan) => selectedCategory === "all" || plan.category === selectedCategory
-  );
-
-  const handleCustomAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     if (value === "") {
-      setCustomAmount("");
+      setInvestmentAmount("");
       return;
     }
     const numValue = Number(value);
     if (!isNaN(numValue) && numValue >= 0) {
-      setCustomAmount(numValue);
+      setInvestmentAmount(numValue);
     }
   };
 
-  const minAmount = 100;
-  const currentCustomAmount = Number(customAmount) || 0;
-  const isCustomPlanValid = currentCustomAmount >= minAmount;
+  const minAmount = 200;
+  const maxAmount = 50000;
+  const currentAmount = Number(investmentAmount) || 0;
+  const isValidAmount = currentAmount >= minAmount && currentAmount <= maxAmount;
 
-  const matchingPlan = investmentPlans.find(
-    (plan) =>
-      currentCustomAmount >= plan.minInvestment &&
-      (plan.maxInvestment === null || currentCustomAmount <= plan.maxInvestment)
+  const matchingTier = investmentTiers.find(
+    (tier) => currentAmount >= tier.min && currentAmount <= tier.max
   );
 
-  const isCoveredByPlan = !!matchingPlan;
-  const customROI = isCoveredByPlan ? null : 10;
-  const customDuration = isCoveredByPlan ? null : 30;
-
-  const handleSelectPlan = (id: number) => {
-    router.push(`/user-dashboard/plan-details/${id}`);
-  };
-
-  const handleCustomInvest = () => {
-    if (!isCustomPlanValid) return;
-    if (matchingPlan) {
-      router.push(`/user-dashboard/plan-details/${matchingPlan.id}`);
-    } else {
-      router.push(`/user-dashboard/plan-details/custom?amount=${currentCustomAmount}`);
-    }
+  const handleInvest = () => {
+    if (!isValidAmount || !matchingTier) return;
+    router.push(`/user-dashboard/plan-details/${matchingTier.planId}?amount=${currentAmount}`);
   };
 
   return (
@@ -235,187 +191,136 @@ export default function InvestmentPlansPage() {
         <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 pb-24 md:pb-8 mb-[50px] md:mb-0">
           
           {/* Header Layout */}
-          <div className="max-w-6xl mx-auto mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="max-w-6xl mx-auto mb-8">
             <div>
               <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                Investment Plans
+                Smart Investment Portal
               </h1>
               <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
-                Choose the perfect asset portfolio track to maximize financial growth yields.
+                Enter your investment amount to unlock tier-based benefits and maximize your returns.
               </p>
             </div>
-
-            {/* Filter Dropdown Option matching global components style */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="h-10 bg-white dark:bg-[#0f1623] border border-gray-200 dark:border-white/[0.06] rounded-xl text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-slate-300 px-4 flex items-center gap-2">
-                  Category: {selectedCategory}
-                  <ChevronDown className="w-3.5 h-3.5 opacity-60" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-white dark:bg-[#0f1623] border border-gray-100 dark:border-white/[0.06] rounded-xl shadow-lg p-1 min-w-[140px]">
-                {["all", "short", "medium", "long"].map((cat) => (
-                  <DropdownMenuItem
-                    key={cat}
-                    onSelect={() => setSelectedCategory(cat)}
-                    className={`cursor-pointer px-3 py-2 text-xs font-semibold rounded-lg uppercase tracking-wider ${
-                      selectedCategory === cat ? "bg-gray-50 dark:bg-white/[0.04] text-emerald-500" : "text-gray-600 dark:text-slate-400"
-                    }`}
-                  >
-                    {cat}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
 
-          {/* Core Plans Grid Layout */}
-          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {filteredPlans.map((plan) => {
-              const colors = colorSchemes[plan.color];
-              return (
-                <Card
-                  key={plan.id}
-                  className="relative overflow-hidden border border-gray-200/80 dark:border-white/[0.06] bg-white dark:bg-[#0f1623] rounded-2xl shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md flex flex-col justify-between"
-                >
-                  {plan.recommended && (
-                    <div className="absolute top-0 right-0 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-[9px] font-bold tracking-widest px-2.5 py-1 rounded-bl-xl shadow-sm">
-                      RECOMMENDED
-                    </div>
-                  )}
-
-                  <div>
-                    <CardHeader className={`p-5 border-b border-gray-100 dark:border-white/[0.04] ${colors.bg}`}>
-                      <CardTitle className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
-                        {plan.name}
-                      </CardTitle>
-                      <CardDescription className="text-xs text-gray-500 dark:text-slate-400 mt-1 leading-relaxed">
-                        {plan.description}
-                      </CardDescription>
-                    </CardHeader>
-
-                    <CardContent className="p-5 space-y-4">
-                      {/* Matrix Grid Row Indicators */}
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-white/[0.01] border border-gray-100 dark:border-white/[0.04] rounded-xl">
-                          <div className="flex items-center gap-2">
-                            <TrendingUp className={`w-4 h-4 ${colors.text}`} />
-                            <span className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">ROI Rate</span>
-                          </div>
-                          <span className={`text-base font-bold ${colors.text}`}>{plan.roi}%</span>
-                        </div>
-
-                        <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-white/[0.01] border border-gray-100 dark:border-white/[0.04] rounded-xl">
-                          <div className="flex items-center gap-2">
-                            <Clock className={`w-4 h-4 ${colors.text}`} />
-                            <span className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">Duration</span>
-                          </div>
-                          <span className="text-sm font-bold text-gray-800 dark:text-slate-200">{plan.duration} Days</span>
-                        </div>
-
-                        <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-white/[0.01] border border-gray-100 dark:border-white/[0.04] rounded-xl">
-                          <div className="flex items-center gap-2">
-                            <DollarSign className={`w-4 h-4 ${colors.text}`} />
-                            <span className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">Limits Bracket</span>
-                          </div>
-                          <span className="text-xs font-bold text-gray-800 dark:text-slate-200">
-                            ${plan.minInvestment.toLocaleString()} - {plan.maxInvestment ? `$${plan.maxInvestment.toLocaleString()}` : "∞"}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Benefits Perks list view */}
-                      <div className="pt-2">
-                        <h4 className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 mb-2">
-                          Allocation Perks
-                        </h4>
-                        <ul className="space-y-1.5">
-                          {plan.perks.map((perk, index) => (
-                            <li key={index} className="flex items-start gap-2 text-xs text-gray-600 dark:text-slate-400">
-                              <CheckCircle className={`w-3.5 h-3.5 mt-0.5 shrink-0 ${colors.text}`} />
-                              <span>{perk}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </CardContent>
-                  </div>
-
-                  <div className="p-5 pt-0">
-                    <Button
-                      onClick={() => handleSelectPlan(plan.id)}
-                      className={`w-full ${colors.button} h-11 text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md shadow-black/5 cursor-pointer`}
-                    >
-                      Select Plan
-                    </Button>
-                  </div>
-                </Card>
-              );
-            })}
-          </div>
-
-          {/* Custom Investment Calculator Area Section */}
-          <div className="max-w-6xl mx-auto grid grid-cols-1 gap-6 mb-8">
+          {/* Smart Investment Input Section */}
+          <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            {/* Investment Input Card */}
             <Card className="bg-white dark:bg-[#0f1623] border border-gray-200/80 dark:border-white/[0.06] rounded-2xl p-6 shadow-sm">
               <div className="mb-5 pb-4 border-b border-gray-100 dark:border-white/[0.04]">
                 <CardTitle className="text-lg font-bold tracking-tight text-gray-900 dark:text-white flex items-center gap-2">
                   <DollarSign className="w-5 h-5 text-emerald-500" />
-                  Custom Allocation Workspace
+                  Dynamic Investment Allocator
                 </CardTitle>
                 <CardDescription className="text-xs text-gray-500 dark:text-slate-400 mt-1">
-                  Adjust custom parameter metrics. Baseline entry floor starts at ${minAmount.toLocaleString()} USD.
+                  Enter your investment amount to discover your tier and unlock exclusive benefits.
                 </CardDescription>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+              <div className="space-y-4">
                 <div>
-                  <Label htmlFor="custom-amount" className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 mb-2">
-                    Investment Base (USD)
+                  <Label htmlFor="investment-amount" className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 mb-2">
+                    Investment Amount (USD)
                   </Label>
                   <Input
-                    id="custom-amount"
+                    id="investment-amount"
                     type="number"
                     min={minAmount}
-                    placeholder={`Minimum ${minAmount}`}
-                    value={customAmount}
-                    onChange={handleCustomAmountChange}
+                    max={maxAmount}
+                    placeholder="Enter amount"
+                    value={investmentAmount}
+                    onChange={handleAmountChange}
                     className="w-full h-11 px-3.5 text-sm bg-gray-50/50 dark:bg-white/[0.01] border border-gray-200 dark:border-white/[0.06] text-gray-900 dark:text-white rounded-xl focus-visible:ring-2 focus-visible:ring-emerald-500/20"
                   />
                 </div>
 
-                <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex items-center justify-between p-3.5 bg-gray-50 dark:bg-white/[0.01] border border-gray-100 dark:border-white/[0.04] rounded-xl">
-                    <span className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">Calculated Yield Matrix</span>
-                    <span className={`text-sm font-bold ${customROI ? "text-amber-500" : "text-emerald-500"}`}>
-                      {customROI ? `${customROI}% Yield Floor` : "Plan Managed Yield"}
-                    </span>
+                {investmentAmount && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-white/[0.01] border border-gray-100 dark:border-white/[0.04] rounded-xl">
+                      <span className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">ROI Rate</span>
+                      <span className="text-sm font-bold text-emerald-500">
+                        {matchingTier ? `${matchingTier.roi}%` : "-"}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-white/[0.01] border border-gray-100 dark:border-white/[0.04] rounded-xl">
+                      <span className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">Dur</span>
+                      <span className="text-sm font-bold text-gray-800 dark:text-slate-200">
+                        {matchingTier ? `${matchingTier.duration} Days` : "-"}
+                      </span>
+                    </div>
                   </div>
+                )}
 
-                  <div className="flex items-center justify-between p-3.5 bg-gray-50 dark:bg-white/[0.01] border border-gray-100 dark:border-white/[0.04] rounded-xl">
-                    <span className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">Contract Lock Window</span>
-                    <span className="text-sm font-bold text-gray-800 dark:text-slate-200">
-                      {customDuration ? `${customDuration} Days Term` : "Tier Contract Auto"}
-                    </span>
-                  </div>
+                <div className="pt-2">
+                  <Button
+                    onClick={handleInvest}
+                    disabled={!isValidAmount}
+                    className="w-full h-11 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md cursor-pointer disabled:opacity-40"
+                  >
+                    {matchingTier ? `Invest $${currentAmount.toLocaleString()} - ${matchingTier.planName}` : "Enter Valid Amount"}
+                  </Button>
+                  {!isValidAmount && investmentAmount && (
+                    <p className="text-[11px] text-red-500 font-medium italic mt-2.5">
+                      * Investment amount must be between ${minAmount.toLocaleString()} and ${maxAmount.toLocaleString()}.
+                    </p>
+                  )}
                 </div>
               </div>
+            </Card>
 
-              <div className="mt-5 pt-2">
-                <Button
-                  onClick={handleCustomInvest}
-                  disabled={!isCustomPlanValid}
-                  className="w-full h-11 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md cursor-pointer disabled:opacity-40"
-                >
-                  {isCoveredByPlan ? `Covered Tier: ${matchingPlan?.name}` : "Initialize Custom Route Plan"}
-                </Button>
-                {!isCustomPlanValid && (
-                  <p className="text-[11px] text-red-500 font-medium italic mt-2.5">
-                    * Minimum portfolio initialization floor requires an amount of ${minAmount.toLocaleString()} or above.
-                  </p>
+            {/* Dynamic Perks Display Card */}
+            <Card className="bg-white dark:bg-[#0f1623] border border-gray-200/80 dark:border-white/[0.06] rounded-2xl p-6 shadow-sm">
+              <div className="mb-5 pb-4 border-b border-gray-100 dark:border-white/[0.04]">
+                <CardTitle className="text-lg font-bold tracking-tight text-gray-900 dark:text-white flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-blue-500" />
+                  Tier Benefits Preview
+                </CardTitle>
+                <CardDescription className="text-xs text-gray-500 dark:text-slate-400 mt-1">
+                  {matchingTier
+                    ? `You qualify for ${matchingTier.planName} benefits`
+                    : "Enter an amount to see your tier benefits"}
+                </CardDescription>
+              </div>
+
+              <div className="space-y-3">
+                {matchingTier ? (
+                  <>
+                    <div className={`p-3 rounded-xl border ${colorSchemes[matchingTier.color].bg} ${colorSchemes[matchingTier.color].border}`}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className={`text-xs font-bold uppercase tracking-wider ${colorSchemes[matchingTier.color].text}`}>
+                          Your Tier: {matchingTier.planName}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-600 dark:text-slate-400">
+                        Investment Range: ${matchingTier.min.toLocaleString()} - ${matchingTier.max.toLocaleString()}
+                      </p>
+                    </div>
+
+                    <div>
+                      <h4 className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500 mb-3">
+                        Allocation Perks
+                      </h4>
+                      <ul className="space-y-2">
+                        {matchingTier.perks.map((perk, index) => (
+                          <li key={index} className="flex items-start gap-2 text-xs text-gray-600 dark:text-slate-400">
+                            <CheckCircle className={`w-3.5 h-3.5 mt-0.5 shrink-0 ${colorSchemes[matchingTier.color].text}`} />
+                            <span>{perk}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center py-8">
+                    <DollarSign className="w-12 h-12 text-gray-300 dark:text-slate-600 mx-auto mb-3" />
+                    <p className="text-sm text-gray-500 dark:text-slate-400">
+                      Enter your investment amount to unlock tier benefits
+                    </p>
+                  </div>
                 )}
               </div>
             </Card>
           </div>
+
 
           {/* Bottom Info Banner Assistance Card */}
           <div className="max-w-6xl mx-auto">
