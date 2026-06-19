@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Footer from "@/components/ui/footer";
-import Header from "@/components/ui/header"; // ✅ Imported Header
+import Header from "@/components/ui/header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { signIn } from "next-auth/react";
 
-// 🎨 Theme constants
+// Theme constants
 const primaryColor = "#448D96";
 const primaryHover = "#3a7d85";
 const accentColor = "text-gray-900";
@@ -65,7 +65,7 @@ function LoginForm() {
 
   return (
     <div>
-      {/* ✅ Header added at the top */}
+      {/* Header added at the top */}
       <Header />
 
       <div className={`flex min-h-screen items-center justify-center mt-[50px] ${backgroundColor} px-4 py-8`}>

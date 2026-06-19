@@ -5,7 +5,11 @@ export async function middleware(req: NextRequest) {
 const currentPath = req.nextUrl.pathname;
 const authUrl = '/auth/login';
 if (currentPath.startsWith('/user-dashboard')) {
-  const token =  await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  const token =  await getToken({
+    req,
+    secret: process.env.NEXTAUTH_SECRET,
+    cookieName: process.env.NODE_ENV === 'production' ? 'next-auth.session-token' : undefined,
+  });
   if (!token) {
     return NextResponse.redirect(new URL(authUrl, req.url));
   }
@@ -14,7 +18,11 @@ if (currentPath.startsWith('/user-dashboard')) {
 }
 // Protect admin routes
 if (currentPath.startsWith('/admin-dashboard')) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  const token = await getToken({
+    req,
+    secret: process.env.NEXTAUTH_SECRET,
+    cookieName: process.env.NODE_ENV === 'production' ? 'next-auth.session-token' : undefined,
+  });
   if (!token) {
     return NextResponse.redirect(new URL(authUrl, req.url));
   }
