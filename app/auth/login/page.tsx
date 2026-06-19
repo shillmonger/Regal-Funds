@@ -8,10 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
-import { useState, useEffect, Suspense } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 
 // 🎨 Theme constants
 const primaryColor = "#448D96";
@@ -31,19 +31,9 @@ function LoginForm() {
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: session, status } = useSession();
 
   const callbackUrl =
     searchParams.get("callbackUrl") || "/user-dashboard/dashboard";
-
-  useEffect(() => {
-    if (
-      status === "authenticated" &&
-      !window.location.pathname.startsWith("/user-dashboard")
-    ) {
-      router.replace("/user-dashboard/dashboard");
-    }
-  }, [status, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.id]: e.target.value });
@@ -72,14 +62,6 @@ function LoginForm() {
       setLoading(false);
     }
   };
-
-  if (status === "loading") {
-    return <div className="text-center mt-20 text-gray-500">Checking session...</div>;
-  }
-
-  if (status === "authenticated") {
-    return <div className="text-center mt-20 text-gray-500">Redirecting to dashboard...</div>;
-  }
 
   return (
     <div>
