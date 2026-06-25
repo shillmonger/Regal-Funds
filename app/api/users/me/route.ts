@@ -23,6 +23,8 @@ export async function GET() {
       email: user.email,
       username: (user as any).username,
       wallets: (user as any).wallets || {},
+      balance: (user as any).balance || 0,
+      minimumWithdrawal: (user as any).minimumWithdrawal || 50,
       twoFactorEnabled: (user as any).twoFactorEnabled || false,
       loginAlertsEnabled: (user as any).loginAlertsEnabled || false,
       createdAt: user.createdAt,
