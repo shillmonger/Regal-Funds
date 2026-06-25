@@ -83,7 +83,6 @@ export default function WithdrawalsPage() {
   const [copiedAddress, setCopiedAddress] = useState<string | number | null>(null);
   const [history, setHistory] = useState<Withdrawal[]>([]);
   const [loading, setLoading] = useState(false);
-  const [eligible, setEligible] = useState(false);
   const [availableBalance, setAvailableBalance] = useState(0);
   const [minimumWithdrawal, setMinimumWithdrawal] = useState(50);
   const [userWallets, setUserWallets] = useState<Record<string, string>>({});
@@ -96,14 +95,12 @@ export default function WithdrawalsPage() {
     const load = async () => {
       setLoading(true);
       try {
-        const [eligRes, listRes] = await Promise.all([
-          fetch("/api/withdrawals/eligibility", { cache: "no-store" }),
+        const [listRes, userRes] = await Promise.all([
           fetch("/api/withdrawals", { cache: "no-store" }),
           fetch("/api/users/me", { cache: "no-store" }),
         ]);
-        if (eligRes.ok) {
-          const e = await eligRes.json();
-          setEligible(Boolean(e.eligible));
+        if (userRes.ok) {
+          const e = await userRes.json();
           setAvailableBalance(Number(e.balance) || 0);
           if (e.minimumWithdrawal) setMinimumWithdrawal(Number(e.minimumWithdrawal));
         }
