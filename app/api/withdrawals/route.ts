@@ -66,20 +66,6 @@ export async function POST(req: Request) {
     const client = await clientPromise;
     const db = client.db("crypto-investment");
 
-    // Ensure user has at least one investment with first 10% added
-    const eligibleInvestment = await db.collection("investments").findOne({
-      userId: session.user.id,
-      status: "Active",
-      canWithdraw: true
-    });
-
-    if (!eligibleInvestment) {
-      return NextResponse.json(
-        { error: "Withdrawals available only after first 10% ROI has been added to your investment" },
-        { status: 403 }
-      );
-    }
-
     // Ensure user has sufficient balance
     const userDoc = await db
       .collection("users")
@@ -101,7 +87,6 @@ export async function POST(req: Request) {
       approvedAt: null as null,
       txHash: null as null,
       adminNote: null as null,
-      investmentId: eligibleInvestment?._id ? String(eligibleInvestment._id) : null,
     };
 
     const inserted = await db.collection("withdrawals").insertOne(doc);
