@@ -122,6 +122,9 @@
   body {
     @apply bg-background text-foreground;
   }
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 
@@ -136,15 +139,15 @@
 /* Light theme scrollbar */
 :root, .light {
   --scrollbar-track: #f1f1f1;
-  --scrollbar-thumb: #888;
-  --scrollbar-thumb-hover: #555;
+  --scrollbar-thumb: #448D96;
+  --scrollbar-thumb-hover: #3a7d85;
 }
 
 /* Dark theme scrollbar */
 .dark {
-  --scrollbar-track: #00000054;
-  --scrollbar-thumb: #4b5563;
-  --scrollbar-thumb-hover: #6b7280;
+  --scrollbar-track: #373E50;
+  --scrollbar-thumb: #448D96;
+  --scrollbar-thumb-hover: #3a7d85;
 }
 
 /* Apply styles */

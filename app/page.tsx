@@ -1,10 +1,14 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Header from "@/components/ui/header"; // Assuming this component exists
 import Footer from "@/components/ui/footer"; // Assuming this component exists
 import { Button } from "@/components/ui/button"; // Assuming this component exists
+import FAQ from "@/components/ui/faq";
+import LiveMarkets from "@/components/ui/LiveMarkets";
+
+
 import Image from "next/image";
 
 
@@ -97,9 +101,8 @@ const FaqItem = ({ title, content }: { title: string; content: string }) => {
         </div>
       </button>
       <div
-        className={`overflow-hidden transition-all duration-500 ease-in-out ${
-          isOpen ? "max-h-96 opacity-100 py-4" : "max-h-0 opacity-0"
-        }`}
+        className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? "max-h-96 opacity-100 py-4" : "max-h-0 opacity-0"
+          }`}
       >
         <p className="text-gray-600 pr-10">{content}</p>
       </div>
@@ -112,6 +115,31 @@ const FaqItem = ({ title, content }: { title: string; content: string }) => {
 
 export default function Home() {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const [activeSection, setActiveSection] = useState("rfi-home");
+
+  useEffect(() => {
+    const sections = ["rfi-home", "investment-strategy", "risk", "asx-announcements", "share-price", "documents", "news", "faq"];
+    const observerOptions = {
+      root: null,
+      rootMargin: "-20% 0px -60% 0px",
+      threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target.id);
+        }
+      });
+    }, observerOptions);
+
+    sections.forEach(sectionId => {
+      const section = document.getElementById(sectionId);
+      if (section) observer.observe(section);
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
@@ -124,41 +152,6 @@ export default function Home() {
       });
     }
   };
-
-  // Dummy content for the FAQ section
-  const faqData = [
-    {
-      title: "About the Fund",
-      content:
-        "RF1 is a listed investment company (LIC) providing investors with exposure to a selection of alternative investment strategies managed by Regal. It aims to produce attractive risk-adjusted returns over the long term.",
-    },
-    {
-      title: "Risks",
-      content:
-        "The Fund involves various risks, including market risk, liquidity risk, and strategy risk. Investors should refer to the Product Disclosure Statement (PDS) for a detailed explanation of all risks before investing.",
-    },
-    {
-      title: "Fee Structure",
-      content:
-        "Fees typically include a management fee and a performance fee, which is subject to a high-water mark. Full details on the calculation and payment of fees are available in the PDS.",
-    },
-    {
-      title: "Marketing",
-      content:
-        "We occasionally communicate updates and insights through email alerts and our website. We do not engage in cold calling or unsolicited advice regarding investment decisions.",
-    },
-    {
-      title: "About the Manager",
-      content:
-        "Regal Funds Management is the investment manager for RF1, with a long history of managing alternative investment strategies in Australia and overseas.",
-    },
-    {
-      title: "Other questions",
-      content:
-        "For any other questions, please refer to the relevant section of our website or use the contact details provided below to get in touch with our investor services team.",
-    },
-  ];
-
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
@@ -177,7 +170,7 @@ export default function Home() {
               className="object-cover"
               priority
             />
-  <div className="absolute inset-0 bg-[#373E50]/50" />
+            <div className="absolute inset-0 bg-[#373E50]/50" />
           </div>
 
           {/* Content */}
@@ -193,39 +186,130 @@ export default function Home() {
               five years with limited correlation to equity markets.
             </p>
 
-<Link href="/auth/login">
-            <Button
-              size="lg"
-              className="bg-[#448D96] hover:bg-[#3a7d85] text-white px-3 py-7 text-[15px] transition-all hover:scale-105 cursor-pointer rounded-none"
-            >
-              START INVESTING TODAY
-            </Button>
-</Link>
+            <Link href="/auth/login">
+              <Button
+                size="lg"
+                className="bg-[#448D96] hover:bg-[#3a7d85] text-white px-3 py-7 text-[15px] transition-all hover:scale-105 cursor-pointer rounded-none"
+              >
+                START INVESTING TODAY
+              </Button>
+            </Link>
           </div>
         </section>
       </div>
 
+
+
       {/* Investment Strategy Section (Section starts here, contains sidebar and main content) */}
-      <section className="px-6 sm:px-10 md:px-20 py-16 bg-gray-50">
+      <section className="px-4 sm:px-10 md:px-20 pt-16 bg-gray-50">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-10">
           {/* Sidebar */}
-<aside className="lg:w-1/4 w-full lg:sticky lg:top-24 self-start h-fit">
-  <div className="border border-gray-200 rounded-none  bg-white shadow-sm">
-    <ul className="divide-y divide-gray-200">
-      <li className="p-4 hover:bg-gray-100 cursor-pointer">RFI Home</li>
-      <li className="p-4 hover:bg-gray-100 cursor-pointer">Past Monthly Updates</li>
-      <li className="p-4 hover:bg-gray-100 cursor-pointer">Share Price Information</li>
-      <li className="p-4 hover:bg-gray-100 cursor-pointer">ASX Announcements</li>
-      <li className="p-4 hover:bg-gray-100 cursor-pointer">Email Alerts</li>
-      <li className="p-4 hover:bg-gray-100 cursor-pointer">Share Registry</li>
-      <li className="p-4 hover:bg-gray-100 cursor-pointer">FAQ</li>
-    </ul>
-  </div>
-</aside>
+          <aside className="lg:w-1/4 w-full lg:sticky lg:top-24 self-start h-fit">
+            <div className="border border-gray-200 rounded-none bg-white shadow-sm">
+              <ul className="divide-y divide-gray-200">
+                <li>
+                  <Link
+                    href="#rfi-home"
+                    className={`p-4 block transition ${
+                      activeSection === "rfi-home"
+                        ? "bg-[#448D96] text-white"
+                        : "hover:bg-gray-100 text-gray-700"
+                    }`}
+                  >
+                    RFI Home
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="#investment-strategy"
+                    className={`p-4 block transition ${
+                      activeSection === "investment-strategy"
+                        ? "bg-[#448D96] text-white"
+                        : "hover:bg-gray-100 text-gray-700"
+                    }`}
+                  >
+                    Investment Strategy
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="#risk"
+                    className={`p-4 block transition ${
+                      activeSection === "risk"
+                        ? "bg-[#448D96] text-white"
+                        : "hover:bg-gray-100 text-gray-700"
+                    }`}
+                  >
+                    Risk
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="#asx-announcements"
+                    className={`p-4 block transition ${
+                      activeSection === "asx-announcements"
+                        ? "bg-[#448D96] text-white"
+                        : "hover:bg-gray-100 text-gray-700"
+                    }`}
+                  >
+                    ASX Announcements
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="#share-price"
+                    className={`p-4 block transition ${
+                      activeSection === "share-price"
+                        ? "bg-[#448D96] text-white"
+                        : "hover:bg-gray-100 text-gray-700"
+                    }`}
+                  >
+                    Share Price
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="#documents"
+                    className={`p-4 block transition ${
+                      activeSection === "documents"
+                        ? "bg-[#448D96] text-white"
+                        : "hover:bg-gray-100 text-gray-700"
+                    }`}
+                  >
+                    Documents
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="#news"
+                    className={`p-4 block transition ${
+                      activeSection === "news"
+                        ? "bg-[#448D96] text-white"
+                        : "hover:bg-gray-100 text-gray-700"
+                    }`}
+                  >
+                    News
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="#faq"
+                    className={`p-4 block transition ${
+                      activeSection === "faq"
+                        ? "bg-[#448D96] text-white"
+                        : "hover:bg-gray-100 text-gray-700"
+                    }`}
+                  >
+                    FAQ
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </aside>
 
 
           {/* Main Content */}
-          <main className="lg:w-3/4 w-full">
+          <main id="rfi-home" className="lg:w-3/4 w-full">
             <h2 className="text-2xl sm:text-3xl font-semibold mb-6">
               Exposure to a range of alternative investment strategies
             </h2>
@@ -255,7 +339,8 @@ export default function Home() {
               />
             </div>
 
-            <h3 className="text-xl font-semibold mb-4">Investing with Regal</h3>
+            <div id="investment-strategy">
+              <h3 className="text-xl font-semibold mb-4">Investing with Regal</h3>
 
             <p className="text-gray-700 leading-relaxed mb-8">
               The Regal Investment Fund provides investors with exposure to
@@ -272,8 +357,9 @@ export default function Home() {
             >
               VIEW TEAM &rarr;
             </Button>
+            </div>
 
-            <h3 className="text-xl font-semibold mt-12 mb-4">Risk</h3>
+            <h3 id="risk" className="text-xl font-semibold mt-12 mb-4">Risk</h3>
             <p className="text-gray-700 leading-relaxed">
               The Fund may appeal to investors who are seeking risk-adjusted
               absolute returns from alternative investment strategies to
@@ -294,7 +380,7 @@ export default function Home() {
             {/* ASX Announcements & Share Price Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-10">
               {/* ASX Announcements */}
-              <div>
+              <div id="asx-announcements">
                 <h2 className="text-2xl md:text-3xl font-semibold mb-6 border-b-2 border-[#4a7d82] pb-2">
                   ASX Announcements
                 </h2>
@@ -344,7 +430,7 @@ export default function Home() {
               </div>
 
               {/* Share Price */}
-              <div>
+              <div id="share-price">
                 <h2 className="text-2xl md:text-3xl font-semibold mb-6 border-b-2 border-[#4a7d82] pb-2">
                   Share Price
                 </h2>
@@ -383,7 +469,7 @@ export default function Home() {
             {/* START OF ADDED CONTENT: Documents, News & Insights, Learn More */}
             {/* -------------------------------------------------------------------------------------- */}
 
-            <div className="mt-16 pt-8 border-t border-gray-200">
+            <div id="documents" className="mt-16 pt-8 border-t border-gray-200">
               <h2 className="text-3xl font-semibold mb-8">Documents</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
                 <div className="space-y-2">
@@ -415,7 +501,7 @@ export default function Home() {
               {/* Optional Divider for separation */}
               <div className="border-t border-gray-200 mt-8" />
 
-              <h2 className="text-3xl font-semibold mt-12 mb-6">
+              <h2 id="news" className="text-3xl font-semibold mt-12 mb-6">
                 News and Insights
               </h2>
               <div className="max-w-xl">
@@ -450,7 +536,7 @@ export default function Home() {
 
               {/* SPACE FOR YOUR FULL PAGE IMAGE UPDATE (Removed Placeholder text as per your earlier request for a clean space) */}
               <div className="my-12 p-0">
-                  {/* * YOUR FULL PAGE IMAGE UPDATE GOES HERE    */}
+                {/* * YOUR FULL PAGE IMAGE UPDATE GOES HERE    */}
               </div>
               {/* END OF SPACE FOR YOUR FULL PAGE IMAGE UPDATE */}
 
@@ -460,20 +546,20 @@ export default function Home() {
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 <VideoCard
-  imageSrc="/images/img1.jpeg"
-  title="What is RF1? - Interview between David Wright, Zenith Investment Planners and Phil King, Regal"
-  href="#"
-/>
-<VideoCard
-  imageSrc="/images/img2.jpeg"
-  title="How to use RF1 in portfolios - David Wright, Zenith Investment Planners"
-  href="#"
-/>
-<VideoCard
-  imageSrc="/images/img3.jpeg"
-  title="Alternative Investments: What, how and why?"
-  href="#"
-/>
+                  imageSrc="/images/img1.jpeg"
+                  title="What is RF1? - Interview between David Wright, Zenith Investment Planners and Phil King, Regal"
+                  href="#"
+                />
+                <VideoCard
+                  imageSrc="/images/img2.jpeg"
+                  title="How to use RF1 in portfolios - David Wright, Zenith Investment Planners"
+                  href="#"
+                />
+                <VideoCard
+                  imageSrc="/images/img3.jpeg"
+                  title="Alternative Investments: What, how and why?"
+                  href="#"
+                />
 
               </div>
             </div>
@@ -481,60 +567,272 @@ export default function Home() {
             {/* START OF ADDED CONTENT: FAQ and Contact Us */}
 
             <div className="mt-20 pt-8 border-t border-gray-200">
-                <h2 className="text-3xl sm:text-4xl font-semibold mb-10 text-gray-800">
-                    Frequently asked questions
+<div id="overview" className="text-[15px] leading-relaxed text-gray-700 mb-10">
+            <h2 className="text-[20px] md:text-[25px] font-semibold text-[#1a1a1a] mb-6 leading-snug">
+              Regal Funds Management is a multi-award winning specialist
+              alternatives investment manager, pioneering the hedge fund,
+              private markets and alternatives industry in Australia since it
+              was founded in 2004
+            </h2>
+
+            <p className="mb-4">
+              What started as a team of four, trading mostly long/short equities
+              out of a small office in Sydney, is now a team of around 180
+              people working together within the Regal Partners group to manage
+              approximately $19.2 billion of investor capital across offices
+              around Australia and offshore1. Four times awarded ‘Australian
+              Alternative Investment Manager of the Year2’, Regal has expanded
+              its strategies to include private markets, real & natural assets
+              (via Kilter Rural, Attunga Capital, Argyle Group, Ark Capital
+              Partners) and credit & royalties (via Regal Funds, Merricks
+              Capital and Taurus Funds Management), in addition to our heritage
+              in long/short equities (along with PM Capital).
+            </p>
+
+            {/* Subheading */}
+            <p className="font-semibold text-[#1a1a1a] mt-6 mb-4">
+              Our multi-asset investment capability leverages Regal’s
+              operational capabilities, scale and infrastructure.
+            </p>
+
+            {/* Feature list */}
+            <div className="space-y-8">
+              <div>
+                <h3 className="font-semibold text-[#1a1a1a] mb-2">
+                  1. Proprietary technology and operational infrastructure
+                </h3>
+                <p>
+                  Proprietary operational, risk and trading infrastructure
+                  provides an institutional-grade, back-office operating and
+                  accounting platform for each team. Supported by real-time risk
+                  monitoring and portfolio management tools, over 95% of global
+                  exchanges are accessible, with a 24-hour daily trade cycle.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-[#1a1a1a] mb-2">
+                  2. Extensive market relationships
+                </h3>
+                <p>
+                  Deep relationships across global equity players, origination,
+                  corporate access, and flow research broker networks. Our
+                  investment team accesses 200+ global brokers and
+                  counterparties daily.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-[#1a1a1a] mb-2">
+                  3. Multi-asset product development, innovation and access
+                </h3>
+                <p>
+                  The scale and sophistication of the platform enables the range
+                  of Regal capabilities to be structured and accessed across a
+                  broad number of pooled and single investment vehicles, both in
+                  Australia and globally.
+                </p>
+              </div>
+            </div>
+
+            {/* CTA Button */}
+            <div className="mt-10">
+              <button className="bg-[#448D96] hover:bg-[#3a7d85] text-white px-5 py-5 text-sm uppercase tracking-wide transition cursor-pointer">
+                VIEW CAPABILITIES &rarr;
+              </button>
+            </div>
+
+            {/* Footnotes */}
+            <div className="text-xs text-gray-500 mt-8 space-y-2 leading-snug">
+              <p>
+                1 Management estimate of funds under management (FUM) as at 31
+                August 2024. FUM includes both Regal and external investors.
+                Regal Partners Limited (ASX: RPL) is the parent company of Regal
+                Funds Management, VGI Partners, Kilter Rural, and Taurus Funds
+                Management.
+              </p>
+              <p>
+                2 Australian Alternative Investment Manager of the Year —
+                Australian Hedge Fund Awards 2016, 2018, 2019, 2020, 2023.
+              </p>
+            </div>
+
+          {/* REGAL PARTNERS (ASX:RPL) SECTION */}
+          <div id="regal-partners" className="text-[15px] leading-relaxed text-gray-700 mt-16">
+            <h2 className="text-[20px] md:text-[25px] font-semibold text-[#1a1a1a] mb-6 leading-snug">
+              Regal Partners Limited (ASX: RPL)
+            </h2>
+
+            <p className="mb-4">
+              Regal Partners Limited (ASX: RPL) is the parent company of a group of leading alternative investment managers, including Regal Funds Management, VGI Partners, Kilter Rural, and Taurus Funds Management. Listed on the ASX in June 2021, Regal Partners provides investors with exposure to a diversified platform of alternative investment strategies.
+            </p>
+
+            <p className="mb-4">
+              The group manages approximately $19.2 billion of investor capital across offices around Australia and offshore, with a team of around 180 people working together to deliver attractive risk-adjusted returns.
+            </p>
+
+            {/* Subheading */}
+            <p className="font-semibold text-[#1a1a1a] mt-6 mb-4">
+              Our Investment Managers
+            </p>
+
+            {/* Feature list */}
+            <div className="space-y-8">
+              <div>
+                <h3 className="font-semibold text-[#1a1a1a] mb-2">
+                  Regal Funds Management
+                </h3>
+                <p>
+                  A multi-award winning specialist alternatives investment manager, pioneering the hedge fund, private markets and alternatives industry in Australia since 2004. Regal Funds Management specialises in long/short equities, private markets, real & natural assets, and credit & royalties.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-[#1a1a1a] mb-2">
+                  VGI Partners
+                </h3>
+                <p>
+                  A leading Australian investment manager with a focus on fundamental long/short equity investing. VGI Partners applies a rigorous investment process to identify undervalued companies and generate attractive risk-adjusted returns.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-[#1a1a1a] mb-2">
+                  Kilter Rural
+                </h3>
+                <p>
+                  A specialist in Australian agricultural and water assets, Kilter Rural manages real & natural assets with a focus on sustainable farming and water resource management. The firm combines deep agricultural expertise with institutional-grade investment management.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-[#1a1a1a] mb-2">
+                  Taurus Funds Management
+                </h3>
+                <p>
+                  A specialist credit and royalties investment manager, Taurus focuses on generating attractive risk-adjusted returns through investments in private credit, royalties, and other income-generating assets.
+                </p>
+              </div>
+            </div>
+
+            {/* CTA Button */}
+            <div className="mt-10">
+              <button className="bg-[#448D96] hover:bg-[#3a7d85] text-white px-5 py-5 text-sm uppercase tracking-wide transition cursor-pointer">
+                VIEW ASX ANNOUNCEMENTS &rarr;
+              </button>
+            </div>
+          </div>
+
+          {/* NEWS SECTION */}
+          <div id="news" className="text-[15px] leading-relaxed text-gray-700 mt-16">
+            <h2 className="text-[20px] md:text-[25px] font-semibold text-[#1a1a1a] mb-6 leading-snug">
+              News and Insights
+            </h2>
+
+            <p className="mb-6">
+              Stay up to date with the latest news, insights, and developments from Regal Funds Management and the broader Regal Partners group.
+            </p>
+
+            {/* News Items */}
+            <div className="space-y-4">
+              <div className="py-4 border-b border-gray-200 group cursor-pointer hover:bg-gray-50 transition duration-150 px-4 -mx-4 rounded-sm">
+                <p className="text-xs font-medium text-gray-500 mb-2">November 21st, 2024</p>
+                <p className="text-gray-800 text-base group-hover:text-[#448D96] transition duration-150">
+                  Regal Investment Fund Announces Successful Completion of $95.3 Million Placement
+                </p>
+              </div>
+
+              <div className="py-4 border-b border-gray-200 group cursor-pointer hover:bg-gray-50 transition duration-150 px-4 -mx-4 rounded-sm">
+                <p className="text-xs font-medium text-gray-500 mb-2">November 19th, 2024</p>
+                <p className="text-gray-800 text-base group-hover:text-[#448D96] transition duration-150">
+                  Regal Investment Fund (ASX:RF1) - Announced Placement and UPP
+                </p>
+              </div>
+
+              <div className="py-4 border-b border-gray-200 group cursor-pointer hover:bg-gray-50 transition duration-150 px-4 -mx-4 rounded-sm">
+                <p className="text-xs font-medium text-gray-500 mb-2">October 30th, 2024</p>
+                <p className="text-gray-800 text-base group-hover:text-[#448D96] transition duration-150">
+                  Regal Investment Fund (ASX:RF1) - Investor Update 30 October 2024
+                </p>
+              </div>
+
+              <div className="py-4 border-b border-gray-200 group cursor-pointer hover:bg-gray-50 transition duration-150 px-4 -mx-4 rounded-sm">
+                <p className="text-xs font-medium text-gray-500 mb-2">October 17th, 2024</p>
+                <p className="text-gray-800 text-base group-hover:text-[#448D96] transition duration-150">
+                  Regal Australian Small Companies Fund wins AFMA Award
+                </p>
+              </div>
+
+              <div className="py-4 border-b border-gray-200 group cursor-pointer hover:bg-gray-50 transition duration-150 px-4 -mx-4 rounded-sm">
+                <p className="text-xs font-medium text-gray-500 mb-2">September 23rd, 2024</p>
+                <p className="text-gray-800 text-base group-hover:text-[#448D96] transition duration-150">
+                  Regal wins APAC Hedge Fund Performance Awards
+                </p>
+              </div>
+            </div>
+
+            {/* CTA Button */}
+            <div className="mt-10">
+              <button className="bg-[#448D96] hover:bg-[#3a7d85] text-white px-5 py-5 text-sm uppercase tracking-wide transition cursor-pointer">
+                VIEW ALL NEWS &rarr;
+              </button>
+            </div>
+          </div>
+        </div>
+
+
+              {/* Contact Us Section */}
+              <div className="bg-[#373e501a] p-8 sm:p-10 rounded-none shadow-inner border border-gray-100">
+                <h2 className="text-2xl font-semibold mb-6 text-gray-800">
+                  Contact Us
                 </h2>
-                <div className="mb-16">
-                    {faqData.map((item, index) => (
-                        <FaqItem
-                            key={index}
-                            title={item.title}
-                            content={item.content}
-                        />
-                    ))}
+                <div className="space-y-4 text-gray-700 leading-relaxed">
+                  <p>
+                    If you are a securityholder and require assistance, please contact us on whatsapp{" "}
+                    <span className="text-[#448D96]">
+                      +43 6888 7993 7235
+                    </span> (within Australia)
+                    <br />
+                    8:30am to 5:30pm Monday to Friday (Sydney time) or email{" "}
+                    <Link
+                      href="mailto:regalfund@cm.mpms.mufg.com"
+                      className="text-[#448D96] hover:underline transition"
+                    >
+                      donaldevens86@gmail.com
+                    </Link>
+                  </p>
+
+                  <div className="pt-4 border-t border-gray-200">
+                    <p className="text-sm">
+                      As a result of the Corporations Amendment (Meetings and Documents) Act 2022, we will be sending you shareholder communications (including notices of meetings, other meeting-related documents and annual financial reports) ("Communications") electronically where you have provided us with an email address, unless you have specifically elected or requested otherwise.
+                    </p>
+                    <p className="text-sm mt-3">
+                      You have the right to elect whether to receive some or all of these Communications in electronic or physical form and the right to elect not to receive annual financial reports at all. You also have the right to elect to receive a single specified Communication on an ad hoc basis, in an electronic or physical form.
+                    </p>
+                  </div>
                 </div>
-
-
-
-                {/* Contact Us Section */}
-                <div className="bg-[#373e501a] p-8 sm:p-10 rounded-none shadow-inner border border-gray-100">
-                    <h2 className="text-2xl font-semibold mb-6 text-gray-800">
-                        Contact Us
-                    </h2>
-                    <div className="space-y-4 text-gray-700 leading-relaxed">
-                        <p>
-                            If you are a securityholder and require assistance, please contact us on whatsapp{" "}
-                            <span className="text-[#448D96]">
-                                +43 6888 7993 7235 
-                            </span> (within Australia)
-                            <br />
-                            8:30am to 5:30pm Monday to Friday (Sydney time) or email{" "}
-                            <Link
-                                href="mailto:regalfund@cm.mpms.mufg.com"
-                                className="text-[#448D96] hover:underline transition"
-                            >
-                                donaldevens86@gmail.com
-                            </Link>
-                        </p>
-
-                        <div className="pt-4 border-t border-gray-200">
-                            <p className="text-sm">
-                                As a result of the Corporations Amendment (Meetings and Documents) Act 2022, we will be sending you shareholder communications (including notices of meetings, other meeting-related documents and annual financial reports) ("Communications") electronically where you have provided us with an email address, unless you have specifically elected or requested otherwise.
-                            </p>
-                            <p className="text-sm mt-3">
-                                You have the right to elect whether to receive some or all of these Communications in electronic or physical form and the right to elect not to receive annual financial reports at all. You also have the right to elect to receive a single specified Communication on an ad hoc basis, in an electronic or physical form.
-                            </p>
-                        </div>
-                    </div>
-                </div>
+              </div>
             </div>
 
 
             {/* END OF ADDED CONTENT: FAQ and Contact Us */}
-            
+
           </main>
         </div>
       </section>
+
+
+{/* Trading live market */}
+      <div id="live-market">
+        <LiveMarkets />
+      </div>
+
+
+      {/* Frequently asked questions  */}
+      <div id="faq">
+        <FAQ />
+      </div>
+
 
       {/* Footer */}
       <Footer />

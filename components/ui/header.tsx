@@ -15,6 +15,8 @@ export default function Navbar() {
     { name: "ABOUT", href: "/landing-pages/about" },
     { name: "TEAM", href: "/landing-pages/team" },
     { name: "STRATEGIES", href: "/landing-pages/strategies" },
+    { name: "FAQ", href: pathname === "/" ? "#faq" : "/#faq" },
+    { name: "LIVE MARKET", href: pathname === "/" ? "#live-market" : "/#live-market" },
     { name: "CONTACT", href: "/landing-pages/contact" },
   ];
 
@@ -52,15 +54,15 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Links - Centered */}
-          <div className="hidden lg:flex gap-8 xl:gap-12 absolute left-1/2 transform -translate-x-1/2">
+          <div className="hidden lg:flex gap-6 xl:gap-10 absolute left-1/2 transform -translate-x-1/2">
             {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`text-sm font-medium tracking-wide transition-colors ${
+                className={`text-sm font-medium tracking-wide transition-colors whitespace-nowrap ${
                   isActive(link.href)
                     ? "text-white"
-                    : "text-gray-500 hover:text-white"
+                    : "text-gray-400 hover:text-white"
                 }`}
               >
                 {link.name}
@@ -73,7 +75,7 @@ export default function Navbar() {
             <Link href="/auth/login">
               <Button
                 variant="outline"
-                className="bg-[#4a5866] hover:bg-[#5a6876] border-none text-white px-6 py-5 text-sm font-medium tracking-wide rounded-none transition-all"
+                className="bg-[#4a5866] hover:bg-[#5a6876] cursor-pointer border-none text-white px-6 py-5 text-sm font-medium tracking-wide rounded-none transition-all"
               >
                 INVESTOR LOGIN
               </Button>
@@ -103,45 +105,47 @@ export default function Navbar() {
         ></div>
 
         {/* Sliding Menu */}
-        <div className="bg-[#373E50] h-full w-4/5 max-w-sm ml-auto shadow-xl p-6 flex flex-col relative">
-          <button
-            className="absolute top-6 right-6 text-white hover:text-gray-300 transition"
-            onClick={() => setIsOpen(false)}
-          >
-            <X className="h-6 w-6" />
-          </button>
+        <div className="bg-[#373E50] h-full w-4/5 max-w-sm ml-auto shadow-xl p-6 flex flex-col justify-between relative">
+          <div>
+            <button
+              className="absolute top-6 right-6 text-white hover:text-gray-300 transition"
+              onClick={() => setIsOpen(false)}
+            >
+              <X className="h-6 w-6" />
+            </button>
 
-          {/* Links */}
-          <div className="flex flex-col gap-6 mt-16">
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`text-base font-medium tracking-wide transition-colors ${
-                  isActive(link.href)
-                    ? "text-white"
-                    : "text-gray-400 hover:text-white"
-                }`}
-                onClick={() => setIsOpen(false)}
-              >
-                {link.name}
-              </Link>
-            ))}
-
-            {/* Mobile Auth Buttons */}
-            <div className="flex flex-col gap-3 mt-8">
-              <Link href="/auth/login" onClick={() => setIsOpen(false)}>
-                <Button className="cursor-pointer bg-[#4a5866] hover:bg-[#5a6876] border-none text-white w-full py-6 rounded-none text-sm tracking-wide">
-                  INVESTOR LOGIN
-                </Button>
-              </Link>
-
-              <Link href="/auth/register" onClick={() => setIsOpen(false)}>
-                <Button className="cursor-pointer bg-[#4a5866] hover:bg-[#5a6876] border-none text-white w-full py-6 rounded-none text-sm tracking-wide">
-                  START INVESTING
-                </Button>
-              </Link>
+            {/* Nav Links */}
+            <div className="flex flex-col gap-6 mt-16">
+              {links.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`text-base font-medium tracking-wide transition-colors ${
+                    isActive(link.href)
+                      ? "text-white"
+                      : "text-gray-400 hover:text-white"
+                  }`}
+                  onClick={() => setIsOpen(false)}
+                >
+                  {link.name}
+                </Link>
+              ))}
             </div>
+          </div>
+
+          {/* Mobile Auth Buttons Positioned At The Very Bottom */}
+          <div className="flex flex-col gap-3 mt-auto pb-4">
+            <Link href="/auth/login" onClick={() => setIsOpen(false)}>
+              <Button className="cursor-pointer bg-[#4a5866] hover:bg-[#5a6876] border-none text-white w-full py-6 rounded-none text-sm tracking-wide">
+                INVESTOR LOGIN
+              </Button>
+            </Link>
+
+            <Link href="/auth/register" onClick={() => setIsOpen(false)}>
+              <Button className="cursor-pointer bg-[#4a5866] hover:bg-[#5a6876] border-none text-white w-full py-6 rounded-none text-sm tracking-wide">
+                START INVESTING
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
