@@ -20,7 +20,7 @@ const montserrat = Montserrat({
 
 export default function Footer() {
   const socialLinks = [
-    { name: "Telegram", icon: <Send size={20} />, href: "https://t.me/+2J3hQtWxTbVlZjVk" },
+    { name: "Telegram", icon: <Send size={20} />, href: "#" },
     { name: "SiWhatsapp", icon: <SiWhatsapp size={20} />, href: "#" },
     { name: "X (Twitter)", icon: <Twitter size={20} />, href: "#" },
     { name: "YouTube", icon: <Youtube size={20} />, href: "#" },

@@ -52,7 +52,7 @@ const ContactUsCard = () => (
     <p className="text-sm text-gray-600 mb-4">
       If you have any questions about Regal, please contact our investor relations team.
     </p>
-    <Link href="#" className="text-sm font-semibold text-[#448D96] hover:underline">
+    <Link href="landing-pages/contact" className="text-sm font-semibold text-[#448D96] hover:underline">
       CONTACT US <span aria-hidden="true"></span>
     </Link>
   </div>
