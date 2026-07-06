@@ -216,7 +216,7 @@ function InvestmentCard({ inv, index, onDelete, onRefresh }: { inv: Investment; 
 
       <div className="p-4 md:p-6 space-y-5">
         {/* Core Stats Grid */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">
             <span className="text-[9px] font-black text-gray-400 dark:text-slate-600 uppercase tracking-widest block">
               Principal
@@ -225,14 +225,14 @@ function InvestmentCard({ inv, index, onDelete, onRefresh }: { inv: Investment; 
               ${inv.amount.toLocaleString()}
             </p>
           </div>
-          <div className="space-y-1 border-x border-gray-100 dark:border-white/[0.04] px-4">
+          {/* <div className="space-y-1 border-x border-gray-100 dark:border-white/[0.04] px-4">
             <span className="text-[9px] font-black text-gray-400 dark:text-slate-600 uppercase tracking-widest block">
               Profit
             </span>
             <p className="text-lg font-black tracking-tighter text-emerald-600 dark:text-emerald-400">
               ${inv.earnings.toLocaleString()}
             </p>
-          </div>
+          </div> */}
           <div className="space-y-1 text-right">
             <span className="text-[9px] font-black text-gray-400 dark:text-slate-600 uppercase tracking-widest block">
               Timeline
@@ -264,18 +264,12 @@ function InvestmentCard({ inv, index, onDelete, onRefresh }: { inv: Investment; 
 
         {/* Actions */}
         <div className="flex gap-2">
-          <button
-            onClick={() => setShowDetailsModal(true)}
-            className="cursor-pointer flex-1 bg-gray-100 dark:bg-white/[0.08] hover:bg-gray-200 dark:hover:bg-white/[0.12] text-gray-900 dark:text-white py-3 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
-          >
-            View ROI History
-          </button>
           <Link
             href={`/user-dashboard/plan-details/${inv.planId}?amount=${inv.amount}`}
-            className="cursor-pointer bg-[#448D96] text-white hover:bg-[#3a7d85] rounded-lg transition-all flex items-center justify-center gap-2 h-10 w-10 sm:h-auto sm:w-auto sm:px-4 py-3"
+            className="cursor-pointer flex-1 bg-[#448D96] text-white hover:bg-[#3a7d85] rounded-lg transition-all flex items-center justify-center gap-2 h-10 w-10 sm:h-auto sm:w-auto sm:px-4 py-3"
           >
             <PlusCircle className="w-4 h-4 shrink-0" />
-            <span className="hidden sm:inline text-[10px] font-black uppercase tracking-widest">
+            <span className="text-[10px] font-black uppercase tracking-widest">
               Reinvest
             </span>
           </Link>
@@ -289,91 +283,6 @@ function InvestmentCard({ inv, index, onDelete, onRefresh }: { inv: Investment; 
         </div>
       </div>
 
-      {/* Profit Distribution Log Modal */}
-      {showDetailsModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-500 p-4">
-          <div className="bg-white dark:bg-[#0f1623] border border-gray-200/80 dark:border-white/[0.06] rounded-2xl p-6 max-w-2xl w-full shadow-2xl max-h-[80vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="hidden lg:block p-2 bg-sky-500/10 rounded-lg">
-                  <History className="w-5 h-5 text-sky-600 dark:text-sky-400" />
-                </div>
-                <h3 className="text-lg font-black uppercase tracking-tighter text-gray-900 dark:text-white">
-                  Profit Distribution Log
-                </h3>
-              </div>
-              {/* <button
-                onClick={() => setShowDetailsModal(false)}
-                className="p-2 hover:bg-muted rounded-lg transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button> */}
-            </div>
-
-            <div className="mb-4">
-              <p className="text-sm text-gray-500 dark:text-slate-500">
-                <span className="font-semibold text-gray-900 dark:text-white">{inv.planName}</span> - ${inv.amount.toLocaleString()}
-              </p>
-            </div>
-
-            <div className="rounded-xl border border-gray-200 dark:border-white/[0.06] overflow-hidden bg-gray-50/50 dark:bg-white/[0.04]">
-              <table className="w-full text-left border-collapse">
-                <thead className="bg-gray-100/50 dark:bg-white/[0.08] border-b border-gray-200 dark:border-white/[0.05]">
-                  <tr>
-                    <th className="p-3 text-[9px] font-black uppercase tracking-widest text-gray-400 dark:text-slate-600">
-                      Date
-                    </th>
-                    <th className="p-3 text-[9px] font-black uppercase tracking-widest text-gray-400 dark:text-slate-600">
-                      Rate
-                    </th>
-                    <th className="p-3 text-[9px] font-black uppercase tracking-widest text-gray-400 dark:text-slate-600 text-right">
-                      Amount
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-white/[0.04]">
-                  {(inv.profitHistory || []).length > 0 ? (
-                    (inv.profitHistory || []).map((log, idx) => (
-                      <tr
-                        key={`${inv._id.toString()}-log-${idx}`}
-                        className="hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-colors"
-                      >
-                        <td className="p-3 text-[10px] font-medium text-gray-900 dark:text-white">
-                          {log.date}
-                        </td>
-                        <td className="p-3 text-[10px] font-black text-emerald-600 dark:text-emerald-400">
-                          +{log.rate}%
-                        </td>
-                        <td className="p-3 text-[10px] font-black text-right text-sky-600 dark:text-sky-400">
-                          +${log.amount.toFixed(2)}
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td
-                        colSpan={3}
-                        className="p-8 text-center text-[10px] font-black uppercase text-gray-400 dark:text-slate-600"
-                      >
-                        No transactions recorded yet
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="mt-6 flex justify-end">
-              <button
-                onClick={() => setShowDetailsModal(false)}
-                className="px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg text-[10px] font-black uppercase tracking-widest hover:opacity-90 transition-all cursor-pointer"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (

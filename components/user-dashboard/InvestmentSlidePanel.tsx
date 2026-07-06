@@ -159,33 +159,6 @@ export const InvestmentSlidePanel: React.FC<InvestmentSlidePanelProps> = ({
                       />
                     </div>
                   </div>
-
-                  {/* Profit History */}
-                  <div className="space-y-2">
-                    <h4 className="text-[9px] font-black uppercase tracking-wider text-gray-400 dark:text-slate-600">
-                      Profit History ({(inv.profitHistory || []).length})
-                    </h4>
-                    {(inv.profitHistory || []).length > 0 ? (
-                      <div className="space-y-1">
-                        {(inv.profitHistory || []).map((log, idx) => (
-                          <div
-                            key={`${inv._id.toString()}-log-${idx}`}
-                            className="flex items-center justify-between text-xs py-2 px-3 bg-gray-50 dark:bg-white/[0.04] rounded"
-                          >
-                            <span className="text-gray-500 dark:text-slate-500">{log.date}</span>
-                            <div className="flex items-center gap-3">
-                              <span className="text-emerald-600 dark:text-emerald-400 font-bold">+{log.rate}%</span>
-                              <span className="text-sky-600 dark:text-sky-400 font-bold">+${log.amount.toFixed(2)}</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-xs text-gray-500 dark:text-slate-500 italic">
-                        No profit history yet
-                      </p>
-                    )}
-                  </div>
                 </div>
               ))}
             </div>
