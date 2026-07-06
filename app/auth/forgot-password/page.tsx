@@ -11,8 +11,8 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner"; // ✅ Import Sonner
 
 // Theme Constants
-const primary = "#10B981";       // Emerald green
-const primaryDarker = "#059669"; // Darker Emerald for hover
+const primary = "#448D96";       // Emerald green
+const primaryDarker = "#3a7d85"; // Darker Emerald for hover
 const bgLight = "bg-white dark:bg-gray-950"; // Page background
 const cardBg = "bg-white dark:bg-gray-900";  // Card background
 const textDark = "text-gray-900 dark:text-gray-100";

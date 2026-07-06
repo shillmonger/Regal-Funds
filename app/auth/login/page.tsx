@@ -66,9 +66,9 @@ function LoginForm() {
   return (
     <div>
       {/* Header added at the top */}
-      <Header />
+      {/* <Header /> */}
 
-      <div className={`flex min-h-screen items-center justify-center mt-[50px] ${backgroundColor} px-4 py-8`}>
+      <div className={`flex min-h-screen items-center justify-center mt-[10px] ${backgroundColor} px-4 py-8`}>
         <div className="w-full max-w-md">
           <Card className={`${cardBackground} shadow-xl border-gray-100`}>
             <CardHeader className="pb-6">

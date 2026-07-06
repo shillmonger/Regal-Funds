@@ -89,9 +89,9 @@ export default function RegisterPage() {
   return (
     <div className={`${backgroundColor} min-h-screen flex flex-col`}>
       {/* ✅ Header stays consistent with Login */}
-      <Header />
+      {/* <Header /> */}
 
-      <div className="flex flex-1 items-center justify-center px-4 py-8 mt-[100px]">
+      <div className="flex flex-1 items-center justify-center px-4 py-8 mt-[50px] mb-[50px]">
         <div className="w-full max-w-md">
           <Card className={`${cardBackground} shadow-xl border-gray-100`}>
             <CardHeader className="pb-6">
