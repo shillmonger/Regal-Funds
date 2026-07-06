@@ -26,7 +26,7 @@ export default function UserNav() {
         flex justify-around items-center 
         bg-white dark:bg-[#0f1623]
         border-t border-gray-200/80 dark:border-white/[0.06]
-        py-2 rounded-t-2xl 
+        py-2 rounded-t-0
         shadow-[0_-4px_24px_-2px_rgba(0,0,0,0.06)] 
         dark:shadow-[0_-4px_30px_rgba(0,0,0,0.45)]
         lg:hidden

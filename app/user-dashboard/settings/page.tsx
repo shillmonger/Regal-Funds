@@ -181,7 +181,7 @@ export default function AccountSettings() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header setSidebarOpen={setSidebarOpen} />
 
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 pb-24 md:pb-8 mb-[50px] md:mb-0">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 pb-15 md:pb-8 mb-[50px] md:mb-0">
           {/* Page Header */}
           <div className="mb-8">
             <h1 className="text-xl md:text-2xl font-bold tracking-tight text-gray-900 dark:text-white mb-1.5">
@@ -272,7 +272,7 @@ export default function AccountSettings() {
                       type="button"
                       onClick={handleSaveProfile}
                       disabled={loadingSave}
-                      className="w-full lg:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-blue-600/10 cursor-pointer"
+                      className="w-full lg:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-bold rounded-lg transition-all shadow-md shadow-blue-600/10 cursor-pointer"
                     >
                       <Save className="w-4 h-4" />
                       {loadingSave ? "Saving parameters..." : "Save Config Profile"}
@@ -354,7 +354,7 @@ export default function AccountSettings() {
                       type="button"
                       onClick={handleUpdatePassword}
                       disabled={loadingPassword}
-                      className="w-full lg:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-emerald-600/10 cursor-pointer"
+                      className="w-full lg:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-bold rounded-lg transition-all shadow-md shadow-emerald-600/10 cursor-pointer"
                     >
                       <Lock className="w-4 h-4" />
                       {loadingPassword ? "Overwriting array..." : "Update Vault Password"}

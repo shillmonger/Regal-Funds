@@ -108,12 +108,12 @@ export default function ProfilePage() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header setSidebarOpen={setSidebarOpen} />
 
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 pb-24 md:pb-8 mb-[50px] md:mb-0">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 pb-15 md:pb-8 mb-[50px] md:mb-0">
           
           {/* Header */}
           <div className="max-w-5xl mx-auto mb-8">
             <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-              {session?.user?.name ? `Welcome back, ${session.user.name}! 👋` : "Account Workspace"}
+              {session?.user?.name ? `Welcome back, ${session.user.name}!` : "Account Workspace"}
             </h1>
             <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
               Configure security privileges, verification parameters, and identity settings.
@@ -128,17 +128,17 @@ export default function ProfilePage() {
               {/* Profile Image Node */}
               <Card className="bg-white dark:bg-[#0f1623] border border-gray-200/80 dark:border-white/[0.06] rounded-2xl overflow-hidden shadow-sm">
                 <CardHeader className="p-5 border-b border-gray-100 dark:border-white/[0.04]">
-                  <CardTitle className="text-sm font-bold text-gray-900 dark:text-white">Profile Photo</CardTitle>
+                  <CardTitle className="text-lg font-bold text-gray-900 dark:text-white">Profile Photo</CardTitle>
                   <CardDescription className="text-xs text-gray-400 dark:text-slate-500">Avatar personalization token</CardDescription>
                 </CardHeader>
                 <CardContent className="p-6 flex flex-col items-center">
                   <div className="relative mb-4 group">
-                    <div className="w-28 h-28 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 p-0.5 shadow-md flex items-center justify-center text-white text-3xl font-bold overflow-hidden relative">
+                    <div className="w-40 h-40 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-0.5 shadow-md flex items-center justify-center text-white text-3xl font-bold overflow-hidden relative">
                       {profileImage || (session as any)?.user?.avatar ? (
                         <img
                           src={(profileImage as string) || (((session as any).user?.avatar) as string)}
                           alt="Identity Representation"
-                          className="w-full h-full object-cover rounded-full"
+                          className="w-full h-full object-cover rounded-2xl"
                         />
                       ) : (
                         <span className="tracking-tighter">
@@ -180,7 +180,7 @@ export default function ProfilePage() {
               {/* Status Verification Identity Metrics */}
               <Card className="bg-white dark:bg-[#0f1623] border border-gray-200/80 dark:border-white/[0.06] rounded-2xl shadow-sm">
                 <CardHeader className="p-5 border-b border-gray-100 dark:border-white/[0.04]">
-                  <CardTitle className="text-sm font-bold text-gray-900 dark:text-white">Security Metadata</CardTitle>
+                  <CardTitle className="text-lg font-bold text-gray-900 dark:text-white">Security Metadata</CardTitle>
                 </CardHeader>
                 <CardContent className="p-5 space-y-4">
                   <div className="flex items-center justify-between text-xs">
@@ -239,11 +239,11 @@ export default function ProfilePage() {
               <Card className="bg-white dark:bg-[#0f1623] border border-gray-200/80 dark:border-white/[0.06] rounded-2xl shadow-sm">
                 <CardHeader className="p-5 border-b border-gray-100 dark:border-white/[0.04]">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-emerald-50 dark:bg-emerald-950/20 rounded-lg flex items-center justify-center shrink-0">
+                    {/* <div className="w-8 h-8 bg-emerald-50 dark:bg-emerald-950/20 rounded-lg flex items-center justify-center shrink-0">
                       <User className="w-4 h-4 text-emerald-500" />
-                    </div>
+                    </div> */}
                     <div>
-                      <CardTitle className="text-base font-bold text-gray-900 dark:text-white">Profile Registry Settings</CardTitle>
+                      <CardTitle className="text-lg font-bold text-gray-900 dark:text-white">Profile Registry Settings</CardTitle>
                       <CardDescription className="text-xs text-gray-400 dark:text-slate-500">Modify basic informational fields linked to this node</CardDescription>
                     </div>
                   </div>
@@ -305,7 +305,7 @@ export default function ProfilePage() {
                     <button
                       onClick={handleSaveProfile}
                       disabled={isSavingProfile}
-                      className="w-full lg:w-auto h-11 px-6 bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-500/50 text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-md shadow-emerald-500/10 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+                      className="w-full lg:w-auto h-11 px-6 bg-emerald-500 hover:bg-emerald-600 disabled:bg-emerald-500/50 text-white rounded-lg text-sm font-bold uppercase tracking-wider shadow-md shadow-emerald-500/10 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
                     >
                       {isSavingProfile ? (
                         <Loader2 className="w-4 h-4 animate-spin" />

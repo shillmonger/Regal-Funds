@@ -5,6 +5,7 @@ import Link from "next/link";
 import Sidebar from "@/components/ui/user-sidebar";
 import Header from "@/components/ui/user-header";
 import UserNav from "@/components/ui/user-nav";
+import LiveTrades from "@/components/ui/LiveTrades";
 import { useSession } from "next-auth/react";
 import {
   DollarSign,
@@ -33,14 +34,14 @@ interface StatCardProps {
 function StatCard({ label, value, sub, icon: Icon, accent, iconColor, delay }: StatCardProps) {
   return (
     <div
-      className="stat-card group relative overflow-hidden rounded-2xl p-5 md:p-6
+      className="stat-card group relative overflow-hidden rounded-2xl p-4 md:p-5
                  border border-gray-200/80 dark:border-white/[0.06] bg-white dark:bg-[#0f1623]
                  hover:border-gray-300 dark:hover:border-white/[0.12] hover:bg-gray-50/50 dark:hover:bg-[#131b2b]
-                 transition-all duration-300 cursor-default shadow-[0_2px_8px_rgba(0,0,0,0.02)] dark:shadow-none"
+                 transition-all duration-300 cursor-pointer shadow-[0_2px_8px_rgba(0,0,0,0.02)] dark:shadow-none"
       style={{ animationDelay: delay }}
     >
       {/* Top row */}
-      <div className="flex items-start justify-between mb-5">
+      <div className="flex items-start justify-between mb-2">
         <p className="text-[10px] md:text-[11px] font-semibold tracking-[0.12em] uppercase text-gray-400 dark:text-slate-400/80">
           {label}
         </p>
@@ -59,12 +60,6 @@ function StatCard({ label, value, sub, icon: Icon, accent, iconColor, delay }: S
 
       {/* Sub */}
       <p className="text-[11px] md:text-xs text-gray-500 dark:text-slate-500 font-medium">{sub}</p>
-
-      {/* Subtle accent line */}
-      <div
-        className={`absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full
-                    transition-all duration-500 rounded-b-2xl ${iconColor.replace("text-", "bg-")}`}
-      />
     </div>
   );
 }
@@ -247,35 +242,6 @@ export default function AdminDashboard() {
 
   return (
     <>
-      {/* Global animation styles */}
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
-
-        .dashboard-root { font-family: 'Sora', sans-serif; }
-
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(16px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        .stat-card {
-          opacity: 0;
-          animation: fadeUp 0.5s ease forwards;
-        }
-        .welcome-block {
-          opacity: 0;
-          animation: fadeUp 0.45s ease forwards;
-        }
-        .activity-row {
-          opacity: 0;
-          animation: fadeUp 0.4s ease forwards;
-        }
-
-        /* Scrollbar */
-        .thin-scroll::-webkit-scrollbar { height: 4px; }
-        .thin-scroll::-webkit-scrollbar-track { background: transparent; }
-        .thin-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 99px; }
-        .dark .thin-scroll::-webkit-scrollbar-thumb { background: #ffffff18; }
-      `}</style>
 
       <div className="dashboard-root flex h-screen overflow-hidden bg-gray-50/50 dark:bg-[#080d17]">
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
@@ -283,13 +249,13 @@ export default function AdminDashboard() {
         <div className="flex-1 flex flex-col overflow-hidden">
           <Header setSidebarOpen={setSidebarOpen} />
 
-          <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 pb-24 md:pb-8 mb-[50px] md:mb-0">
+          <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-4 lg:p-6 pb-15 md:pb-8 mb-[50px] md:mb-0">
 
             {/* ── Welcome ── */}
             <div className="welcome-block mb-8 flex items-start justify-between flex-wrap gap-4">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <Sparkles className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+                  {/* <Sparkles className="w-4 h-4 text-amber-500 dark:text-amber-400" /> */}
                   <span className="text-[11px] font-semibold tracking-[0.15em] uppercase text-gray-400 dark:text-slate-500">
                     Investor Portal
                   </span>
@@ -386,7 +352,13 @@ export default function AdminDashboard() {
               )}
             </div>
 
+
+          {/* Trading live market */}
+                <div id="live-market">
+                  <LiveTrades />
+                </div>
           </main>
+          
 
           <UserNav />
         </div>

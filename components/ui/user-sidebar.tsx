@@ -16,7 +16,6 @@ import {
   Settings,
   LogOut,
   X,
-  Sparkles,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -30,26 +29,20 @@ const navItems = [
   { name: "Connect Wallet",   icon: Wallet,         href: "/user-dashboard/connect-wallet"  },
   { name: "Referral Program", icon: Users,          href: "/user-dashboard/referrals"       },
   { name: "Overall History",  icon: Clock,          href: "/user-dashboard/histery"         },
-  { name: "Withdraw Funds",      icon: ArrowDownCircle,href: "/user-dashboard/withdrawals"     },
+  { name: "Withdraw Funds",   icon: ArrowDownCircle,href: "/user-dashboard/withdrawals"     },
   { name: "Account Settings", icon: Settings,       href: "/user-dashboard/settings"        },
-  { name: "Logout My Account", icon: LogOut,       href: "/"},
 ];
 
 // Dual-theme context-aware safe values
 const accentMap: Record<string, { icon: string; bg: string; bar: string }> = {
   "Dashboard":        { icon: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-500/10", bar: "bg-emerald-500 dark:bg-emerald-400" },
   "Choose Plan":      { icon: "text-violet-600 dark:text-violet-400",   bg: "bg-violet-50 dark:bg-violet-500/10",   bar: "bg-violet-500 dark:bg-violet-400"   },
-  "Connect Wallet":   { icon: "text-sky-600 dark:text-sky-400",       bg: "bg-sky-50 dark:bg-sky-500/10",         bar: "bg-sky-500 dark:bg-sky-400"         },
+  "Connect Wallet":   { icon: "text-sky-600 dark:text-sky-400",        bg: "bg-sky-50 dark:bg-sky-500/10",         bar: "bg-sky-500 dark:bg-sky-400"         },
   "Referral Program": { icon: "text-amber-600 dark:text-amber-400",   bg: "bg-amber-50 dark:bg-amber-500/10",     bar: "bg-amber-500 dark:bg-amber-400"     },
-  "Overall History":  { icon: "text-sky-600 dark:text-sky-400",       bg: "bg-sky-50 dark:bg-sky-500/10",         bar: "bg-sky-500 dark:bg-sky-400"         },
-  "Withdraw Funds":      { icon: "text-rose-600 dark:text-rose-400",       bg: "bg-rose-50 dark:bg-rose-500/10",       bar: "bg-rose-500 dark:bg-rose-400"       },
+  "Overall History":  { icon: "text-sky-600 dark:text-sky-400",        bg: "bg-sky-50 dark:bg-sky-500/10",         bar: "bg-sky-500 dark:bg-sky-400"         },
+  "Withdraw Funds":   { icon: "text-rose-600 dark:text-rose-400",       bg: "bg-rose-50 dark:bg-rose-500/10",       bar: "bg-rose-500 dark:bg-rose-400"       },
   "Account Settings": { icon: "text-slate-600 dark:text-slate-400",     bg: "bg-slate-100 dark:bg-slate-500/10",    bar: "bg-slate-500 dark:bg-slate-400"     },
   "Switch to Admin":  { icon: "text-amber-600 dark:text-amber-400",   bg: "bg-amber-50 dark:bg-amber-500/10",     bar: "bg-amber-500 dark:bg-amber-400"     },
-  "Logout My Account": {
-    icon: "text-red-500 dark:text-rose-400",
-    bg: "bg-red-50 dark:bg-rose-500/10",
-    bar: "bg-red-500 dark:bg-rose-400",
-  },
 };
 
 export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
@@ -57,7 +50,6 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
   const { data: session, status } = useSession();
   const [showAdmin, setShowAdmin] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const avatar = (session as any)?.user?.avatar as string | undefined;
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -99,7 +91,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
       {/* Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-20 backdrop-blur-sm bg-black/20 dark:bg-black/40 lg:hidden"
+          className="fixed inset-0 z-100 backdrop-blur-sm bg-black/10 dark:bg-black/40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -108,7 +100,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
         className={`sidebar-root
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
           fixed inset-y-0 left-0 z-100
-          w-[100%] sm:w-[65%] md:w-[55%] lg:w-65
+          w-[85%] sm:w-[65%] md:w-[55%] lg:w-65
           flex flex-col
           bg-white dark:bg-[#080d17]
           border-r border-gray-200/80 dark:border-white/[0.06]
@@ -142,15 +134,8 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
           </button>
         </div>
 
-        {/* ── Label ── */}
-        <div className="px-5 pt-6 pb-3">
-          <p className="text-[10px] font-semibold tracking-[0.14em] uppercase text-gray-400 dark:text-slate-600">
-            Navigation
-          </p>
-        </div>
-
-        {/* ── Nav ── */}
-        <nav className="flex-1 px-3 space-y-1 overflow-y-auto pb-6">
+        {/* ── Nav Items ── */}
+        <nav className="flex-1 px-3 space-y-1 overflow-y-auto py-6">
           {allItems.map(({ name, icon: Icon, href }, index) => {
             const active = isActive(href);
             const accent = accentMap[name] ?? accentMap["Account Settings"];
@@ -190,34 +175,19 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
           })}
         </nav>
 
-        {/* ── Footer user chip ── */}
-        {mounted && status === "authenticated" && (
-          <div className="px-4 pb-6 shrink-0">
-            <div className="flex items-center gap-3 px-3 py-3 rounded-xl
-                            bg-gray-50 dark:bg-[#0f1623] border border-gray-200/60 dark:border-white/[0.06]">
-              {avatar ? (
-                <img
-                  src={avatar}
-                  alt="avatar"
-                  className="w-8 h-8 rounded-xl object-cover ring-2 ring-gray-200 dark:ring-white/10"
-                />
-              ) : (
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-400 to-violet-500
-                                flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-sm">
-                  {session?.user?.name?.[0]?.toUpperCase() ?? "U"}
-                </div>
-              )}
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-gray-900 dark:text-white truncate leading-tight">
-                  {session?.user?.name ?? "Investor"}
-                </p>
-                <p className="text-[11px] text-gray-500 dark:text-slate-500 truncate mt-0.5">
-                  {session?.user?.email ?? ""}
-                </p>
-              </div>
+        {/* ── Fixed Red Logout Section at the Bottom ── */}
+        <div className="p-4 border-t border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#080d17] shrink-0">
+          <Link
+            href="/"
+            onClick={() => setSidebarOpen(false)}
+            className="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 border border-transparent text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10"
+          >
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-red-50 dark:bg-red-500/10 group-hover:bg-red-100 dark:group-hover:bg-red-500/20 transition-all duration-200">
+              <LogOut className="w-4 h-4 text-red-500 dark:text-red-400" />
             </div>
-          </div>
-        )}
+            <span className="truncate">Logout My Account</span>
+          </Link>
+        </div>
       </aside>
     </>
   );

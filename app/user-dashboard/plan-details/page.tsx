@@ -5,6 +5,8 @@ import Sidebar from "@/components/ui/user-sidebar";
 import Header from "@/components/ui/user-header";
 import UserNav from "@/components/ui/user-nav";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+
 
 import {
   Card,
@@ -188,7 +190,7 @@ export default function InvestmentPlansPage() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header setSidebarOpen={setSidebarOpen} />
 
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 pb-24 md:pb-8 mb-[50px] md:mb-0">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 pb-15 md:pb-8 mb-[50px] md:mb-0">
           
           {/* Header Layout */}
           <div className="max-w-6xl mx-auto mb-8">
@@ -334,9 +336,11 @@ export default function InvestmentPlansPage() {
                     Our technical node fund monitoring advisors remain available 24/7/365 to evaluate your capital track constraints or select customized institutional pools.
                   </p>
                 </div>
-                <Button className="h-11 px-6 bg-gray-900 hover:bg-gray-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-sm shrink-0 whitespace-nowrap cursor-pointer">
-                  Contact Support Node
-                </Button>
+                <Link href="https://t.me/+cX9cZuER651hOGZk">
+                  <Button className="h-11 px-6 bg-gray-900 hover:bg-gray-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-sm shrink-0 whitespace-nowrap cursor-pointer">
+                    Contact Support Node
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           </div>
