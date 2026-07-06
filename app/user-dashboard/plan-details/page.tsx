@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "@/components/ui/user-sidebar";
 import Header from "@/components/ui/user-header";
 import UserNav from "@/components/ui/user-nav";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 
@@ -156,6 +156,18 @@ export default function InvestmentPlansPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [investmentAmount, setInvestmentAmount] = useState<number | string>("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Pre-fill amount from URL if provided
+  useEffect(() => {
+    const amountFromUrl = searchParams.get("amount");
+    if (amountFromUrl) {
+      const numValue = Number(amountFromUrl);
+      if (!isNaN(numValue) && numValue >= 0) {
+        setInvestmentAmount(numValue);
+      }
+    }
+  }, [searchParams]);
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;

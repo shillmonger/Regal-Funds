@@ -6,7 +6,7 @@ import { ObjectId } from "mongodb";
 
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -14,11 +14,12 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
     const client = await clientPromise;
     const db = client.db("crypto-investment");
 
     const investment = await db.collection("investments").findOne({
-      _id: new ObjectId(params.id),
+      _id: new ObjectId(id),
       userId: (session as any).user.id,
     });
 
@@ -28,7 +29,7 @@ export async function POST(
 
     // Update lastAccruedAt to current time to resume accrual
     await db.collection("investments").updateOne(
-      { _id: new ObjectId(params.id) },
+      { _id: new ObjectId(id) },
       { $set: { lastAccruedAt: new Date() } }
     );
 

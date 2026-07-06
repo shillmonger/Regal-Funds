@@ -271,7 +271,7 @@ function InvestmentCard({ inv, index, onDelete, onRefresh }: { inv: Investment; 
             View ROI History
           </button>
           <Link
-            href="/user-dashboard/plan-details"
+            href={`/user-dashboard/plan-details/${inv.planId}?amount=${inv.amount}`}
             className="cursor-pointer bg-[#448D96] text-white hover:bg-[#3a7d85] rounded-lg transition-all flex items-center justify-center gap-2 h-10 w-10 sm:h-auto sm:w-auto sm:px-4 py-3"
           >
             <PlusCircle className="w-4 h-4 shrink-0" />

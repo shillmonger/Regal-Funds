@@ -6,7 +6,7 @@ import { ObjectId } from "mongodb";
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -14,11 +14,12 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
     const client = await clientPromise;
     const db = client.db("crypto-investment");
 
     const result = await db.collection("investments").deleteOne({
-      _id: new ObjectId(params.id),
+      _id: new ObjectId(id),
       userId: (session as any).user.id,
     });
 
