@@ -2,17 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, Wallet, Users, Layers, User, Settings } from "lucide-react";
+import { LayoutGrid, Wallet, Users, Layers, User, BarChart3, Settings } from "lucide-react";
 
 export default function UserNav() {
   const pathname = usePathname();
 
   const navItems = [
     { name: "HOME", href: "/user-dashboard/dashboard", icon: LayoutGrid },
-    { name: "Plan Hub", href: "/user-dashboard/plan-details", icon: Layers },
+    { name: "Plan Hub", href: "/user-dashboard/plan-details", icon: BarChart3 },
     { name: "Wallet", href: "/user-dashboard/connect-wallet", icon: Wallet },
+    { name: "Portfolio", href: "/user-dashboard/my-investments", icon: Layers },
     { name: "Referral", href: "/user-dashboard/referrals", icon: Users },
-    { name: "PROFILE", href: "/user-dashboard/profile", icon: User },
+    // { name: "PROFILE", href: "/user-dashboard/profile", icon: User },
     { name: "SETTINGS", href: "/user-dashboard/settings", icon: Settings },
   ];
 

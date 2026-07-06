@@ -4,8 +4,16 @@ import { ObjectId } from "mongodb";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    // Verify CRON_SECRET for security
+    const authHeader = req.headers.get("authorization");
+    const cronSecret = process.env.CRON_SECRET;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ") || authHeader.slice(7) !== cronSecret) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const client = await clientPromise;
     const db = client.db("crypto-investment");
     const now = new Date();
@@ -72,6 +80,7 @@ export async function GET() {
             userId: inv.userId,
             investmentId: inv._id,
             amount: earnings,
+            days: 1,
             dailyPercent,
             createdAt: now.toISOString(),
             type: "first_roi",
@@ -90,6 +99,7 @@ export async function GET() {
             userId: inv.userId,
             investmentId: inv._id,
             amount: earnings,
+            days: 1,
             dailyPercent,
             createdAt: now.toISOString(),
             type: "roi",
@@ -138,7 +148,7 @@ export async function GET() {
     });
 
   } catch (error) {
-    console.error("accrue-earnings error:", error);
+    console.error("distribute-profits error:", error);
     return NextResponse.json(
       { error: "Failed to process earnings accrual" },
       { status: 500 }

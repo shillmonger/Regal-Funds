@@ -209,7 +209,7 @@ function PaymentFormContent() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 items-start">
+    <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 items-start">
       {/* 💳 LEFT SIDE: Action & Verification Card */}
       <div className="space-y-6">
         <Card className="border border-gray-200/80 dark:border-white/[0.06] bg-white dark:bg-[#0f1623] rounded-2xl shadow-sm overflow-hidden">
@@ -409,7 +409,7 @@ function PaymentFormContent() {
               <Button
                 type="submit"
                 disabled={submitStatus === "pending"}
-                className={`w-full ${colors.button} font-bold h-11 text-xs flex items-center justify-center gap-2 rounded-xl transition-all shadow-lg shadow-black/5 cursor-pointer`}
+                className={`w-full ${colors.button} font-bold h-11 text-sm flex items-center justify-center gap-2 rounded-xl transition-all shadow-lg shadow-black/5 cursor-pointer`}
               >
                 {submitStatus === "pending" ? "Validating Frame Node..." : "Submit Payment Proof"}
               </Button>
@@ -433,7 +433,7 @@ export default function SubmitPaymentPage() {
         <Header setSidebarOpen={setSidebarOpen} />
 
         <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 pb-24 md:pb-8 mb-[50px] md:mb-0">
-          <div className="max-w-6xl mx-auto mb-6">
+          <div className="max-w-7xl mx-auto mb-6">
             <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
               Submit Payment Proof
             </h1>

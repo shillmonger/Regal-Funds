@@ -229,7 +229,7 @@ export default function PlanDetailsPage() {
 
         <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 pb-15 md:pb-8 mb-[50px] md:mb-0">
           {/* Master Responsive Container: Side-by-Side Grid on LG (Large Screen), Stacked vertically on Mobile */}
-          <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 items-start">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 items-start">
             
             {/* 💳 LEFT SIDE: Plan Info Action Card */}
             <Card className={`border border-gray-200/80 dark:border-white/[0.06] bg-white dark:bg-[#0f1623] rounded-2xl shadow-sm overflow-hidden`}>

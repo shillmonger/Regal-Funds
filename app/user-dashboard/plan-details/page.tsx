@@ -193,7 +193,7 @@ export default function InvestmentPlansPage() {
         <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 pb-15 md:pb-8 mb-[50px] md:mb-0">
           
           {/* Header Layout */}
-          <div className="max-w-6xl mx-auto mb-8">
+          <div className="max-w-7xl mx-auto mb-8">
             <div>
               <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                 Smart Investment Portal
@@ -205,7 +205,7 @@ export default function InvestmentPlansPage() {
           </div>
 
           {/* Smart Investment Input Section */}
-          <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             {/* Investment Input Card */}
             <Card className="bg-white dark:bg-[#0f1623] border border-gray-200/80 dark:border-white/[0.06] rounded-2xl p-6 shadow-sm">
               <div className="mb-5 pb-4 border-b border-gray-100 dark:border-white/[0.04]">
@@ -325,7 +325,7 @@ export default function InvestmentPlansPage() {
 
 
           {/* Bottom Info Banner Assistance Card */}
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             <Card className="bg-gradient-to-r from-emerald-50/30 to-blue-50/30 dark:from-slate-900/40 dark:to-slate-900/20 border border-emerald-100 dark:border-white/[0.04] rounded-2xl overflow-hidden shadow-sm">
               <CardContent className="p-6 flex flex-col md:flex-row items-center justify-between gap-6">
                 <div>

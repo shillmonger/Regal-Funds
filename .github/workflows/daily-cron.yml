@@ -1,0 +1,21 @@
+name: Daily Secure Rise Cron
+
+on:
+  schedule:
+    # Runs every day at 00:00 UTC (1:00 AM Nigeria)
+    - cron: '0 23 * * *'
+
+  # Allows you to run it manually from GitHub
+  workflow_dispatch:
+
+jobs:
+  cron:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger profit distribution
+        run: |
+          curl --fail -L \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            https://regal-funds.vercel.app/api/cron/accrue-earnings
+

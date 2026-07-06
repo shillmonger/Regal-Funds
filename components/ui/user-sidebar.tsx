@@ -15,6 +15,7 @@ import {
   Clock,
   Settings,
   LogOut,
+  BarChart3,
   X,
 } from "lucide-react";
 
@@ -25,7 +26,8 @@ interface SidebarProps {
 
 const navItems = [
   { name: "Dashboard",        icon: Home,           href: "/user-dashboard/dashboard"       },
-  { name: "Choose Plan",      icon: Layers,         href: "/user-dashboard/plan-details"    },
+  { name: "Choose Plan",      icon: BarChart3,         href: "/user-dashboard/plan-details"    },
+  { name: "My Investments",   icon: Layers,         href: "/user-dashboard/my-investments"  },
   { name: "Connect Wallet",   icon: Wallet,         href: "/user-dashboard/connect-wallet"  },
   { name: "Referral Program", icon: Users,          href: "/user-dashboard/referrals"       },
   { name: "Overall History",  icon: Clock,          href: "/user-dashboard/histery"         },
@@ -135,7 +137,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
         </div>
 
         {/* ── Nav Items ── */}
-        <nav className="flex-1 px-3 space-y-1 overflow-y-auto py-6">
+        <nav className="flex-1 px-3 space-y-0 overflow-y-auto py-6">
           {allItems.map(({ name, icon: Icon, href }, index) => {
             const active = isActive(href);
             const accent = accentMap[name] ?? accentMap["Account Settings"];
@@ -145,7 +147,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
                 key={name}
                 href={href}
                 onClick={() => setSidebarOpen(false)}
-                className={`nav-item group relative flex items-center gap-3 px-3 py-2 rounded-xl
+                className={`nav-item group relative flex items-center gap-3 px-3 py-2 rounded-lg
                             text-sm font-medium transition-all duration-200 border
                             ${active
                               ? "bg-gray-50 dark:bg-[#131b2b] border-gray-200/60 dark:border-white/[0.08] text-gray-900 dark:text-white"

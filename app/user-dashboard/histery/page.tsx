@@ -221,7 +221,7 @@ export default function HistoryPage() {
         <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 pb-15 md:pb-8 mb-[50px] md:mb-0">
           
           {/* Header Area */}
-          <div className="max-w-6xl mx-auto mb-8">
+          <div className="max-w-7xl mx-auto mb-8">
             <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
               Transaction History
             </h1>
@@ -231,7 +231,7 @@ export default function HistoryPage() {
           </div>
 
           {/* Filtering Controls Workspace Grid */}
-          <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 opacity-70" />
               <Input
@@ -283,7 +283,7 @@ export default function HistoryPage() {
           </div>
 
           {/* Master Table Area Card Container */}
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             <Card className="bg-white dark:bg-[#0f1623] border border-gray-200/80 dark:border-white/[0.06] rounded-2xl overflow-hidden shadow-sm relative">
               <CardHeader className="p-5 border-b border-gray-100 dark:border-white/[0.04]">
                 <div className="flex items-center justify-between">
