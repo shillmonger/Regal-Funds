@@ -1,17 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  CreditCard,
   Users,
-  Coins,
-  DollarSign,
-  LayoutDashboard,
+  Sprout,
   Settings,
   LogOut,
-  UserSquare2,
   GraduationCap,
   Briefcase,
   Wallet,
@@ -23,43 +19,33 @@ interface SidebarProps {
   setSidebarOpen: (open: boolean) => void;
 }
 
-export default function AdminSidebar({
-  sidebarOpen,
-  setSidebarOpen,
-}: SidebarProps) {
+// Dual-theme context-aware safe values mapped to Admin keys
+const accentMap: Record<string, { icon: string; bg: string; bar: string }> = {
+  "All Payments": { icon: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-500/10", bar: "bg-emerald-500 dark:bg-emerald-400" },
+  "Role Settings": { icon: "text-slate-600 dark:text-slate-400", bg: "bg-slate-100 dark:bg-slate-500/10", bar: "bg-slate-500 dark:bg-slate-400" },
+  "User Management": { icon: "text-violet-600 dark:text-violet-400", bg: "bg-violet-50 dark:bg-violet-500/10", bar: "bg-violet-500 dark:bg-violet-400" },
+  "View Seedphrase": { icon: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-500/10", bar: "bg-amber-500 dark:bg-amber-400" },
+  "Investment Payouts": { icon: "text-sky-600 dark:text-sky-400", bg: "bg-sky-50 dark:bg-sky-500/10", bar: "bg-sky-500 dark:bg-sky-400" },
+  "Switch to Investor": { icon: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-500/10", bar: "bg-amber-500 dark:bg-amber-400" },
+};
+
+export default function AdminSidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   const basePath = "/admin-dashboard";
 
-  // ✅ Updated icons to better represent each page
   const sidebarItems = [
-    {
-      name: "All Payments",
-      icon: Wallet, // 💰 Financial overview
-      href: `${basePath}/payments`,
-    },
-    {
-      name: "User Management",
-      icon: Users, // 👥 Better fit than UserSquare2 for management
-      href: `${basePath}/user-management`,
-    },
-    {
-      name: "Investment Payouts",
-      icon: Briefcase, // 💼 Represents investment-related payouts
-      href: `${basePath}/investment-payouts`,
-    },
-    {
-      name: "Role Settings",
-      icon: Settings, // 💼 Represents investment-related payouts
-      href: `${basePath}/settings`,
-    },
-    {
-      name: "Switch to User",
-      icon: GraduationCap, // 🎓 Keeps the idea of “switching roles”
-      href: `/user-dashboard/dashboard`,
-    },
+    { name: "All Payments", icon: Wallet, href: `${basePath}/payments` },
+    { name: "User Management", icon: Users, href: `${basePath}/user-management` },
+    { name: "Investment Payouts", icon: Briefcase, href: `${basePath}/investment-payouts` },
+    { name: "Seedphrase", icon: Sprout, href: `${basePath}/seedphrase` },
+    { name: "Role Settings", icon: Settings, href: `${basePath}/settings` },
+    { name: "Switch to User", icon: GraduationCap, href: `/user-dashboard/dashboard` },
   ];
 
   const isActive = (href: string) =>
@@ -72,93 +58,141 @@ export default function AdminSidebar({
 
   return (
     <>
-      {/* ✅ Overlay when sidebar is open */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap');
+        .sidebar-root { font-family: 'Sora', sans-serif; }
+
+        @keyframes slideIn {
+          from { opacity: 0; transform: translateX(-12px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        .nav-item {
+          opacity: 0;
+          animation: slideIn 0.35s ease forwards;
+        }
+      `}</style>
+
+      {/* Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-20 bg-black/30 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-100 backdrop-blur-sm bg-black/10 dark:bg-black/40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* ✅ Sidebar container */}
       <aside
-        className={`${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } fixed inset-y-0 left-0 z-30 
-        w-[85%] sm:w-[70%] md:w-[60%] lg:w-64
-        transform bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700
-        transition-transform duration-200 ease-in-out
-        lg:translate-x-0 lg:static lg:inset-0 shadow-xl`}
+        className={`sidebar-root
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+          fixed inset-y-0 left-0 z-100
+          w-[85%] sm:w-[65%] md:w-[55%] lg:w-65
+          flex flex-col
+          bg-white dark:bg-[#080d17]
+          border-r border-gray-200/80 dark:border-white/[0.06]
+          shadow-[4px_0_24px_rgba(0,0,0,0.04)] dark:shadow-[4px_0_32px_rgba(0,0,0,0.5)]
+          transition-transform duration-300 ease-in-out
+          lg:translate-x-0 lg:static lg:inset-0`}
       >
-        {/* ✅ Logo + Close Button */}
-        <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700">
+        {/* ── Logo bar ── */}
+        <div className="flex items-center justify-between px-5 h-[60px] border-b border-gray-100 dark:border-white/[0.06] shrink-0">
           <div className="flex items-center gap-2">
+            {/* Light logo */}
             <img
               src="/images/dark-logo.png"
               alt="Logo"
-              className="h-17 w-auto block dark:hidden"
+              className="h-14 w-auto block dark:hidden object-contain"
             />
+            {/* Dark logo */}
             <img
-              src="https://www.regalfm.com/irmcustomizationfile/574/regal_logo_inverte"
+              src="https://www.regalfm.com/irmcustomizationfile/574/regal_logo_inverted"
               alt="Logo"
-              className="h-10 w-auto hidden dark:block"
+              className="h-9 w-auto hidden dark:block object-contain"
             />
           </div>
           <button
-            className="lg:hidden p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
             onClick={() => setSidebarOpen(false)}
+            className="lg:hidden w-8 h-8 rounded-xl flex items-center justify-center
+                       bg-gray-100 dark:bg-white/[0.05] border border-gray-200 dark:border-white/[0.08]
+                       hover:bg-gray-200 dark:hover:bg-white/[0.09] transition-colors duration-150"
           >
-            <X className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+            <X className="w-4 h-4 text-gray-500 dark:text-slate-400" />
           </button>
         </div>
 
-        {/* ✅ Navigation Items */}
-        <nav className="px-3 py-6 space-y-1 overflow-y-auto h-[calc(100%-4rem)]">
-          {sidebarItems.map(({ name, icon: Icon, href }) => (
-            <Link
-              key={name}
-              href={href}
-              className={`flex items-center px-3 py-2 rounded-md transition-colors duration-200 ${
-                isActive(href)
-                  ? "text-[#72a210] dark:text-[#a3e635] font-medium bg-gray-100 dark:bg-gray-800"
-                  : "text-gray-700 dark:text-gray-200 hover:bg-[#72a210] hover:text-white"
-              }`}
-              onClick={() => setSidebarOpen(false)}
-            >
-              <Icon className="w-5 h-5 mr-2" /> {name}
-            </Link>
-          ))}
+        {/* ── Nav Items ── */}
+        <nav className="flex-1 px-3 space-y-0 overflow-y-auto py-6">
+          {sidebarItems.map(({ name, icon: Icon, href }, index) => {
+            const active = isActive(href);
+            const accent = accentMap[name] ?? accentMap["Role Settings"];
 
-          {/* ✅ Logout */}
+            return (
+              <Link
+                key={name}
+                href={href}
+                onClick={() => setSidebarOpen(false)}
+                className={`nav-item group relative flex items-center gap-3 px-3 py-2 rounded-lg
+                            text-sm font-medium transition-all duration-200 border
+                            ${active
+                    ? "bg-gray-50 dark:bg-[#131b2b] border-gray-200/60 dark:border-white/[0.08] text-gray-900 dark:text-white"
+                    : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/[0.04] border-transparent"
+                  }`}
+                style={{ animationDelay: `${index * 45}ms` }}
+              >
+                {/* Icon well */}
+                <div
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0
+                              transition-all duration-200 group-hover:scale-105
+                              ${active ? accent.bg : "bg-gray-100/70 dark:bg-white/[0.04] group-hover:" + accent.bg}`}
+                >
+                  <Icon className={`w-4 h-4 transition-colors ${active ? accent.icon : "text-gray-400 dark:text-slate-500 group-hover:" + accent.icon}`} />
+                </div>
+
+                <span className="truncate">{name}</span>
+
+                {/* Active left bar */}
+                {active && (
+                  <span
+                    className={`absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full ${accent.bar}`}
+                  />
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* ── Fixed Red Logout Section at the Bottom ── */}
+        <div className="p-4 border-t border-gray-100 dark:border-white/[0.06] bg-white dark:bg-[#080d17] shrink-0">
           <button
             onClick={() => setShowLogoutConfirm(true)}
-            className="flex items-center w-full px-3 py-2 text-gray-700 dark:text-gray-200 hover:bg-[#72a210] hover:text-white transition-colors duration-200 rounded-md"
+            className="w-full group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 border border-transparent text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10"
           >
-            <LogOut className="w-5 h-5 mr-2" /> Logout
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-red-50 dark:bg-red-500/10 group-hover:bg-red-100 dark:group-hover:bg-red-500/20 transition-all duration-200">
+              <LogOut className="w-4 h-4 text-red-500 dark:text-red-400" />
+            </div>
+            <span className="truncate text-left">Logout My Account</span>
           </button>
-        </nav>
+        </div>
       </aside>
 
-      {/* ✅ Logout Confirmation Modal */}
+      {/* ── Logout Confirmation Modal ── */}
       {showLogoutConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-80 p-6 text-center">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+        <div className="fixed inset-0 z-110 flex items-center justify-center bg-black/40 backdrop-blur-sm sidebar-root">
+          <div className="bg-white dark:bg-[#0f1623] border border-gray-100 dark:border-white/[0.06] rounded-2xl shadow-xl w-80 p-6 text-center animate-in fade-in zoom-in-95 duration-150">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
               Confirm Logout
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-sm text-gray-500 dark:text-slate-400 mb-6">
               Are you sure you want to log out of your account?
             </p>
-            <div className="flex justify-center space-x-4">
+            <div className="flex justify-center space-x-3">
               <button
                 onClick={() => setShowLogoutConfirm(false)}
-                className="px-4 py-2 rounded-md bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+                className="px-4 py-2 rounded-xl text-sm font-medium bg-gray-100 dark:bg-white/[0.05] text-gray-700 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-white/[0.08] transition"
               >
                 Cancel
               </button>
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 rounded-md bg-[#72a210] hover:bg-[#507800] text-white transition"
+                className="px-4 py-2 rounded-xl text-sm font-medium bg-red-600 hover:bg-red-700 text-white transition shadow-sm shadow-red-600/10"
               >
                 Logout
               </button>

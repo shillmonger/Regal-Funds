@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
-import { Wallet, Link as LinkIcon, Check, Copy, ExternalLink, ShieldCheck } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Wallet, Link as LinkIcon, Check, Copy, ExternalLink, ShieldCheck, Clock, X } from "lucide-react";
 import UserHeader from "@/components/ui/user-header";
 import UserSidebar from "@/components/ui/user-sidebar";
 import UserNav from "@/components/ui/user-nav";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 interface Wallet {
   id: string;
@@ -15,6 +16,7 @@ interface Wallet {
   connected: boolean;
   address?: string;
   color: string;
+  status?: 'pending' | 'approved' | 'rejected';
 }
 
 const mockWallets: Wallet[] = [
@@ -65,13 +67,50 @@ const mockWallets: Wallet[] = [
   },
 ];
 export default function LinkWalletPage() {
+  const { data: session } = useSession();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [wallets, setWallets] = useState<Wallet[]>(mockWallets);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchSeedphrases = async () => {
+      if (!session?.user?.id) return;
+      
+      try {
+        setLoading(true);
+        const res = await fetch('/api/seedphrases');
+        if (res.ok) {
+          const data = await res.json();
+          const seedphrases = data.seedphrases || [];
+          
+          // Map seedphrase status to wallets
+          const walletStatusMap = new Map<string, 'pending' | 'approved' | 'rejected'>();
+          seedphrases.forEach((sp: any) => {
+            walletStatusMap.set(sp.walletType, sp.status);
+          });
+          
+          setWallets(prevWallets =>
+            prevWallets.map(wallet => ({
+              ...wallet,
+              status: walletStatusMap.get(wallet.id),
+              connected: walletStatusMap.get(wallet.id) === 'approved'
+            }))
+          );
+        }
+      } catch (error) {
+        console.error('Error fetching seedphrases:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSeedphrases();
+  }, [session?.user?.id]);
 
   const handleDisconnect = (walletId: string) => {
     setWallets(wallets.map(w => 
       w.id === walletId 
-        ? { ...w, connected: false, address: undefined }
+        ? { ...w, connected: false, address: undefined, status: undefined }
         : w
     ));
   };
@@ -176,10 +215,23 @@ export default function LinkWalletPage() {
                   ) : null}
 
                   {/* Action Button */}
-                  {wallet.connected ? (
+                  {wallet.status === 'approved' ? (
                     <button className="w-full py-3 bg-emerald-500/10 cursor-pointer text-emerald-600 dark:text-emerald-400 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2">
                       <Check className="w-4 h-4" />
                       Connected
+                    </button>
+                  ) : wallet.status === 'rejected' ? (
+                    <Link
+                      href={`/user-dashboard/link-wallet/${wallet.id}`}
+                      className="w-full py-3 bg-[#229ED9] cursor-pointer hover:bg-[#1a7ab8] text-white rounded-xl text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-colors"
+                    >
+                      <LinkIcon className="w-4 h-4" />
+                      Connect Wallet
+                    </Link>
+                  ) : wallet.status === 'pending' ? (
+                    <button className="w-full py-3 bg-yellow-500/10 cursor-pointer text-yellow-600 dark:text-yellow-400 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2">
+                      <Clock className="w-4 h-4" />
+                      Pending
                     </button>
                   ) : (
                     <Link
