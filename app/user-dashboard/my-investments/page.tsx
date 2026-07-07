@@ -286,7 +286,7 @@ function InvestmentCard({ inv, index, onDelete, onRefresh }: { inv: Investment; 
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-500 p-4">
           <div className="bg-white dark:bg-[#0f1623] border border-gray-200/80 dark:border-white/[0.06] rounded-2xl p-6 max-w-md w-full shadow-2xl">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-red-500/10 rounded-lg">

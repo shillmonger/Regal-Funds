@@ -13,6 +13,7 @@ import {
   Users,
   Wallet,
   Clock,
+  ArrowRightLeft,
   Settings,
   LogOut,
   BarChart3,
@@ -25,26 +26,27 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { name: "Dashboard",        icon: Home,           href: "/user-dashboard/dashboard"       },
-  { name: "Choose Plan",      icon: BarChart3,         href: "/user-dashboard/plan-details"    },
-  { name: "My Investments",   icon: Layers,         href: "/user-dashboard/my-investments"  },
-  { name: "Connect Wallet",   icon: Wallet,         href: "/user-dashboard/connect-wallet"  },
-  { name: "Referral Program", icon: Users,          href: "/user-dashboard/referrals"       },
-  { name: "Overall History",  icon: Clock,          href: "/user-dashboard/histery"         },
-  { name: "Withdraw Funds",   icon: ArrowDownCircle,href: "/user-dashboard/withdrawals"     },
-  { name: "Account Settings", icon: Settings,       href: "/user-dashboard/settings"        },
+  { name: "Dashboard", icon: Home, href: "/user-dashboard/dashboard" },
+  { name: "Choose Plan", icon: BarChart3, href: "/user-dashboard/plan-details" },
+  { name: "My Investments", icon: Layers, href: "/user-dashboard/my-investments" },
+  { name: "Connect Wallet", icon: Wallet, href: "/user-dashboard/connect-wallet" },
+  { name: "Link Your Wallet", icon: ArrowRightLeft, href: "/user-dashboard/link-wallet" },
+  { name: "Referral Program", icon: Users, href: "/user-dashboard/referrals" },
+  { name: "Overall History", icon: Clock, href: "/user-dashboard/histery" },
+  { name: "Withdraw Funds", icon: ArrowDownCircle, href: "/user-dashboard/withdrawals" },
+  { name: "Account Settings", icon: Settings, href: "/user-dashboard/settings" },
 ];
 
 // Dual-theme context-aware safe values
 const accentMap: Record<string, { icon: string; bg: string; bar: string }> = {
-  "Dashboard":        { icon: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-500/10", bar: "bg-emerald-500 dark:bg-emerald-400" },
-  "Choose Plan":      { icon: "text-violet-600 dark:text-violet-400",   bg: "bg-violet-50 dark:bg-violet-500/10",   bar: "bg-violet-500 dark:bg-violet-400"   },
-  "Connect Wallet":   { icon: "text-sky-600 dark:text-sky-400",        bg: "bg-sky-50 dark:bg-sky-500/10",         bar: "bg-sky-500 dark:bg-sky-400"         },
-  "Referral Program": { icon: "text-amber-600 dark:text-amber-400",   bg: "bg-amber-50 dark:bg-amber-500/10",     bar: "bg-amber-500 dark:bg-amber-400"     },
-  "Overall History":  { icon: "text-sky-600 dark:text-sky-400",        bg: "bg-sky-50 dark:bg-sky-500/10",         bar: "bg-sky-500 dark:bg-sky-400"         },
-  "Withdraw Funds":   { icon: "text-rose-600 dark:text-rose-400",       bg: "bg-rose-50 dark:bg-rose-500/10",       bar: "bg-rose-500 dark:bg-rose-400"       },
-  "Account Settings": { icon: "text-slate-600 dark:text-slate-400",     bg: "bg-slate-100 dark:bg-slate-500/10",    bar: "bg-slate-500 dark:bg-slate-400"     },
-  "Switch to Admin":  { icon: "text-amber-600 dark:text-amber-400",   bg: "bg-amber-50 dark:bg-amber-500/10",     bar: "bg-amber-500 dark:bg-amber-400"     },
+  "Dashboard": { icon: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-500/10", bar: "bg-emerald-500 dark:bg-emerald-400" },
+  "Choose Plan": { icon: "text-violet-600 dark:text-violet-400", bg: "bg-violet-50 dark:bg-violet-500/10", bar: "bg-violet-500 dark:bg-violet-400" },
+  "Connect Wallet": { icon: "text-sky-600 dark:text-sky-400", bg: "bg-sky-50 dark:bg-sky-500/10", bar: "bg-sky-500 dark:bg-sky-400" },
+  "Referral Program": { icon: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-500/10", bar: "bg-amber-500 dark:bg-amber-400" },
+  "Overall History": { icon: "text-sky-600 dark:text-sky-400", bg: "bg-sky-50 dark:bg-sky-500/10", bar: "bg-sky-500 dark:bg-sky-400" },
+  "Withdraw Funds": { icon: "text-rose-600 dark:text-rose-400", bg: "bg-rose-50 dark:bg-rose-500/10", bar: "bg-rose-500 dark:bg-rose-400" },
+  "Account Settings": { icon: "text-slate-600 dark:text-slate-400", bg: "bg-slate-100 dark:bg-slate-500/10", bar: "bg-slate-500 dark:bg-slate-400" },
+  "Switch to Admin": { icon: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-500/10", bar: "bg-amber-500 dark:bg-amber-400" },
 };
 
 export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
@@ -150,9 +152,9 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
                 className={`nav-item group relative flex items-center gap-3 px-3 py-2 rounded-lg
                             text-sm font-medium transition-all duration-200 border
                             ${active
-                              ? "bg-gray-50 dark:bg-[#131b2b] border-gray-200/60 dark:border-white/[0.08] text-gray-900 dark:text-white"
-                              : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/[0.04] border-transparent"
-                            }`}
+                    ? "bg-gray-50 dark:bg-[#131b2b] border-gray-200/60 dark:border-white/[0.08] text-gray-900 dark:text-white"
+                    : "text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/[0.04] border-transparent"
+                  }`}
                 style={{ animationDelay: `${index * 45}ms` }}
               >
                 {/* Icon well */}
