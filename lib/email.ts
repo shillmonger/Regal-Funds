@@ -1,6 +1,14 @@
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST,
+  port: Number(process.env.EMAIL_PORT) || 465,
+  secure: true,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 interface SendPaymentApprovalEmailParams {
   to: string;
@@ -20,7 +28,7 @@ async function sendPaymentApprovalEmail({
   adminNote,
 }: SendPaymentApprovalEmailParams) {
   try {
-    const from = process.env.RESEND_FROM_EMAIL || 'Regal Investment <onboarding@resend.dev>';
+    const from = process.env.EMAIL_FROM || 'Regal Investment <regalinvestment358@gmail.com>';
     const amountFormatted = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -84,7 +92,7 @@ async function sendPaymentApprovalEmail({
       </div>
     `;
 
-    const data = await resend.emails.send({
+    const data = await transporter.sendMail({
       from,
       to,
       subject: `Payment ${statusText} - ${amountFormatted} - ${planName}`,
@@ -122,7 +130,7 @@ async function sendPaymentSubmittedToAdmin({
   notes,
 }: SendPaymentSubmittedToAdminParams) {
   try {
-    const from = process.env.RESEND_FROM_EMAIL || 'Regal Investment <onboarding@resend.dev>';
+    const from = process.env.EMAIL_FROM || 'Regal Investment <regalinvestment358@gmail.com>';
     const amountFormatted = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -167,7 +175,7 @@ async function sendPaymentSubmittedToAdmin({
       </div>
     `;
 
-    const data = await resend.emails.send({
+    const data = await transporter.sendMail({
       from,
       to,
       subject: `New Payment Proof - ${amountFormatted} - ${planName}`,
@@ -191,7 +199,7 @@ async function sendWelcomeEmail({
   userName,
 }: SendWelcomeEmailParams) {
   try {
-    const from = process.env.RESEND_FROM_EMAIL || 'Regal Investment <onboarding@resend.dev>';
+    const from = process.env.EMAIL_FROM || 'Regal Investment <regalinvestment358@gmail.com>';
 
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -227,7 +235,7 @@ async function sendWelcomeEmail({
       </div>
     `;
 
-    const data = await resend.emails.send({
+    const data = await transporter.sendMail({
       from,
       to,
       subject: 'Welcome to Regal Investment!',
@@ -259,7 +267,7 @@ async function sendWithdrawalSubmittedToAdmin({
   walletAddress,
 }: SendWithdrawalSubmittedToAdminParams) {
   try {
-    const from = process.env.RESEND_FROM_EMAIL || 'Regal Investment <onboarding@resend.dev>';
+    const from = process.env.EMAIL_FROM || 'Regal Investment <regalinvestment358@gmail.com>';
     const amountFormatted = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -300,7 +308,7 @@ async function sendWithdrawalSubmittedToAdmin({
       </div>
     `;
 
-    const data = await resend.emails.send({
+    const data = await transporter.sendMail({
       from,
       to,
       subject: `New Withdrawal Request - ${amountFormatted} ${crypto}`,
@@ -334,7 +342,7 @@ async function sendWithdrawalStatusUpdate({
   crypto = 'USDT'
 }: SendWithdrawalStatusUpdateParams) {
   try {
-    const from = process.env.RESEND_FROM_EMAIL || 'Regal Investment <onboarding@resend.dev>';
+    const from = process.env.EMAIL_FROM || 'Regal Investment <regalinvestment358@gmail.com>';
     const amountFormatted = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -383,7 +391,7 @@ async function sendWithdrawalStatusUpdate({
       </div>
     `;
 
-    const data = await resend.emails.send({
+    const data = await transporter.sendMail({
       from,
       to,
       subject: `Withdrawal ${statusText} - ${amountFormatted} ${crypto}`,

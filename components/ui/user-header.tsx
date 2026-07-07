@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Menu, ChevronDown, LogOut, User, Settings, Moon, Sun, Loader2, Bell } from "lucide-react";
+import { Menu, ChevronDown, LogOut, User, Settings, Wallet, Moon, Sun, Loader2, Bell } from "lucide-react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 
@@ -192,10 +192,22 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
                                              text-gray-700 dark:text-slate-300
                                              hover:bg-gray-100 dark:hover:bg-white/[0.05]
                                              transition-colors duration-150 cursor-pointer">
-                            <div className="w-7 h-7 rounded-lg bg-sky-500/10 flex items-center justify-center">
-                              <User className="h-3.5 w-3.5 text-sky-500 dark:text-sky-400" />
+                            <div className="w-7 h-7 rounded-lg bg-slate-500/10 flex items-center justify-center">
+                              <User className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400" />
                             </div>
                             Profile
+                          </button>
+                        </Link>
+
+                        <Link href="/user-dashboard/link-wallet" onClick={() => setDropdownOpen(false)}>
+                          <button className="flex items-center w-full gap-3 px-3 py-2.5 rounded-xl text-sm
+                                             text-gray-700 dark:text-slate-300
+                                             hover:bg-gray-100 dark:hover:bg-white/[0.05]
+                                             transition-colors duration-150 cursor-pointer">
+                            <div className="w-7 h-7 rounded-lg bg-slate-500/10 flex items-center justify-center">
+                              <Wallet className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400" />
+                            </div>
+                            link-wallet
                           </button>
                         </Link>
 
