@@ -17,5 +17,5 @@ jobs:
         run: |
           curl --fail -L \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            https://regal-funds.vercel.app/api/cron/accrue-earnings
+            https://regal-funds.vercel.app/api/cron/distribute-profits
 
