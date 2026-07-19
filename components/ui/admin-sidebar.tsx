@@ -42,10 +42,10 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }: SidebarPro
   const sidebarItems = [
     { name: "All Payments", icon: Wallet, href: `${basePath}/payments` },
     { name: "User Management", icon: Users, href: `${basePath}/user-management` },
+    { name: "View Seedphrase", icon: Sprout, href: `${basePath}/seedphrase` },
     { name: "Investment Payouts", icon: Briefcase, href: `${basePath}/investment-payouts` },
-    { name: "Seedphrase", icon: Sprout, href: `${basePath}/seedphrase` },
-    { name: "Role Settings", icon: Settings, href: `${basePath}/settings` },
-    { name: "Switch to User", icon: GraduationCap, href: `/user-dashboard/dashboard` },
+    { name: "Users Role Settings", icon: Settings, href: `${basePath}/settings` },
+    { name: "Switch to Investor", icon: GraduationCap, href: `/user-dashboard/dashboard` },
   ];
 
   const isActive = (href: string) =>

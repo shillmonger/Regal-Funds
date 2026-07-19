@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Montserrat } from "next/font/google";
+import { useEffect } from "react";
 import {
   Youtube,
   Twitter,
@@ -19,6 +20,45 @@ const montserrat = Montserrat({
 });
 
 export default function Footer() {
+  // Inject GTranslate and Tawk.to scripts once on mount
+  useEffect(() => {
+    // ===== GTranslate =====
+    const existingGTranslate = document.querySelector(
+      'script[src="https://cdn.gtranslate.net/widgets/latest/float.js"]'
+    );
+    if (!existingGTranslate) {
+      (window as any).gtranslateSettings = {
+        default_language: "en",
+        native_language_names: true,
+        detect_browser_language: true,
+        languages: [
+          "en", "fr", "es", "de", "zh-CN", "ja", "ar", "ru", "pt", "it"
+        ],
+        wrapper_selector: ".gtranslate_wrapper",
+        alt_flags: { en: "usa" },
+      };
+
+      const gScript = document.createElement("script");
+      gScript.src = "https://cdn.gtranslate.net/widgets/latest/float.js";
+      gScript.defer = true;
+      document.body.appendChild(gScript);
+    }
+
+    // ===== Tawk.to =====
+    const existingTawk = document.querySelector(
+      'script[src^="https://embed.tawk.to/68f41472bc86f3194d62e65f"]'
+    );
+    if (!existingTawk) {
+      const s1 = document.createElement("script");
+      const s0 = document.getElementsByTagName("script")[0];
+      s1.async = true;
+      s1.src = "https://embed.tawk.to/68f41472bc86f3194d62e65f/1j7smvodk";
+      s1.charset = "UTF-8";
+      s1.setAttribute("crossorigin", "*");
+      s0.parentNode?.insertBefore(s1, s0);
+    }
+  }, []);
+
   const socialLinks = [
     { name: "Telegram", icon: <Send size={20} />, href: "https://t.me/+cX9cZuER651hOGZk" },
     { name: "SiWhatsapp", icon: <SiWhatsapp size={20} />, href: "https://wa.me/43688879937235" },
@@ -133,9 +173,14 @@ export default function Footer() {
           <p>© {new Date().getFullYear()} Regal Funds Management — Alternative Investment Excellence.</p>
         </div>
         <p className="italic text-xs text-center md:text-right max-w-md opacity-60">
-          All investments carry risk. Regal Funds Management is a licensed investment manager. 
+          All investments carry risk. Regal Funds Management is a licensed investment manager.
           Use of this site constitutes acceptance of our Risk Disclosure.
         </p>
+      </div>
+
+      {/* GTranslate Widget (bottom-left corner) */}
+      <div className="fixed bottom-6 left-6 z-50 bg-[#373E50] border border-gray-600 rounded-md shadow-md p-2">
+        <div className="gtranslate_wrapper"></div>
       </div>
 
     </footer>

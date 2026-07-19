@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   },
 };
 
-// ✅ Root Layout
+// Root Layout
 export default function RootLayout({
   children,
 }: {
@@ -50,12 +50,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
-          {/* ⚡ Suspense prevents build-time errors for useSearchParams() & dynamic hooks */}
+          {/*Suspense prevents build-time errors for useSearchParams() & dynamic hooks */}
           <Suspense fallback={<div className="p-6 text-center text-gray-400">Loading...</div>}>
             {children}
           </Suspense>
 
-          {/* 🔔 Toast notifications */}
+          {/*Toast notifications */}
           <Toaster position="top-right" richColors />
         </Providers>
       </body>
