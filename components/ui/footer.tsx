@@ -46,13 +46,13 @@ export default function Footer() {
 
     // ===== Tawk.to =====
     const existingTawk = document.querySelector(
-      'script[src^="https://embed.tawk.to/68f41472bc86f3194d62e65f"]'
+      'script[src^="https://embed.tawk.to/6a5d0489096ab21d402a81a6"]'
     );
     if (!existingTawk) {
       const s1 = document.createElement("script");
       const s0 = document.getElementsByTagName("script")[0];
       s1.async = true;
-      s1.src = "https://embed.tawk.to/68f41472bc86f3194d62e65f/1j7smvodk";
+      s1.src = "https://embed.tawk.to/6a5d0489096ab21d402a81a6/1jttljesl";
       s1.charset = "UTF-8";
       s1.setAttribute("crossorigin", "*");
       s0.parentNode?.insertBefore(s1, s0);
