@@ -110,31 +110,42 @@ export async function PATCH(
         firstPayoutDate: null as string | null // Track when first 10% is added
       };
       await db.collection("investments").insertOne(investmentDoc);
-      // Only add the initial investment amount to user's balance
-      await db.collection("users").updateOne(
-        { _id: new ObjectId(payment.userId) },
-        { $inc: { balance: payment.amount, totalInvested: payment.amount } }
-      );
+      
+      // For reinvestments, deduct from balance instead of adding
+      if ((payment as any).isReinvestment) {
+        await db.collection("users").updateOne(
+          { _id: new ObjectId(payment.userId) },
+          { $inc: { balance: -payment.amount } }
+        );
+      } else {
+        // For regular investments, add to balance and totalInvested
+        await db.collection("users").updateOne(
+          { _id: new ObjectId(payment.userId) },
+          { $inc: { balance: payment.amount, totalInvested: payment.amount } }
+        );
+      }
 
-      // Referral bonus: award $10 to referrer on first approved investment
-      const referredUser = await db.collection("users").findOne({ _id: new ObjectId(payment.userId) });
-      const referrerId = (referredUser as any)?.referredBy as string | undefined;
-      if (referrerId) {
-        // ensure not already rewarded for this referred user
-        const existing = await db.collection("referral_payouts").findOne({ referredUserId: payment.userId });
-        if (!existing && Number(payment.amount) >= 100) {
-          const bonus = 10;
-          await db.collection("referral_payouts").insertOne({
-            referrerId,
-            referredUserId: payment.userId,
-            amount: bonus,
-            createdAt: now.toISOString(),
-            type: "referral_bonus",
-          });
-          await db.collection("users").updateOne(
-            { _id: new ObjectId(referrerId) },
-            { $inc: { balance: bonus, totalEarnings: bonus } }
-          );
+      // Referral bonus: award $10 to referrer on first approved investment (skip for reinvestments)
+      if (!(payment as any).isReinvestment) {
+        const referredUser = await db.collection("users").findOne({ _id: new ObjectId(payment.userId) });
+        const referrerId = (referredUser as any)?.referredBy as string | undefined;
+        if (referrerId) {
+          // ensure not already rewarded for this referred user
+          const existing = await db.collection("referral_payouts").findOne({ referredUserId: payment.userId });
+          if (!existing && Number(payment.amount) >= 100) {
+            const bonus = 10;
+            await db.collection("referral_payouts").insertOne({
+              referrerId,
+              referredUserId: payment.userId,
+              amount: bonus,
+              createdAt: now.toISOString(),
+              type: "referral_bonus",
+            });
+            await db.collection("users").updateOne(
+              { _id: new ObjectId(referrerId) },
+              { $inc: { balance: bonus, totalEarnings: bonus } }
+            );
+          }
         }
       }
     }

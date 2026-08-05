@@ -24,8 +24,6 @@ import UserSidebar from "@/components/ui/user-sidebar";
 import UserNav from "@/components/ui/user-nav";
 import { InvestmentSlidePanel } from "@/components/user-dashboard/InvestmentSlidePanel";
 
-import Link from "next/link";
-
 // ─── Image Constants ───────────────────────────────────────────────────────
 const IMAGES = [
   "https://i.postimg.cc/gkW8VrZk/Banner-1.jpg",
@@ -89,8 +87,11 @@ function InvestmentCard({ inv, index, onDelete, onRefresh }: { inv: Investment; 
   const [showDetails, setShowDetails] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showReinvestModal, setShowReinvestModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isResuming, setIsResuming] = useState(false);
+  const [isReinvesting, setIsReinvesting] = useState(false);
+  const [reinvestAmount, setReinvestAmount] = useState("");
 
   // Check if investment is outdated (stopped adding ROI before completion)
   const isOutdated = () => {
@@ -173,6 +174,43 @@ function InvestmentCard({ inv, index, onDelete, onRefresh }: { inv: Investment; 
       toast.error('An error occurred while resuming the investment');
     } finally {
       setIsResuming(false);
+    }
+  };
+
+  const handleReinvest = async () => {
+    const amount = parseFloat(reinvestAmount);
+    if (!amount || isNaN(amount) || amount <= 0) {
+      toast.error('Please enter a valid amount');
+      return;
+    }
+
+    setIsReinvesting(true);
+    try {
+      const response = await fetch('/api/investments/reinvest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount,
+          originalInvestmentId: inv._id,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        toast.success('Reinvestment submitted successfully');
+        setShowReinvestModal(false);
+        setReinvestAmount('');
+        // Refresh the investments to show the new reinvestment
+        onRefresh();
+      } else {
+        const data = await response.json();
+        toast.error(data.error || 'Failed to submit reinvestment');
+      }
+    } catch (error) {
+      console.error('Error submitting reinvestment:', error);
+      toast.error('An error occurred while submitting reinvestment');
+    } finally {
+      setIsReinvesting(false);
     }
   };
 
@@ -264,15 +302,15 @@ function InvestmentCard({ inv, index, onDelete, onRefresh }: { inv: Investment; 
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Link
-            href={`/user-dashboard/plan-details/${inv.planId}?amount=${inv.amount}`}
+          <button
+            onClick={() => setShowReinvestModal(true)}
             className="cursor-pointer flex-1 bg-[#448D96] text-white hover:bg-[#3a7d85] rounded-lg transition-all flex items-center justify-center gap-2 h-10 w-10 sm:h-auto sm:w-auto sm:px-4 py-3"
           >
             <PlusCircle className="w-4 h-4 shrink-0" />
             <span className="text-[10px] font-black uppercase tracking-widest">
               Reinvest
             </span>
-          </Link>
+          </button>
           <button
             onClick={() => setShowDeleteModal(true)}
             className="cursor-pointer px-3 bg-gray-200 dark:bg-white/[0.08] hover:bg-gray-300 dark:hover:bg-white/[0.12] text-gray-900 dark:text-white py-3 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
@@ -372,6 +410,71 @@ function InvestmentCard({ inv, index, onDelete, onRefresh }: { inv: Investment; 
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Reinvestment Modal */}
+      {showReinvestModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-500 p-4">
+          <div className="bg-white dark:bg-[#0f1623] border border-gray-200/80 dark:border-white/[0.06] rounded-2xl p-6 max-w-md w-full shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-[#448D96]/10 rounded-lg">
+                <PlusCircle className="w-5 h-5 text-[#448D96]" />
+              </div>
+              <h3 className="text-lg font-black uppercase tracking-tighter text-gray-900 dark:text-white">
+                Reinvest
+              </h3>
+            </div>
+
+            <p className="text-sm text-gray-500 dark:text-slate-500 mb-6">
+              Enter the amount you want to reinvest. This will create a new investment with status "Pending" and plan name "Reinvestments".
+            </p>
+
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-slate-600 block mb-2">
+                  Reinvestment Amount ($)
+                </label>
+                <input
+                  type="number"
+                  value={reinvestAmount}
+                  onChange={(e) => setReinvestAmount(e.target.value)}
+                  placeholder="Enter amount"
+                  className="w-full px-4 py-3 bg-gray-100 dark:bg-white/[0.08] border border-gray-200 dark:border-white/[0.06] rounded-lg text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#448D96] focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowReinvestModal(false);
+                  setReinvestAmount('');
+                }}
+                disabled={isReinvesting}
+                className="flex-1 bg-gray-100 dark:bg-white/[0.08] hover:bg-gray-200 dark:hover:bg-white/[0.12] text-gray-900 dark:text-white py-3 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleReinvest}
+                disabled={isReinvesting}
+                className="flex-1 bg-[#448D96] hover:bg-[#3a7d85] text-white py-3 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isReinvesting ? (
+                  <>
+                    <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    <PlusCircle className="w-3.5 h-3.5" />
+                    Submit
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}
