@@ -11,6 +11,7 @@ import {
   GraduationCap,
   Briefcase,
   Wallet,
+  Mail,
   X,
 } from "lucide-react";
 
@@ -44,7 +45,8 @@ export default function AdminSidebar({ sidebarOpen, setSidebarOpen }: SidebarPro
     { name: "User Management", icon: Users, href: `${basePath}/user-management` },
     { name: "View Seedphrase", icon: Sprout, href: `${basePath}/seedphrase` },
     { name: "Investment Payouts", icon: Briefcase, href: `${basePath}/investment-payouts` },
-    { name: "Users Role Settings", icon: Settings, href: `${basePath}/settings` },
+    { name: "Role Settings", icon: Settings, href: `${basePath}/settings` },
+    { name: "Mail users", icon: Mail, href: `${basePath}/mail-users` },
     { name: "Switch to Investor", icon: GraduationCap, href: `/user-dashboard/dashboard` },
   ];
 
