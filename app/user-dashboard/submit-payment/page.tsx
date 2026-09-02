@@ -225,7 +225,7 @@ function PaymentFormContent() {
 
           <CardContent className="p-6 space-y-6">
             {/* Stats Matrix Grid Layout */}
-            <div className="grid grid-cols-3 gap-3.5">
+            <div className="grid grid-cols-2 gap-3.5">
               <div className="flex flex-col items-center justify-center p-3.5 bg-gray-50 dark:bg-white/[0.01] border border-gray-100 dark:border-white/[0.04] rounded-xl text-center">
                 <DollarSign className={`w-4 h-4 ${colors.text} mb-1`} />
                 <span className="font-bold text-gray-900 dark:text-white text-base">
@@ -233,11 +233,11 @@ function PaymentFormContent() {
                 </span>
                 <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400 dark:text-slate-500">Order Amount</p>
               </div>
-              <div className="flex flex-col items-center justify-center p-3.5 bg-gray-50 dark:bg-white/[0.01] border border-gray-100 dark:border-white/[0.04] rounded-xl text-center">
+              {/* <div className="flex flex-col items-center justify-center p-3.5 bg-gray-50 dark:bg-white/[0.01] border border-gray-100 dark:border-white/[0.04] rounded-xl text-center">
                 <Clock className={`w-4 h-4 ${colors.text} mb-1`} />
                 <span className="font-bold text-gray-900 dark:text-white text-base">{selectedPlan.duration} Days</span>
                 <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400 dark:text-slate-500">Duration</p>
-              </div>
+              </div> */}
               <div className="flex flex-col items-center justify-center p-3.5 bg-gray-50 dark:bg-white/[0.01] border border-gray-100 dark:border-white/[0.04] rounded-xl text-center">
                 <CheckCircle className={`w-4 h-4 ${colors.text} mb-1`} />
                 <span className="font-bold text-gray-900 dark:text-white text-base">{selectedPlan.roi}%</span>
