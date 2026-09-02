@@ -255,12 +255,13 @@ export default function InvestmentPlansPage() {
                         {matchingTier ? `${matchingTier.roi}%` : "-"}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-white/[0.01] border border-gray-100 dark:border-white/[0.04] rounded-xl">
+                    {/* Duration field hidden from UI as requested - functionality kept intact */}
+                    {/* <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-white/[0.01] border border-gray-100 dark:border-white/[0.04] rounded-xl">
                       <span className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">Dur</span>
                       <span className="text-sm font-bold text-gray-800 dark:text-slate-200">
                         {matchingTier ? `${matchingTier.duration} Days` : "-"}
                       </span>
-                    </div>
+                    </div> */}
                   </div>
                 )}
 
