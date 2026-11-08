@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Montserrat } from "next/font/google";
+import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import {
   Youtube,
@@ -19,7 +20,75 @@ const montserrat = Montserrat({
   weight: ["700", "800", "900"],
 });
 
+const TAWK_EMBED_SRC =
+  "https://embed.tawk.to/6a5d0489096ab21d402a81a6/1jttljesl";
+const TAWK_SCRIPT_SELECTOR =
+  'script[src^="https://embed.tawk.to/6a5d0489096ab21d402a81a6"]';
+
+// Module-level state survives Footer remounts (the Footer is imported per-page,
+// so Next.js remounts it on every client-side navigation between public pages).
+let tawkReady = false;
+let tawkOnLoadInstalled = false;
+const tawkQueue: Array<() => void> = [];
+let lastTrackedUrl: string | null = null;
+
+function ensureTawkApi() {
+  const w = window as any;
+  w.Tawk_API = w.Tawk_API || {};
+  w.Tawk_LoadStart = w.Tawk_LoadStart || new Date();
+  return w.Tawk_API;
+}
+
+// Runs a Tawk action immediately if the widget is loaded, otherwise queues it so
+// navigation events fired before the async embed script finishes are not lost.
+function enqueueTawkAction(action: () => void) {
+  if (typeof window === "undefined") return;
+  const api = ensureTawkApi();
+
+  if (tawkReady) {
+    try {
+      action();
+    } catch (err) {
+      console.error("[Tawk] action failed:", err);
+    }
+    return;
+  }
+
+  tawkQueue.push(action);
+
+  if (!tawkOnLoadInstalled) {
+    tawkOnLoadInstalled = true;
+    const previousOnLoad = api.onLoad;
+    api.onLoad = () => {
+      tawkReady = true;
+      const queued = tawkQueue.splice(0);
+      queued.forEach((fn) => {
+        try {
+          fn();
+        } catch (err) {
+          console.error("[Tawk] queued action failed:", err);
+        }
+      });
+      if (typeof previousOnLoad === "function") previousOnLoad();
+    };
+  }
+}
+
+function injectTawkScript() {
+  if (document.querySelector(TAWK_SCRIPT_SELECTOR)) return;
+
+  const s1 = document.createElement("script");
+  const s0 = document.getElementsByTagName("script")[0];
+  s1.async = true;
+  s1.src = TAWK_EMBED_SRC;
+  s1.charset = "UTF-8";
+  s1.setAttribute("crossorigin", "*");
+  s0.parentNode?.insertBefore(s1, s0);
+}
+
 export default function Footer() {
+  const pathname = usePathname();
+
   // Inject GTranslate and Tawk.to scripts once on mount
   useEffect(() => {
     // ===== GTranslate =====
@@ -45,19 +114,46 @@ export default function Footer() {
     }
 
     // ===== Tawk.to =====
-    const existingTawk = document.querySelector(
-      'script[src^="https://embed.tawk.to/6a5d0489096ab21d402a81a6"]'
-    );
-    if (!existingTawk) {
-      const s1 = document.createElement("script");
-      const s0 = document.getElementsByTagName("script")[0];
-      s1.async = true;
-      s1.src = "https://embed.tawk.to/6a5d0489096ab21d402a81a6/1jttljesl";
-      s1.charset = "UTF-8";
-      s1.setAttribute("crossorigin", "*");
-      s0.parentNode?.insertBefore(s1, s0);
-    }
+    ensureTawkApi();
+    injectTawkScript();
   }, []);
+
+  // Track initial visit and every client-side pathname change.
+  useEffect(() => {
+    const url = window.location.href;
+
+    // Dedupe: skip if this exact URL was already reported (e.g. Footer remount).
+    if (lastTrackedUrl === url) return;
+
+    const isInitial = lastTrackedUrl === null;
+    const fromUrl = lastTrackedUrl;
+    lastTrackedUrl = url;
+
+    enqueueTawkAction(() => {
+      const api = (window as any).Tawk_API;
+      api.setAttributes?.(
+        {
+          currentPage: pathname,
+          pageUrl: url,
+          pageTitle: document.title,
+        },
+        () => {}
+      );
+      if (isInitial) {
+        api.addEvent?.("Initial page visit", {
+          url,
+          path: pathname,
+          referrer: document.referrer || "",
+        });
+      } else {
+        api.addEvent?.("Page navigation", {
+          from: fromUrl ?? "",
+          to: url,
+          path: pathname,
+        });
+      }
+    });
+  }, [pathname]);
 
   const socialLinks = [
     { name: "Telegram", icon: <Send size={20} />, href: "https://t.me/+cX9cZuER651hOGZk" },

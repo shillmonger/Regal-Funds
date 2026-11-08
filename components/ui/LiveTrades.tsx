@@ -1,26 +1,251 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import {
-  TrendingUp,
-  TrendingDown,
-  Activity,
-  RefreshCw,
-  ArrowRight,
-} from "lucide-react";
+import React, { useState, useEffect, useCallback } from "react";
+import { TrendingUp, TrendingDown } from "lucide-react";
 
 // Market Data Interface
-interface MarketData {
+interface PairDef {
   symbol: string;
   name: string;
-  price: number;
-  change: number;
-  changePercent: number;
   type: "forex" | "crypto";
-  image?: string;
+  tvSymbol: string;
+  tvMarket: "crypto" | "forex" | "cfd";
   coinId?: string;
   baseFlag?: string;
   quoteFlag?: string;
+  yahooSymbol?: string;
+}
+
+interface MarketData extends PairDef {
+  price: number;
+  change: number;
+  changePercent: number;
+  image?: string;
+  sparkline: number[];
+}
+
+// 20 mixed pairs: crypto and forex alternated
+const PAIRS: PairDef[] = [
+  // Crypto
+  {
+    symbol: "BTC/USD",
+    name: "Bitcoin",
+    type: "crypto",
+    tvSymbol: "BINANCE:BTCUSDT",
+    tvMarket: "crypto",
+    coinId: "bitcoin",
+  },
+  // Forex
+  {
+    symbol: "XAUUSD",
+    name: "Gold vs US Dollar",
+    type: "forex",
+    tvSymbol: "TVC:GOLD",
+    tvMarket: "cfd",
+    yahooSymbol: "GC=F",
+  },
+  // Crypto
+  {
+    symbol: "ETH/USD",
+    name: "Ethereum",
+    type: "crypto",
+    tvSymbol: "BINANCE:ETHUSDT",
+    tvMarket: "crypto",
+    coinId: "ethereum",
+  },
+  // Forex
+  {
+    symbol: "EURUSD",
+    name: "Euro vs US Dollar",
+    type: "forex",
+    tvSymbol: "FX:EURUSD",
+    tvMarket: "forex",
+    baseFlag: "eu",
+    quoteFlag: "us",
+    yahooSymbol: "EURUSD=X",
+  },
+  // Crypto
+  {
+    symbol: "BNB/USD",
+    name: "Binance Coin",
+    type: "crypto",
+    tvSymbol: "BINANCE:BNBUSDT",
+    tvMarket: "crypto",
+    coinId: "binancecoin",
+  },
+  // Forex
+  {
+    symbol: "GBPUSD",
+    name: "British Pound vs US Dollar",
+    type: "forex",
+    tvSymbol: "FX:GBPUSD",
+    tvMarket: "forex",
+    baseFlag: "gb",
+    quoteFlag: "us",
+    yahooSymbol: "GBPUSD=X",
+  },
+  // Crypto
+  {
+    symbol: "SOL/USD",
+    name: "Solana",
+    type: "crypto",
+    tvSymbol: "BINANCE:SOLUSDT",
+    tvMarket: "crypto",
+    coinId: "solana",
+  },
+  // Forex
+  {
+    symbol: "USDJPY",
+    name: "US Dollar vs Japanese Yen",
+    type: "forex",
+    tvSymbol: "FX:USDJPY",
+    tvMarket: "forex",
+    baseFlag: "us",
+    quoteFlag: "jp",
+    yahooSymbol: "USDJPY=X",
+  },
+  // Crypto
+  {
+    symbol: "ADA/USD",
+    name: "Cardano",
+    type: "crypto",
+    tvSymbol: "BINANCE:ADAUSDT",
+    tvMarket: "crypto",
+    coinId: "cardano",
+  },
+  // Forex
+  {
+    symbol: "AUDUSD",
+    name: "Australian Dollar vs US Dollar",
+    type: "forex",
+    tvSymbol: "FX:AUDUSD",
+    tvMarket: "forex",
+    baseFlag: "au",
+    quoteFlag: "us",
+    yahooSymbol: "AUDUSD=X",
+  },
+  // Crypto
+  {
+    symbol: "XRP/USD",
+    name: "Ripple",
+    type: "crypto",
+    tvSymbol: "BINANCE:XRPUSDT",
+    tvMarket: "crypto",
+    coinId: "ripple",
+  },
+  // Forex
+  {
+    symbol: "USDCAD",
+    name: "US Dollar vs Canadian Dollar",
+    type: "forex",
+    tvSymbol: "FX:USDCAD",
+    tvMarket: "forex",
+    baseFlag: "us",
+    quoteFlag: "ca",
+    yahooSymbol: "USDCAD=X",
+  },
+  // Crypto
+  {
+    symbol: "DOGE/USD",
+    name: "Dogecoin",
+    type: "crypto",
+    tvSymbol: "BINANCE:DOGEUSDT",
+    tvMarket: "crypto",
+    coinId: "dogecoin",
+  },
+  // Forex
+  {
+    symbol: "NZDUSD",
+    name: "New Zealand Dollar vs US Dollar",
+    type: "forex",
+    tvSymbol: "FX:NZDUSD",
+    tvMarket: "forex",
+    baseFlag: "nz",
+    quoteFlag: "us",
+    yahooSymbol: "NZDUSD=X",
+  },
+  // Crypto
+  {
+    symbol: "DOT/USD",
+    name: "Polkadot",
+    type: "crypto",
+    tvSymbol: "BINANCE:DOTUSDT",
+    tvMarket: "crypto",
+    coinId: "polkadot",
+  },
+  // Forex
+  {
+    symbol: "USDCHF",
+    name: "US Dollar vs Swiss Franc",
+    type: "forex",
+    tvSymbol: "FX:USDCHF",
+    tvMarket: "forex",
+    baseFlag: "us",
+    quoteFlag: "ch",
+    yahooSymbol: "USDCHF=X",
+  },
+  // Crypto
+  {
+    symbol: "TRXUSDT",
+    name: "TRON",
+    type: "crypto",
+    tvSymbol: "BINANCE:TRXUSDT",
+    tvMarket: "crypto",
+    coinId: "tron",
+  },
+  // Forex
+  {
+    symbol: "EURGBP",
+    name: "Euro vs British Pound",
+    type: "forex",
+    tvSymbol: "FX:EURGBP",
+    tvMarket: "forex",
+    baseFlag: "eu",
+    quoteFlag: "gb",
+    yahooSymbol: "EURGBP=X",
+  },
+  // Crypto
+  {
+    symbol: "AVAX/USD",
+    name: "Avalanche",
+    type: "crypto",
+    tvSymbol: "BINANCE:AVAXUSDT",
+    tvMarket: "crypto",
+    coinId: "avalanche-2",
+  },
+  // Forex
+  {
+    symbol: "USDHKD",
+    name: "US Dollar vs Hong Kong Dollar",
+    type: "forex",
+    tvSymbol: "FX:USDHKD",
+    tvMarket: "forex",
+    baseFlag: "us",
+    quoteFlag: "hk",
+    yahooSymbol: "USDHKD=X",
+  },
+];
+
+const PRICE_POLL_MS = 20000;
+const SPARKLINE_POLL_MS = 10 * 60 * 1000;
+
+// Downsample a price series to at most ~60 points for rendering
+const sampleSeries = (data: number[], maxPoints = 60): number[] => {
+  const clean = data.filter((v) => typeof v === "number" && !Number.isNaN(v));
+  if (clean.length <= maxPoints) return clean;
+  const stride = Math.ceil(clean.length / maxPoints);
+  const sampled: number[] = [];
+  for (let i = 0; i < clean.length; i += stride) {
+    sampled.push(clean[i]);
+  }
+  sampled.push(clean[clean.length - 1]);
+  return sampled;
+};
+
+interface TvQuote {
+  close: number;
+  changeAbs: number;
+  changePct: number;
 }
 
 export default function LiveMarkets() {
@@ -29,345 +254,148 @@ export default function LiveMarkets() {
   const [formattedTime, setFormattedTime] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // 20 mixed pairs: crypto and forex alternated
-  const allPairs: MarketData[] = [
-    // Crypto
-    {
-      symbol: "BTC/USD",
-      name: "Bitcoin",
-      price: 67432.5,
-      change: 1234.5,
-      changePercent: 1.87,
-      type: "crypto",
-      coinId: "bitcoin",
-    },
-    // Forex
-    {
-      symbol: "XAUUSD",
-      name: "Gold vs US Dollar",
-      price: 2345.67,
-      change: 12.34,
-      changePercent: 0.53,
-      type: "forex",
-      baseFlag: "us",
-      quoteFlag: "us",
-    },
-    // Crypto
-    {
-      symbol: "ETH/USD",
-      name: "Ethereum",
-      price: 3456.78,
-      change: -45.22,
-      changePercent: -1.29,
-      type: "crypto",
-      coinId: "ethereum",
-    },
-    // Forex
-    {
-      symbol: "EURUSD",
-      name: "Euro vs US Dollar",
-      price: 1.0845,
-      change: 0.0023,
-      changePercent: 0.21,
-      type: "forex",
-      baseFlag: "eu",
-      quoteFlag: "us",
-    },
-    // Crypto
-    {
-      symbol: "BNB/USD",
-      name: "Binance Coin",
-      price: 578.92,
-      change: 12.45,
-      changePercent: 2.2,
-      type: "crypto",
-      coinId: "binancecoin",
-    },
-    // Forex
-    {
-      symbol: "GBPUSD",
-      name: "British Pound vs US Dollar",
-      price: 1.2723,
-      change: -0.0089,
-      changePercent: -0.70,
-      type: "forex",
-      baseFlag: "gb",
-      quoteFlag: "us",
-    },
-    // Crypto
-    {
-      symbol: "SOL/USD",
-      name: "Solana",
-      price: 178.92,
-      change: 8.45,
-      changePercent: 4.96,
-      type: "crypto",
-      coinId: "solana",
-    },
-    // Forex
-    {
-      symbol: "USDJPY",
-      name: "US Dollar vs Japanese Yen",
-      price: 149.87,
-      change: 0.45,
-      changePercent: 0.30,
-      type: "forex",
-      baseFlag: "us",
-      quoteFlag: "jp",
-    },
-    // Crypto
-    {
-      symbol: "ADA/USD",
-      name: "Cardano",
-      price: 0.623,
-      change: 0.012,
-      changePercent: 1.96,
-      type: "crypto",
-      coinId: "cardano",
-    },
-    // Forex
-    {
-      symbol: "AUDUSD",
-      name: "Australian Dollar vs US Dollar",
-      price: 0.6543,
-      change: -0.0034,
-      changePercent: -0.52,
-      type: "forex",
-      baseFlag: "au",
-      quoteFlag: "us",
-    },
-    // Crypto
-    {
-      symbol: "XRP/USD",
-      name: "Ripple",
-      price: 0.5234,
-      change: -0.0089,
-      changePercent: -1.67,
-      type: "crypto",
-      coinId: "ripple",
-    },
-    // Forex
-    {
-      symbol: "USDCAD",
-      name: "US Dollar vs Canadian Dollar",
-      price: 1.3654,
-      change: 0.0067,
-      changePercent: 0.49,
-      type: "forex",
-      baseFlag: "us",
-      quoteFlag: "ca",
-    },
-    // Crypto
-    {
-      symbol: "DOGE/USD",
-      name: "Dogecoin",
-      price: 0.1567,
-      change: 0.0034,
-      changePercent: 2.22,
-      type: "crypto",
-      coinId: "dogecoin",
-    },
-    // Forex
-    {
-      symbol: "NZDUSD",
-      name: "New Zealand Dollar vs US Dollar",
-      price: 0.6123,
-      change: 0.0012,
-      changePercent: 0.20,
-      type: "forex",
-      baseFlag: "nz",
-      quoteFlag: "us",
-    },
-    // Crypto
-    {
-      symbol: "DOT/USD",
-      name: "Polkadot",
-      price: 7.892,
-      change: -0.156,
-      changePercent: -1.94,
-      type: "crypto",
-      coinId: "polkadot",
-    },
-    // Forex
-    {
-      symbol: "USDCHF",
-      name: "US Dollar vs Swiss Franc",
-      price: 0.8976,
-      change: -0.0023,
-      changePercent: -0.26,
-      type: "forex",
-      baseFlag: "us",
-      quoteFlag: "ch",
-    },
-    // Crypto
-    {
-      symbol: "TRXUSDT",
-      name: "TRON",
-      price: 0.12,
-      change: 0.002,
-      changePercent: 1.69,
-      type: "crypto",
-      coinId: "tron",
-    },
-    // Forex
-    {
-      symbol: "EURGBP",
-      name: "Euro vs British Pound",
-      price: 0.8523,
-      change: 0.0015,
-      changePercent: 0.18,
-      type: "forex",
-      baseFlag: "eu",
-      quoteFlag: "gb",
-    },
-    // Crypto
-    {
-      symbol: "AVAX/USD",
-      name: "Avalanche",
-      price: 38.92,
-      change: 1.23,
-      changePercent: 3.27,
-      type: "crypto",
-      coinId: "avalanche-2",
-    },
-    // Forex
-    {
-      symbol: "USDHKD",
-      name: "US Dollar vs Hong Kong Dollar",
-      price: 7.8234,
-      change: -0.0012,
-      changePercent: -0.02,
-      type: "forex",
-      baseFlag: "us",
-      quoteFlag: "hk",
-    },
-  ];
+  // Fetch live prices + 24h change from TradingView Scanner API
+  const fetchPrices = useCallback(async () => {
+    const markets: Array<"crypto" | "forex" | "cfd"> = ["crypto", "forex", "cfd"];
+    const results = await Promise.allSettled(
+      markets.map((market) => {
+        const tickers = PAIRS.filter((p) => p.tvMarket === market).map(
+          (p) => p.tvSymbol,
+        );
+        if (tickers.length === 0) return Promise.resolve(null);
+        return fetch(
+          `/api/market?type=tv&market=${market}&symbols=${encodeURIComponent(tickers.join(","))}`,
+        ).then((r) => r.json());
+      }),
+    );
+
+    const quotes = new Map<string, TvQuote>();
+    results.forEach((result) => {
+      if (result.status !== "fulfilled" || !result.value?.data) return;
+      result.value.data.forEach((item: { s: string; d: unknown[] }) => {
+        const [name, close, open, changePct, changeAbs] = item.d as [
+          string,
+          number,
+          number,
+          number,
+          number,
+        ];
+        if (typeof close !== "number") return;
+        quotes.set(item.s, {
+          close,
+          changeAbs: typeof changeAbs === "number" ? changeAbs : close - (open ?? close),
+          changePct: typeof changePct === "number" ? changePct : 0,
+        });
+      });
+    });
+
+    setMarketData((prev) =>
+      prev.map((item) => {
+        const quote = quotes.get(item.tvSymbol);
+        if (!quote) return item;
+        return {
+          ...item,
+          price: quote.close,
+          change: quote.changeAbs,
+          changePercent: quote.changePct,
+        };
+      }),
+    );
+  }, []);
+
+  // Fetch real sparkline data: CoinGecko for crypto, Yahoo Finance for forex/metals
+  const fetchSparklines = useCallback(async () => {
+    const updates = new Map<string, { image?: string; sparkline: number[] }>();
+
+    // Crypto: CoinGecko markets endpoint (logo + 7d sparkline in one call)
+    const cryptoPairs = PAIRS.filter((p) => p.type === "crypto" && p.coinId);
+    try {
+      const coinIds = cryptoPairs.map((p) => p.coinId).join(",");
+      const res = await fetch(
+        `/api/market?type=coingecko&ids=${encodeURIComponent(coinIds)}`,
+      );
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        data.forEach((coin: any) => {
+          updates.set(coin.id, {
+            image: coin.image || "",
+            sparkline: sampleSeries(coin.sparkline_in_7d?.price ?? []),
+          });
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching crypto sparklines:", error);
+    }
+
+    // Forex/metals: Yahoo Finance chart API (hourly closes, last day)
+    const forexPairs = PAIRS.filter((p) => p.yahooSymbol);
+    await Promise.allSettled(
+      forexPairs.map(async (pair) => {
+        try {
+          const res = await fetch(
+            `/api/market?type=yahoo&symbol=${encodeURIComponent(pair.yahooSymbol!)}`,
+          );
+          const json = await res.json();
+          const closes: number[] =
+            json?.chart?.result?.[0]?.indicators?.quote?.[0]?.close ?? [];
+          updates.set(pair.symbol, {
+            sparkline: sampleSeries(closes),
+          });
+        } catch (error) {
+          console.error(`Error fetching sparkline for ${pair.symbol}:`, error);
+        }
+      }),
+    );
+
+    setMarketData((prev) =>
+      prev.map((item) => {
+        const update = item.coinId
+          ? updates.get(item.coinId)
+          : updates.get(item.symbol);
+        if (!update) return item;
+        return { ...item, ...update };
+      }),
+    );
+  }, []);
+
+  const refreshAll = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await Promise.allSettled([fetchPrices(), fetchSparklines()]);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [fetchPrices, fetchSparklines]);
 
   useEffect(() => {
-    // Fetch crypto logos from CoinGecko and prepare forex data
-    const fetchMarketData = async () => {
-      try {
-        // Get only crypto pairs for CoinGecko API
-        const cryptoPairs = allPairs.filter(pair => pair.type === "crypto");
-        const coinIds = cryptoPairs.map((crypto) => crypto.coinId).join(",");
-        const response = await fetch(
-          `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${coinIds}&order=market_cap_desc&per_page=10&page=1&sparkline=false`,
-        );
-        const data = await response.json();
+    // Initialize pair list, then fetch live data
+    setMarketData(PAIRS.map((p) => ({ ...p, price: 0, change: 0, changePercent: 0, sparkline: [] })));
 
-        // Create a map of coinId to image for quick lookup
-        const cryptoImageMap = new Map();
-        cryptoPairs.forEach((crypto) => {
-          const coinGeckoData = data.find((item: any) => item.id === crypto.coinId);
-          cryptoImageMap.set(crypto.coinId, coinGeckoData?.image || "");
-        });
+    fetchPrices().finally(() => setMarketLoading(false));
+    fetchSparklines();
 
-        // Update all pairs maintaining original mixed order
-        const updatedData = allPairs.map((pair) => {
-          if (pair.type === "crypto" && pair.coinId) {
-            return {
-              ...pair,
-              image: cryptoImageMap.get(pair.coinId) || "",
-            };
-          }
-          return pair; // Forex pairs remain unchanged
-        });
-
-        setMarketData(updatedData);
-        setMarketLoading(false);
-      } catch (error) {
-        console.error("Error fetching market data:", error);
-        setMarketData(allPairs);
-        setMarketLoading(false);
-      }
-    };
-
-    fetchMarketData();
-
-    // Update time every second
+    // Update clock every second
     const updateTime = () => {
-      const now = new Date();
-      setFormattedTime(now.toLocaleTimeString());
+      setFormattedTime(new Date().toLocaleTimeString());
     };
-
     updateTime();
     const timeInterval = setInterval(updateTime, 1000);
 
-    // Simulate real-time price updates every 2 seconds
-    const priceInterval = setInterval(() => {
-      setMarketData((prevData) =>
-        prevData.map((item) => ({
-          ...item,
-          price: item.price + (Math.random() - 0.5) * item.price * 0.001,
-          change: (Math.random() - 0.5) * item.price * 0.002,
-          changePercent: (Math.random() - 0.5) * 2,
-        }))
-      );
-    }, 2000);
+    // Poll live prices from TradingView
+    const priceInterval = setInterval(fetchPrices, PRICE_POLL_MS);
 
-    // Simulate real-time price updates every 2 seconds
-    const priceInterval2 = setInterval(() => {
-      setMarketData((prevData) =>
-        prevData.map((item) => ({
-          ...item,
-          price: item.price + (Math.random() - 0.5) * item.price * 0.001,
-          change: (Math.random() - 0.5) * item.price * 0.002,
-          changePercent: (Math.random() - 0.5) * 2,
-        }))
-      );
-    }, 2000);
+    // Refresh sparkline series periodically
+    const sparklineInterval = setInterval(fetchSparklines, SPARKLINE_POLL_MS);
 
     return () => {
       clearInterval(timeInterval);
       clearInterval(priceInterval);
+      clearInterval(sparklineInterval);
     };
-  }, []);
+  }, [fetchPrices, fetchSparklines]);
 
   // Refresh function
-  const refreshMarketData = async () => {
-    setIsRefreshing(true);
-    try {
-      // Get only crypto pairs for CoinGecko API
-      const cryptoPairs = allPairs.filter(pair => pair.type === "crypto");
-      const coinIds = cryptoPairs.map((crypto) => crypto.coinId).join(",");
-      const response = await fetch(
-        `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${coinIds}&order=market_cap_desc&per_page=10&page=1&sparkline=false`,
-      );
-      const data = await response.json();
-
-      // Create a map of coinId to image for quick lookup
-      const cryptoImageMap = new Map();
-      cryptoPairs.forEach((crypto) => {
-        const coinGeckoData = data.find((item: any) => item.id === crypto.coinId);
-        cryptoImageMap.set(crypto.coinId, coinGeckoData?.image || "");
-      });
-
-      // Update all pairs maintaining original mixed order
-      const updatedData = allPairs.map((pair) => {
-        if (pair.type === "crypto" && pair.coinId) {
-          return {
-            ...pair,
-            image: cryptoImageMap.get(pair.coinId) || "",
-            price: pair.price + (Math.random() - 0.5) * pair.price * 0.005, // Add some variation
-            change: (Math.random() - 0.5) * pair.price * 0.01,
-            changePercent: (Math.random() - 0.5) * 5,
-          };
-        }
-        return {
-          ...pair,
-          price: pair.price + (Math.random() - 0.5) * pair.price * 0.005, // Add some variation for forex too
-          change: (Math.random() - 0.5) * pair.price * 0.01,
-          changePercent: (Math.random() - 0.5) * 5,
-        };
-      });
-
-      setMarketData(updatedData);
-    } catch (error) {
-      console.error("Error refreshing market data:", error);
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
+  const refreshMarketData = refreshAll;
 
   const formatPrice = (price: number, type: "forex" | "crypto") => {
     if (type === "crypto") {
@@ -381,10 +409,36 @@ export default function LiveMarkets() {
     return price.toFixed(4);
   };
 
-  const formatChange = (change: number, changePercent: number) => {
+  const formatChange = (change: number, type: "forex" | "crypto") => {
+    const isPositive = change >= 0;
+    const value = type === "crypto"
+      ? change.toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })
+      : Math.abs(change) < 1
+        ? change.toFixed(5)
+        : Math.abs(change) < 10
+          ? change.toFixed(4)
+          : change.toFixed(3);
+    return (
+      <div className={`flex items-center gap-1 whitespace-nowrap justify-end ${isPositive ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}>
+        {isPositive ? (
+          <TrendingUp className="w-3 h-3 flex-shrink-0" />
+        ) : (
+          <TrendingDown className="w-3 h-3 flex-shrink-0" />
+        )}
+        <span className="font-medium text-xs">{value}</span>
+      </div>
+    );
+  };
+
+  const formatChangePercent = (change: number, changePercent: number) => {
     const isPositive = change >= 0;
     return (
-      <div className={`flex items-center gap-1 whitespace-nowrap ${isPositive ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}>
+      <div className={`flex items-center gap-1 whitespace-nowrap justify-end ${isPositive ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}>
         {isPositive ? (
           <TrendingUp className="w-3 h-3 flex-shrink-0" />
         ) : (
@@ -398,70 +452,10 @@ export default function LiveMarkets() {
     );
   };
 
-  // Mini Sparkline Component for Trend Visualization
-  const MiniSparkline = ({ isPositive }: { isPositive: boolean }) => {
-    const generateSparklineData = () => {
-      const points = 8;
-      const data = [];
-      let baseValue = 50;
-
-      for (let i = 0; i < points; i++) {
-        const volatility = Math.random() * 20 - 10;
-        const trend = isPositive ? i * 2 : -i * 2;
-        baseValue += volatility + trend * 0.5;
-        data.push(Math.max(10, Math.min(90, baseValue)));
-      }
-
-      return data;
-    };
-
-    const sparklineData = generateSparklineData();
-    const maxData = Math.max(...sparklineData);
-    const minData = Math.min(...sparklineData);
-    const range = maxData - minData || 1;
-
-    const pathData = sparklineData
-      .map((value, index) => {
-        const x = (index / (sparklineData.length - 1)) * 100;
-        const y = ((maxData - value) / range) * 80 + 10;
-        return `${index === 0 ? "M" : "L"} ${x} ${y}`;
-      })
-      .join(" ");
-
-    return (
-      <div className="relative w-12 h-6">
-        <svg
-          viewBox="0 0 100 100"
-          className={`w-full h-full ${isPositive ? "text-green-500" : "text-red-500"}`}
-        >
-          <path
-            d={pathData}
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            opacity="0.8"
-          />
-          <circle
-            cx="100"
-            cy={
-              ((maxData - sparklineData[sparklineData.length - 1]) / range) *
-                80 +
-              10
-            }
-            r="3"
-            fill="currentColor"
-          />
-        </svg>
-      </div>
-    );
-  };
-
   return (
     <section className="mx-auto max-w-[1400px] px-0 lg:px-0 pt-10 w-full relative">
       {/* Background gradient */}
-      
+
       <div className="container mx-auto">
         {/* Header */}
         <div className="container mx-auto">
@@ -488,13 +482,13 @@ export default function LiveMarkets() {
         {/* Market Data Table */}
         <div className="bg-white dark:bg-[#0f1623] border border-gray-200/80 dark:border-white/[0.06] rounded-2xl overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.02)] dark:shadow-none">
           <div className="overflow-x-auto">
-            <div className="min-w-[800px]">
+            <div className="min-w-[900px]">
               {/* Header Row */}
               <div className="flex justify-between items-center bg-gray-50/50 dark:bg-white/[0.04] border-b border-gray-100 dark:border-white/[0.05] px-6 py-4">
-                <div className="flex-1 text-[11px] font-black uppercase tracking-widest text-gray-400 dark:text-slate-600">Asset</div>
-                <div className="flex-1 text-right text-[11px] font-black uppercase tracking-widest text-gray-400 dark:text-slate-600">Price</div>
-                <div className="flex-1 text-right text-[11px] font-black uppercase tracking-widest text-gray-400 dark:text-slate-600">24h Change</div>
-                <div className="flex-1 text-center text-[11px] font-black uppercase tracking-widest text-gray-400 dark:text-slate-600">Trend</div>
+                <div className="flex-[1.4] text-[11px] font-black uppercase tracking-widest text-gray-400 dark:text-slate-600">Symbol</div>
+                <div className="flex-1 text-right text-[11px] font-black uppercase tracking-widest text-gray-400 dark:text-slate-600">Last</div>
+                <div className="flex-1 text-right text-[11px] font-black uppercase tracking-widest text-gray-400 dark:text-slate-600">Chg</div>
+                <div className="flex-1 text-right text-[11px] font-black uppercase tracking-widest text-gray-400 dark:text-slate-600">Chg%</div>
                 <div className="flex-1 text-right text-[11px] font-black uppercase tracking-widest text-gray-400 dark:text-slate-600">Type</div>
               </div>
 
@@ -503,10 +497,10 @@ export default function LiveMarkets() {
                 {marketLoading
                   ? Array.from({ length: 10 }).map((_, i) => (
                       <div key={i} className="flex justify-between items-center px-6 py-4 animate-pulse">
-                        <div className="flex-1 h-4 bg-gray-200 dark:bg-white/[0.08] rounded w-32"></div>
+                        <div className="flex-[1.4] h-4 bg-gray-200 dark:bg-white/[0.08] rounded w-32"></div>
                         <div className="flex-1 h-4 bg-gray-200 dark:bg-white/[0.08] rounded w-20 ml-auto"></div>
-                        <div className="flex-1 h-4 bg-gray-200 dark:bg-white/[0.08] rounded w-20 ml-auto"></div>
-                        <div className="flex-1 h-4 bg-gray-200 dark:bg-white/[0.08] rounded w-12 mx-auto"></div>
+                        <div className="flex-1 h-4 bg-gray-200 dark:bg-white/[0.08] rounded w-16 ml-auto"></div>
+                        <div className="flex-1 h-4 bg-gray-200 dark:bg-white/[0.08] rounded w-16 ml-auto"></div>
                         <div className="flex-1 h-4 bg-gray-200 dark:bg-white/[0.08] rounded w-10 ml-auto"></div>
                       </div>
                     ))
@@ -516,7 +510,7 @@ export default function LiveMarkets() {
                         className="flex justify-between items-center px-6 py-4 hover:bg-gray-50/50 dark:hover:bg-[#131b2b] transition-colors flex-nowrap"
                       >
                         {/* Asset */}
-                        <div className="flex-1 flex items-center gap-3 min-w-0">
+                        <div className="flex-[1.4] flex items-center gap-3 min-w-0">
                           <div className="relative flex-shrink-0">
                             {item.type === "crypto" ? (
                               // Crypto logos
@@ -575,17 +569,17 @@ export default function LiveMarkets() {
                           </div>
                         </div>
 
-                        {/* Change */}
+                        {/* Chg */}
                         <div className="flex-1 text-right">
                           <div className="inline-block">
-                            {formatChange(item.change, item.changePercent)}
+                            {formatChange(item.change, item.type)}
                           </div>
                         </div>
 
-                        {/* Trend */}
-                        <div className="flex-1 flex justify-center">
-                          <div className="w-16">
-                            <MiniSparkline isPositive={item.changePercent >= 0} />
+                        {/* Chg% */}
+                        <div className="flex-1 text-right">
+                          <div className="inline-block">
+                            {formatChangePercent(item.change, item.changePercent)}
                           </div>
                         </div>
 
