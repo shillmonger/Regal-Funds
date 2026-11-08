@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { signIn } from "next-auth/react";
@@ -25,7 +25,7 @@ const cardBackground = "bg-white";
 const inputBackground = "bg-white";
 const inputBorderColor = "border-gray-200";
 
-export default function RegisterPage() {
+function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -45,7 +45,9 @@ export default function RegisterPage() {
     if (q && !form.referralCode) {
       setForm((f) => ({ ...f, referralCode: q }));
     }
-  }, [searchParams]);
+    // Prefetch dashboard so post-signup navigation is instant
+    router.prefetch("/user-dashboard/dashboard");
+  }, [searchParams, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.id]: e.target.value });
@@ -251,5 +253,13 @@ export default function RegisterPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="text-center mt-20">Loading...</div>}>
+      <RegisterForm />
+    </Suspense>
   );
 }

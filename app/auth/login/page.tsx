@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { signIn } from "next-auth/react";
@@ -32,8 +32,16 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const rawCallbackUrl = searchParams.get("callbackUrl");
   const callbackUrl =
-    searchParams.get("callbackUrl") || "/user-dashboard/dashboard";
+    rawCallbackUrl && rawCallbackUrl.startsWith("/") && !rawCallbackUrl.startsWith("//")
+      ? rawCallbackUrl
+      : "/user-dashboard/dashboard";
+
+  // Prefetch the dashboard so post-login navigation is instant (no reload feel)
+  useEffect(() => {
+    router.prefetch(callbackUrl);
+  }, [router, callbackUrl]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.id]: e.target.value });
@@ -55,9 +63,9 @@ function LoginForm() {
       if (result.error) throw new Error(result.error);
 
       toast.success("Login successful");
-      router.push(result.url || "/user-dashboard/dashboard");
-    } catch (error: any) {
-      toast.error(error.message || "Login failed!");
+      router.push(callbackUrl);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Login failed!");
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
 import { Montserrat } from "next/font/google";
 import { usePathname } from "next/navigation";
@@ -140,17 +139,29 @@ export default function Footer() {
         () => {}
       );
       if (isInitial) {
-        api.addEvent?.("Initial page visit", {
-          url,
-          path: pathname,
-          referrer: document.referrer || "",
-        });
+        api.addEvent?.(
+  "initial-page-visit",
+  {
+    url,
+    path: pathname,
+    referrer: document.referrer || "",
+  },
+  (error: any) => {
+    if (error) console.error("[Tawk] Initial visit error:", error);
+  }
+);
       } else {
-        api.addEvent?.("Page navigation", {
-          from: fromUrl ?? "",
-          to: url,
-          path: pathname,
-        });
+        api.addEvent?.(
+  "page-navigation",
+  {
+    from: fromUrl ?? "",
+    to: url,
+    path: pathname,
+  },
+  (error: any) => {
+    if (error) console.error("[Tawk] Navigation error:", error);
+  }
+);
       }
     });
   }, [pathname]);
@@ -169,7 +180,7 @@ export default function Footer() {
         {/* Logo + Platform Description */}
         <div className="flex flex-col space-y-6 md:col-span-4 lg:col-span-2">
           <div>
-            <Link href="/" className="flex items-center gap-3 group">
+            <a href="/" className="flex items-center gap-3 group">
               <div className="relative w-[220px] h-[45px]">
                 <Image
                   src="https://www.regalfm.com/irmcustomizationfile/574/regal_logo_inverte"
@@ -180,7 +191,7 @@ export default function Footer() {
                   unoptimized
                 />
               </div>
-            </Link>
+            </a>
             <p className="mt-5 leading-relaxed text-gray-300 max-w-lg text-sm sm:text-[17px]">
               Regal Funds Management is a multi-award winning specialist alternatives investment manager, pioneering the hedge fund, private markets and alternatives industry in Australia since 2004.
             </p>
@@ -193,14 +204,14 @@ export default function Footer() {
             </h3>
             <div className="flex flex-wrap gap-4">
               {socialLinks.map((social) => (
-                <Link
+                <a
                   key={social.name}
                   href={social.href}
                   className="p-3 bg-gray-700/50 rounded-lg hover:bg-white hover:text-[#3c4654] transition-all duration-300 shadow-sm border border-gray-600"
                   title={social.name}
                 >
                   {social.icon}
-                </Link>
+                </a>
               ))}
             </div>
           </div>
@@ -210,10 +221,10 @@ export default function Footer() {
         <div className="flex flex-col space-y-4">
           <h3 className="text-[15px] font-bold uppercase tracking-tight text-white">Investor Area</h3>
           <ul className="space-y-2 text-gray-300 text-xs sm:text-[15px]">
-            <li><Link href="/landing-pages/strategies" className="hover:text-white hover:underline transition-colors">Investment Strategies</Link></li>
-            <li><Link href="/landing-pages/about" className="hover:text-white hover:underline transition-colors">About Us</Link></li>
-            <li><Link href="/landing-pages/team" className="hover:text-white hover:underline transition-colors">Our Team</Link></li>
-            <li><Link href="/landing-pages/contact" className="hover:text-white hover:underline transition-colors">Contact Us</Link></li>
+            <li><a href="/landing-pages/strategies" className="hover:text-white hover:underline transition-colors">Investment Strategies</a></li>
+            <li><a href="/landing-pages/about" className="hover:text-white hover:underline transition-colors">About Us</a></li>
+            <li><a href="/landing-pages/team" className="hover:text-white hover:underline transition-colors">Our Team</a></li>
+            <li><a href="/landing-pages/contact" className="hover:text-white hover:underline transition-colors">Contact Us</a></li>
           </ul>
         </div>
 
@@ -221,10 +232,10 @@ export default function Footer() {
         <div className="flex flex-col space-y-4">
           <h3 className="text-[15px] font-bold uppercase tracking-tight text-white">Company</h3>
           <ul className="space-y-2 text-gray-300 text-xs sm:text-[15px]">
-            <li><Link href="/landing-pages/about#regal-partners" className="hover:text-white hover:underline transition-colors">Regal Partners (ASX:RPL)</Link></li>
-            <li><Link href="/landing-pages/about#news" className="hover:text-white hover:underline transition-colors">News & Insights</Link></li>
-            <li><Link href="/landing-pages/strategies" className="hover:text-white hover:underline transition-colors">Our Strategies</Link></li>
-            <li><Link href="/landing-pages/team" className="hover:text-white hover:underline transition-colors">Leadership Team</Link></li>
+            <li><a href="/landing-pages/about#regal-partners" className="hover:text-white hover:underline transition-colors">Regal Partners (ASX:RPL)</a></li>
+            <li><a href="/landing-pages/about#news" className="hover:text-white hover:underline transition-colors">News & Insights</a></li>
+            <li><a href="/landing-pages/strategies" className="hover:text-white hover:underline transition-colors">Our Strategies</a></li>
+            <li><a href="/landing-pages/team" className="hover:text-white hover:underline transition-colors">Leadership Team</a></li>
           </ul>
         </div>
 
@@ -234,9 +245,9 @@ export default function Footer() {
             Legal
           </h3>
           <ul className="space-y-2 text-gray-300 text-xs sm:text-[15px]">
-            <li><Link href="/auth/login" className="hover:text-white hover:underline transition-colors">Investor Login</Link></li>
-            <li><Link href="/auth/register" className="hover:text-white hover:underline transition-colors">Investor Register</Link></li>
-            <li><Link href="/landing-pages/contact" className="hover:text-white hover:underline transition-colors">Contact Support</Link></li>
+            <li><a href="/auth/login" className="hover:text-white hover:underline transition-colors">Investor Login</a></li>
+            <li><a href="/auth/register" className="hover:text-white hover:underline transition-colors">Investor Register</a></li>
+            <li><a href="/landing-pages/contact" className="hover:text-white hover:underline transition-colors">Contact Support</a></li>
           </ul>
         </div>
       </div>

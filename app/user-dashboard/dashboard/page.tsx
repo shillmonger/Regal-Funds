@@ -76,8 +76,10 @@ function ActivityRow({ activity, index }: { activity: any; index: number }) {
   const statusMap: Record<string, { label: string; className: string }> = {
     completed: { label: "Completed", className: "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-400/10 border-emerald-200 dark:border-emerald-400/20" },
     approved:  { label: "Approved",  className: "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-400/10 border-emerald-200 dark:border-emerald-400/20" },
+    paid:      { label: "Paid",      className: "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-400/10 border-emerald-200 dark:border-emerald-400/20" },
     active:    { label: "Active",    className: "text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-400/10 border-sky-200 dark:border-sky-400/20" },
     pending:   { label: "Pending",   className: "text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-400/10 border-amber-200 dark:border-amber-400/20" },
+    rejected:  { label: "Rejected",  className: "text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-400/10 border-rose-200 dark:border-rose-400/20" },
   };
   const { label: statusLabel, className: statusClass } =
     statusMap[status] ?? { label: status, className: "text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-400/10 border-rose-200 dark:border-rose-400/20" };
