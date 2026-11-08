@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
+// import Link from "next/link"; // commented out - using <a> tags for full page refresh
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
@@ -37,7 +37,7 @@ export default function Navbar() {
       <nav className="fixed top-0 left-0 w-full z-50 bg-[#373E50] py-3 transition-all duration-300">
         <div className="px-4 sm:px-8 md:px-16 lg:px-20 flex items-center justify-between">
           {/* Logo */}
-          <Link href="/">
+          {/* <Link href="/">
             <div className="flex items-center">
               <img
                 src={
@@ -51,12 +51,27 @@ export default function Navbar() {
                 }`}
               />
             </div>
-          </Link>
+          </Link> */}
+          <a href="/">
+            <div className="flex items-center">
+              <img
+                src={
+                  isScrolled
+                    ? "https://www.regalfm.com/content/images/regal_shield.png"
+                    : "https://www.regalfm.com/irmcustomizationfile/574/regal_logo_inverte"
+                }
+                alt="Regal Funds Logo"
+                className={`object-contain transition-all duration-300 ${
+                  isScrolled ? "h-10" : "h-12"
+                }`}
+              />
+            </div>
+          </a>
 
           {/* Desktop Links - Centered */}
           <div className="hidden lg:flex gap-6 xl:gap-10 absolute left-1/2 transform -translate-x-1/2">
             {links.map((link) => (
-              <Link
+              /* <Link
                 key={link.href}
                 href={link.href}
                 className={`text-sm font-medium tracking-wide transition-colors whitespace-nowrap ${
@@ -66,20 +81,39 @@ export default function Navbar() {
                 }`}
               >
                 {link.name}
-              </Link>
+              </Link> */
+              <a
+                key={link.href}
+                href={link.href}
+                className={`text-sm font-medium tracking-wide transition-colors whitespace-nowrap ${
+                  isActive(link.href)
+                    ? "text-white"
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                {link.name}
+              </a>
             ))}
           </div>
 
           {/* Desktop Login Button */}
           <div className="hidden lg:block">
-            <Link href="/auth/login">
+            {/* <Link href="/auth/login">
               <Button
                 variant="outline"
                 className="bg-[#4a5866] hover:bg-[#5a6876] cursor-pointer border-none text-white px-6 py-5 text-sm font-medium tracking-wide rounded-none transition-all"
               >
                 INVESTOR LOGIN
               </Button>
-            </Link>
+            </Link> */}
+            <a href="/auth/login">
+              <Button
+                variant="outline"
+                className="bg-[#4a5866] hover:bg-[#5a6876] cursor-pointer border-none text-white px-6 py-5 text-sm font-medium tracking-wide rounded-none transition-all"
+              >
+                INVESTOR LOGIN
+              </Button>
+            </a>
           </div>
 
           {/* Mobile Hamburger */}
@@ -117,7 +151,7 @@ export default function Navbar() {
             {/* Nav Links */}
             <div className="flex flex-col gap-6 mt-16">
               {links.map((link) => (
-                <Link
+                /* <Link
                   key={link.href}
                   href={link.href}
                   className={`text-base font-medium tracking-wide transition-colors ${
@@ -128,14 +162,26 @@ export default function Navbar() {
                   onClick={() => setIsOpen(false)}
                 >
                   {link.name}
-                </Link>
+                </Link> */
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className={`text-base font-medium tracking-wide transition-colors ${
+                    isActive(link.href)
+                      ? "text-white"
+                      : "text-gray-400 hover:text-white"
+                  }`}
+                  onClick={() => setIsOpen(false)}
+                >
+                  {link.name}
+                </a>
               ))}
             </div>
           </div>
 
           {/* Mobile Auth Buttons Positioned At The Very Bottom */}
           <div className="flex flex-col gap-3 mt-auto pb-4">
-            <Link href="/auth/login" onClick={() => setIsOpen(false)}>
+            {/* <Link href="/auth/login" onClick={() => setIsOpen(false)}>
               <Button className="cursor-pointer bg-[#4a5866] hover:bg-[#5a6876] border-none text-white w-full py-6 rounded-none text-sm tracking-wide">
                 INVESTOR LOGIN
               </Button>
@@ -145,7 +191,18 @@ export default function Navbar() {
               <Button className="cursor-pointer bg-[#4a5866] hover:bg-[#5a6876] border-none text-white w-full py-6 rounded-none text-sm tracking-wide">
                 START INVESTING
               </Button>
-            </Link>
+            </Link> */}
+            <a href="/auth/login" onClick={() => setIsOpen(false)}>
+              <Button className="cursor-pointer bg-[#4a5866] hover:bg-[#5a6876] border-none text-white w-full py-6 rounded-none text-sm tracking-wide">
+                INVESTOR LOGIN
+              </Button>
+            </a>
+
+            <a href="/auth/register" onClick={() => setIsOpen(false)}>
+              <Button className="cursor-pointer bg-[#4a5866] hover:bg-[#5a6876] border-none text-white w-full py-6 rounded-none text-sm tracking-wide">
+                START INVESTING
+              </Button>
+            </a>
           </div>
         </div>
       </div>
